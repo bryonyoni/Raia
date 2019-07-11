@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "175600430662",
+    "firebase_url": "https://raia-thepeople.firebaseio.com",
+    "project_id": "raia-thepeople",
+    "storage_bucket": "raia-thepeople.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:175600430662:android:f8c69faa8c656203",
+        "android_client_info": {
+          "package_name": "com.bry.raia"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "175600430662-nv4alb2nq77tvofeg2oh8icoubukupt0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC2kskBUfl6ElGH0l_gmyX-TTwQvZrgB0E"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "175600430662-nv4alb2nq77tvofeg2oh8icoubukupt0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
