@@ -786,7 +786,8 @@ public class Authenticator extends AppCompatActivity {
 //        passwordRetypeEditText.setFocusable(false);
         passwordRetypeEditText.setEnabled(false);
         nextButton.setClickable(false);
-
+        viewPasswordImageView.setClickable(false);
+        viewLoginPasswordImageView.setClickable(false);
     }
 
     private void hideLoadingScreens(){
@@ -799,6 +800,8 @@ public class Authenticator extends AppCompatActivity {
 //        passwordRetypeEditText.setFocusable(true);
         passwordRetypeEditText.setEnabled(true);
         nextButton.setClickable(true);
+        viewPasswordImageView.setClickable(true);
+        viewLoginPasswordImageView.setClickable(true);
     }
 
 
@@ -1155,6 +1158,10 @@ public class Authenticator extends AppCompatActivity {
         passwordRetypeEditText.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
         LoginPasswordEditText.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
 
+        passwordEditText.setSelection(passwordEditText.getText().length());
+        passwordRetypeEditText.setSelection(passwordRetypeEditText.getText().length());
+        LoginPasswordEditText.setSelection(LoginPasswordEditText.getText().length());
+
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
@@ -1170,6 +1177,10 @@ public class Authenticator extends AppCompatActivity {
         passwordRetypeEditText.setTypeface(Typeface.DEFAULT);
         LoginPasswordEditText.setInputType(129);
         LoginPasswordEditText.setTypeface(Typeface.DEFAULT);
+
+        passwordEditText.setSelection(passwordEditText.getText().length());
+        passwordRetypeEditText.setSelection(passwordRetypeEditText.getText().length());
+        LoginPasswordEditText.setSelection(LoginPasswordEditText.getText().length());
     }
 
     private boolean isPasswordValid(String password){
