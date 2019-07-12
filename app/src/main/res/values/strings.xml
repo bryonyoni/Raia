@@ -1,3 +1,28 @@
 <resources>
     <string name="app_name">Raia</string>
+    <string name="sign_up">Sign Up.</string>
+    <string name="sign_in">Sign In.</string>
+    <string name="lets_get_you_an_account">Lets get you an account.</string>
+    <string name="your_name">Your Name.</string>
+    <string name="next">next.</string>
+    <string name="nice_next_your_email_address">Nice! next, your email address.</string>
+    <string name="your_email">Your Email.</string>
+    <string name="great_next_you_ll_need_a_password">"Great! Next, you\'ll need a password. Your password must contain 6 characters, AlphaNumeric(contain numbers and letters), one letter being uppercase, and a special character(like '#' or '$')"</string>
+    <string name="your_new_password">Your New Password.</string>
+    <string name="retype_that_new_password_please">Retype that new password, please.</string>
+    <string name="retype_that_password">Retype that password.</string>
+    <string name="no_internet_connection">You\'ll need an internet connection to continue.</string>
+    <string name="lets_get_you_signed_in">Lets get you signed in.</string>
+    <string name="and_your_password">And your password.</string>
+    <string name="your_password">Your Password.</string>
+    <string name="finish">FINISH</string>
+    <string name="log_in">LOG IN</string>
+    <string name="something_went_wrong">Something went wrong, just retry in a few moments.</string>
+    <string name="don_t_have_an_account_sign_up_here">Don\'t have an account? Sign up here.</string>
+    <string name="have_an_account_sign_in_here">Have an account? Sign in here.</string>
+    <string name="failed_sign_in">That didn\'t work, check what you\'ve typed in and retry.</string>
+    <string name="youll_need_a_password">You\'ll need a password.</string>
+    <string name="your_password_needs_to_be_at_least_6_characters">Your password needs to be at least 6 characters</string>
+    <string name="you_cant_use_that_as_a_password">You can\'t use that as a password.</string>
+    <string name="password_must_be_strong">The password must contain at least 6 AlphaNumeric characters(numbers and letters, one being uppercase), and 1 Special Character.</string>
 </resources>
