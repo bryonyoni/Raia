@@ -37,12 +37,12 @@
                     <ImageView
                         android:id="@+id/backImageView"
                         android:layout_centerVertical="true"
-                        android:layout_width="25dp"
+                        android:layout_width="20dp"
                         android:alpha="0"
-                        android:translationY="1dp"
+                        android:translationY="5dp"
                         android:visibility="invisible"
                         android:src="@drawable/ic_action_back"
-                        android:layout_height="25dp" />
+                        android:layout_height="20dp" />
 
                     <TextView
                         android:id="@+id/signUpTitle"
@@ -202,6 +202,16 @@
                     android:layout_marginTop="10dp"
                     android:layout_height="wrap_content">
 
+                    <ImageView
+                        android:id="@+id/viewPasswordImageView"
+                        android:layout_width="25dp"
+                        android:visibility="invisible"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="30dp"
+                        android:src="@drawable/ic_action_view_password"
+                        android:layout_marginRight="30dp"
+                        android:layout_height="25dp" />
+
                     <Button
                         android:id="@+id/nextButton"
                         android:layout_width="wrap_content"
@@ -254,12 +264,12 @@
 
                     <ImageView
                         android:id="@+id/loginBackImageView"
-                        android:layout_width="25dp"
+                        android:layout_width="20dp"
                         android:alpha="0"
-                        android:translationY="1dp"
+                        android:translationY="5dp"
                         android:visibility="invisible"
                         android:src="@drawable/ic_action_back"
-                        android:layout_height="25dp" />
+                        android:layout_height="20dp" />
 
                     <TextView
                         android:id="@+id/signInTitle"
@@ -349,6 +359,16 @@
                     android:layout_width="match_parent"
                     android:layout_marginTop="10dp"
                     android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/viewLoginPasswordImageView"
+                        android:layout_width="25dp"
+                        android:visibility="invisible"
+                        android:layout_centerVertical="true"
+                        android:layout_marginLeft="30dp"
+                        android:src="@drawable/ic_action_view_password"
+                        android:layout_marginRight="30dp"
+                        android:layout_height="25dp" />
 
                     <Button
                         android:id="@+id/loginNextButton"

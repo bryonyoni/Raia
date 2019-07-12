@@ -3,6 +3,7 @@ package com.bry.raia.Activities;
 import android.animation.Animator;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
@@ -11,6 +12,7 @@ import android.support.design.widget.Snackbar;
 import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.InputType;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
@@ -70,6 +72,7 @@ public class Authenticator extends AppCompatActivity {
     private String mEnteredLoginPasswordString = "";
     @Bind(R.id.loginNextButton) Button loginNextButton;
     @Bind(R.id.signUpLink) TextView signUpLink;
+    @Bind(R.id.viewLoginPasswordImageView) ImageView viewLoginPasswordImageView;
 
     /* progressbar layout part*/
     @Bind(R.id.progressBarRelativeLayout) RelativeLayout progressBarRelativeLayout;
@@ -100,7 +103,8 @@ public class Authenticator extends AppCompatActivity {
     private String mEnteredRetypedPasswordString = "";
     @Bind(R.id.nextButton) Button nextButton;
     @Bind(R.id.signInLink) TextView signInLink;
-
+    @Bind(R.id.viewPasswordImageView) ImageView viewPasswordImageView;
+    private boolean isPasswordVisible = false;
     private List<String> easyPasswords = new ArrayList<>(Arrays.asList
             ("123456", "987654","qwerty","asdfgh","zxcvbn","123456abc","123456qwe","987654qwe", "987654asd",""));
 
@@ -331,7 +335,29 @@ public class Authenticator extends AppCompatActivity {
                 }
             }
         });
+        viewLoginPasswordImageView.animate().scaleY(0f).scaleX(0f).setDuration(mAnimationDuration).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
 
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                viewLoginPasswordImageView.setVisibility(View.INVISIBLE);
+                viewLoginPasswordImageView.setScaleX(0f);
+                viewLoginPasswordImageView.setScaleY(0f);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        }).start();
     }
 
     private void setUpPasswordInputView() {
@@ -372,6 +398,37 @@ public class Authenticator extends AppCompatActivity {
                 else{
                     loginUser();
                 }
+            }
+        });
+
+        viewLoginPasswordImageView.setVisibility(View.VISIBLE);
+        viewLoginPasswordImageView.animate().scaleY(1f).scaleX(1f).setDuration(mAnimationDuration).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                viewLoginPasswordImageView.setVisibility(View.VISIBLE);
+                viewLoginPasswordImageView.setScaleX(1f);
+                viewLoginPasswordImageView.setScaleY(1f);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        }).start();
+        viewLoginPasswordImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                makePasswordReadable();
             }
         });
     }
@@ -880,6 +937,29 @@ public class Authenticator extends AppCompatActivity {
                 }
             }
         });
+        viewPasswordImageView.animate().scaleY(0f).scaleX(0f).setDuration(mAnimationDuration).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                viewPasswordImageView.setVisibility(View.INVISIBLE);
+                viewPasswordImageView.setScaleX(0f);
+                viewPasswordImageView.setScaleY(0f);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        }).start();
     }
 
     private boolean isValidEmail(String email) {
@@ -1005,7 +1085,7 @@ public class Authenticator extends AppCompatActivity {
                 if(mEnteredPasswordString.equals("")) passwordEditText.setError(getResources().getString(R.string.youll_need_a_password));
                 else if(mEnteredPasswordString.length() < 6) passwordEditText.setError(getResources().getString(R.string.your_password_needs_to_be_at_least_6_characters));
                 else if(easyPasswords.contains(mEnteredPasswordString)) passwordEditText.setError(getResources().getString(R.string.you_cant_use_that_as_a_password));
-                else if(!isPasswordValid(mEnteredPasswordString))passwordEditText.setError(getResources().getString(R.string.password_must_be_strong));
+//                else if(!isPasswordValid(mEnteredPasswordString))passwordEditText.setError(getResources().getString(R.string.password_must_be_strong));
                 else{
 //                    passwordEditText.setText("");
                     isShowingPasswordView = false;
@@ -1037,6 +1117,59 @@ public class Authenticator extends AppCompatActivity {
                 }
             }
         });
+
+        viewPasswordImageView.setVisibility(View.VISIBLE);
+        viewPasswordImageView.animate().scaleY(1f).scaleX(1f).setDuration(mAnimationDuration).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                viewPasswordImageView.setVisibility(View.VISIBLE);
+                viewPasswordImageView.setScaleX(1f);
+                viewPasswordImageView.setScaleY(1f);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animation) {
+
+            }
+        }).start();
+        viewPasswordImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                makePasswordReadable();
+            }
+        });
+    }
+
+    private void makePasswordReadable(){
+        passwordEditText.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        passwordRetypeEditText.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+        LoginPasswordEditText.setInputType(InputType.TYPE_TEXT_VARIATION_PASSWORD);
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                makePasswordUnreadable();
+            }
+        },2000);
+    }
+
+    private void makePasswordUnreadable(){
+        passwordEditText.setInputType(129);
+        passwordEditText.setTypeface(Typeface.DEFAULT);
+        passwordRetypeEditText.setInputType(129);
+        passwordRetypeEditText.setTypeface(Typeface.DEFAULT);
+        LoginPasswordEditText.setInputType(129);
+        LoginPasswordEditText.setTypeface(Typeface.DEFAULT);
     }
 
     private boolean isPasswordValid(String password){
@@ -1093,13 +1226,14 @@ public class Authenticator extends AppCompatActivity {
 
     @Override
     public void onBackPressed(){
-        if(!isShowingSpinner) {
-            if (isShowingLoginLayout) {
-                onSignUpBackPressed();
-            }else if(isShowingSignUpLayout){
-                onLoginBackPressed();
-            }else super.onBackPressed();
-        }
+//        if(!isShowingSpinner) {
+//            if (isShowingLoginLayout) {
+//                loginBackImageView.performClick();
+//            }else if(isShowingSignUpLayout){
+//                backImageView.performClick();
+//            }else super.onBackPressed();
+//        }
+        super.onBackPressed();
     }
 
     private void setUpNewUser() {
@@ -1142,7 +1276,6 @@ public class Authenticator extends AppCompatActivity {
             }
         });
     }
-
 
     private void loadMainActivity(){
         Intent intent = new Intent(Authenticator.this, MainActivity.class);

@@ -7,7 +7,7 @@
     <string name="next">next.</string>
     <string name="nice_next_your_email_address">Nice! next, your email address.</string>
     <string name="your_email">Your Email.</string>
-    <string name="great_next_you_ll_need_a_password">"Great! Next, you\'ll need a password. Your password must contain 6 characters, AlphaNumeric(contain numbers and letters), one letter being uppercase, and a special character(like '#' or '$')"</string>
+    <string name="great_next_you_ll_need_a_password">"Great! Next, you\'ll need a password. Your password must be at least 6 characters."</string>
     <string name="your_new_password">Your New Password.</string>
     <string name="retype_that_new_password_please">Retype that new password, please.</string>
     <string name="retype_that_password">Retype that password.</string>
