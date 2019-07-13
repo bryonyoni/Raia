@@ -25,4 +25,23 @@
     <string name="your_password_needs_to_be_at_least_6_characters">Your password needs to be at least 6 characters</string>
     <string name="you_cant_use_that_as_a_password">You can\'t use that as a password.</string>
     <string name="password_must_be_strong">The password must contain at least 6 AlphaNumeric characters(numbers and letters, one being uppercase), and 1 Special Character.</string>
+    <string name="upload_post">Upload Post.</string>
+    <string name="post_type">Post Type.</string>
+    <string name="pleas_pick_the_type_of_post_your_uploading">Pleas pick the type of post your uploading.</string>
+    <string name="announcement">Announcement.</string>
+    <string name="poll">Poll.</string>
+    <string name="petition">Petition.</string>
+    <string name="announcement_details">Announcement Details.</string>
+    <string name="upload">Upload.</string>
+    <string name="just_describe_what_your_announcing_and_a_photo_to_go_with_it">Just describe what your announcing and a photo to go with it.</string>
+    <string name="whats_the_big_announcement">Whats the big announcement?</string>
+    <string name="poll_details">Poll Details.</string>
+    <string name="describe_a_poll_question_for_users_to_decide_and_the_options_to_choose">Describe a poll question for users to decide and the options to choose.</string>
+    <string name="poll_question">Poll question...</string>
+    <string name="type_option">Type Option.</string>
+    <string name="poll_options">Poll Options.</string>
+    <string name="petition_details">Petition Details.</string>
+    <string name="describe_what_your_petition_is_about_and_a_photo_to_go_along_with_it">Describe what your petition is about and a photo to go along with it.</string>
+    <string name="what_s_the_petition_about">What\'s the petition about?</string>
+    <string name="gallery">Gallery.</string>
 </resources>
