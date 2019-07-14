@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:id="@+id/uploadActivityCoordinatorLayout"
     tools:context=".Activities.UploadPostActivity">
 
     <RelativeLayout
@@ -13,6 +14,7 @@
 
         <!--Contains the top bar and content views-->
         <LinearLayout
+            android:id="@+id/newPostLinearLayout"
             android:layout_width="match_parent"
             android:orientation="vertical"
             android:layout_height="match_parent">
@@ -28,6 +30,7 @@
                 android:layout_height="wrap_content">
 
                 <ImageView
+                    android:id="@+id/previousActivityImageView"
                     android:layout_width="25dp"
                     android:translationY="1dp"
                     android:src="@drawable/ic_action_activity_back"
@@ -49,6 +52,7 @@
 
                 <!--Contains the select post type part-->
                 <LinearLayout
+                    android:id="@+id/uploadSelectorLinearLayout"
                     android:layout_width="match_parent"
                     android:orientation="vertical"
                     android:visibility="visible"
@@ -75,6 +79,7 @@
                         android:layout_height="wrap_content" />
 
                     <LinearLayout
+                        android:id="@+id/openAnnouncementLinearLayout"
                         android:layout_width="match_parent"
                         android:layout_marginLeft="15dp"
                         android:layout_marginRight="15dp"
@@ -84,6 +89,7 @@
                         android:layout_height="wrap_content">
 
                         <ImageView
+                            android:id="@+id/openAnnouncementImageView"
                             android:layout_width="30dp"
                             android:src="@drawable/ic_action_announcement"
                             android:layout_height="30dp" />
@@ -100,6 +106,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/openPollLinearLayout"
                         android:layout_width="match_parent"
                         android:layout_marginLeft="15dp"
                         android:layout_marginRight="15dp"
@@ -109,6 +116,7 @@
                         android:layout_height="wrap_content">
 
                         <ImageView
+                            android:id="@+id/openPollImageView"
                             android:layout_width="30dp"
                             android:src="@drawable/ic_action_poll"
                             android:layout_height="30dp" />
@@ -125,6 +133,7 @@
                     </LinearLayout>
 
                     <LinearLayout
+                        android:id="@+id/openPetitionLinearLayout"
                         android:layout_width="match_parent"
                         android:layout_marginLeft="15dp"
                         android:layout_marginRight="15dp"
@@ -134,13 +143,14 @@
                         android:layout_height="wrap_content">
 
                         <ImageView
+                            android:id="@+id/openPetitionImageView"
                             android:layout_width="30dp"
                             android:src="@drawable/ic_action_petition"
                             android:layout_height="30dp" />
 
                         <TextView
                             android:layout_width="wrap_content"
-                            android:translationY="-3dp"
+                            android:translationY="-1dp"
                             android:text="@string/petition"
                             android:layout_gravity="center_vertical"
                             android:layout_marginLeft="15dp"
@@ -153,9 +163,12 @@
 
                 <!--Contains the announcement details part-->
                 <LinearLayout
+                    android:id="@+id/announcementFormLinearLayout"
                     android:layout_width="match_parent"
                     android:orientation="vertical"
                     android:visibility="gone"
+                    android:translationX="400dp"
+                    android:alpha="0"
                     android:background="@drawable/dialog_bg"
                     android:layout_margin="10dp"
                     android:padding="5dp"
@@ -176,6 +189,7 @@
                             android:layout_height="wrap_content">
 
                             <ImageView
+                                android:id="@+id/announcementPreviousImageView"
                                 android:layout_width="25dp"
                                 android:translationY="1dp"
                                 android:layout_gravity="center_vertical"
@@ -193,6 +207,7 @@
                         </LinearLayout>
 
                         <TextView
+                            android:id="@+id/uploadAnnouncementTextView"
                             android:layout_width="wrap_content"
                             android:text="@string/upload"
                             android:layout_marginEnd="10dp"
@@ -214,6 +229,7 @@
                         android:layout_height="wrap_content" />
 
                     <EditText
+                        android:id="@+id/announcementDetailsEditText"
                         android:layout_width="match_parent"
                         android:hint="@string/whats_the_big_announcement"
                         android:inputType="textMultiLine"
@@ -244,6 +260,7 @@
                             android:layout_height="wrap_content">
 
                             <ImageView
+                                android:id="@+id/openAnnouncementCameraImageView"
                                 android:layout_width="35dp"
                                 android:src="@drawable/ic_action_camera"
                                 android:layout_gravity="center_horizontal"
@@ -266,6 +283,7 @@
                             android:layout_height="wrap_content">
 
                             <ImageView
+                                android:id="@+id/openAnnouncementGalleryImageView"
                                 android:layout_width="35dp"
                                 android:translationY="2dp"
                                 android:src="@drawable/ic_action_open_gallery"
@@ -284,6 +302,7 @@
                     </LinearLayout>
 
                     <android.support.v7.widget.CardView
+                        android:id="@+id/selectedAnnouncementCardView"
                         android:layout_width="match_parent"
                         android:layout_marginTop="10dp"
                         android:layout_marginBottom="10dp"
@@ -298,9 +317,24 @@
                             android:layout_height="match_parent">
 
                             <ImageView
+                                android:id="@+id/selectedAnnouncementImageViewBack"
                                 android:layout_width="match_parent"
                                 android:scaleType="centerCrop"
+                                android:alpha="0.25"
                                 android:layout_height="match_parent" />
+
+                            <ImageView
+                                android:id="@+id/selectedAnnouncementImageView"
+                                android:layout_width="match_parent"
+                                android:scaleType="fitCenter"
+                                android:layout_height="match_parent" />
+
+                            <ProgressBar
+                                android:id="@+id/announcementBlurProgressBar"
+                                style="?android:attr/progressBarStyle"
+                                android:layout_alignParentEnd="true"
+                                android:layout_width="60dp"
+                                android:layout_height="60dp"/>
 
                         </RelativeLayout>
 
@@ -310,11 +344,14 @@
 
                 <!--Contains poll details part-->
                 <LinearLayout
+                    android:id="@+id/pollFormLinearLayout"
                     android:layout_width="match_parent"
                     android:orientation="vertical"
                     android:background="@drawable/dialog_bg"
                     android:layout_margin="10dp"
                     android:visibility="gone"
+                    android:alpha="0"
+                    android:translationX="400dp"
                     android:padding="5dp"
                     android:layout_height="wrap_content">
 
@@ -333,6 +370,7 @@
                             android:layout_height="wrap_content">
 
                             <ImageView
+                                android:id="@+id/pollPreviousImageView"
                                 android:layout_width="25dp"
                                 android:translationY="1dp"
                                 android:layout_gravity="center_vertical"
@@ -350,6 +388,7 @@
                         </LinearLayout>
 
                         <TextView
+                            android:id="@+id/uploadPollTextView"
                             android:layout_width="wrap_content"
                             android:text="@string/upload"
                             android:layout_marginEnd="10dp"
@@ -371,6 +410,7 @@
                         android:layout_height="wrap_content" />
 
                     <EditText
+                        android:id="@+id/pollQueryEditText"
                         android:layout_width="match_parent"
                         android:hint="@string/poll_question"
                         android:inputType="textMultiLine"
@@ -412,12 +452,14 @@
                             android:layout_height="wrap_content">
 
                             <ImageView
+                                android:id="@+id/addPollOptionImageView"
                                 android:layout_width="30dp"
                                 android:layout_gravity="center_vertical"
                                 android:background="@drawable/ic_action_add"
                                 android:layout_height="30dp" />
 
                             <EditText
+                                android:id="@+id/pollOptionEditText"
                                 android:layout_width="match_parent"
                                 android:layout_marginLeft="5dp"
                                 android:layout_marginRight="5dp"
@@ -434,6 +476,7 @@
 
                         <!--Options that have been decided. Only 4 can be picked-->
                         <LinearLayout
+                            android:id="@+id/addedOption1LinearLayout"
                             android:layout_width="match_parent"
                             android:orientation="horizontal"
                             android:visibility="gone"
@@ -442,12 +485,14 @@
                             android:layout_height="wrap_content">
 
                             <ImageView
+                                android:id="@+id/deleteAddedOption1ImageView"
                                 android:layout_width="20dp"
                                 android:layout_gravity="center_vertical"
                                 android:background="@drawable/ic_action_delete"
                                 android:layout_height="20dp" />
 
                             <TextView
+                                android:id="@+id/addedOption1TextView"
                                 android:layout_width="wrap_content"
                                 android:layout_marginLeft="20dp"
                                 android:layout_marginRight="20dp"
@@ -458,6 +503,7 @@
                         </LinearLayout>
 
                         <LinearLayout
+                            android:id="@+id/addedOption2LinearLayout"
                             android:layout_width="match_parent"
                             android:orientation="horizontal"
                             android:visibility="gone"
@@ -466,12 +512,14 @@
                             android:layout_height="wrap_content">
 
                             <ImageView
+                                android:id="@+id/deleteAddedOption2ImageView"
                                 android:layout_width="20dp"
                                 android:layout_gravity="center_vertical"
                                 android:background="@drawable/ic_action_delete"
                                 android:layout_height="20dp" />
 
                             <TextView
+                                android:id="@+id/addedOption2TextView"
                                 android:layout_width="wrap_content"
                                 android:layout_marginLeft="20dp"
                                 android:layout_marginRight="20dp"
@@ -482,6 +530,7 @@
                         </LinearLayout>
 
                         <LinearLayout
+                            android:id="@+id/addedOption3LinearLayout"
                             android:layout_width="match_parent"
                             android:orientation="horizontal"
                             android:visibility="gone"
@@ -490,12 +539,14 @@
                             android:layout_height="wrap_content">
 
                             <ImageView
+                                android:id="@+id/deleteAddedOption3ImageView"
                                 android:layout_width="20dp"
                                 android:layout_gravity="center_vertical"
                                 android:background="@drawable/ic_action_delete"
                                 android:layout_height="20dp" />
 
                             <TextView
+                                android:id="@+id/addedOption3TextView"
                                 android:layout_width="wrap_content"
                                 android:layout_marginLeft="20dp"
                                 android:layout_marginRight="20dp"
@@ -506,6 +557,7 @@
                         </LinearLayout>
 
                         <LinearLayout
+                            android:id="@+id/addedOption4LinearLayout"
                             android:layout_width="match_parent"
                             android:orientation="horizontal"
                             android:visibility="gone"
@@ -514,12 +566,14 @@
                             android:layout_height="wrap_content">
 
                             <ImageView
+                                android:id="@+id/deleteAddedOption4ImageView"
                                 android:layout_width="20dp"
                                 android:layout_gravity="center_vertical"
                                 android:background="@drawable/ic_action_delete"
                                 android:layout_height="20dp" />
 
                             <TextView
+                                android:id="@+id/addedOption4TextView"
                                 android:layout_width="wrap_content"
                                 android:layout_marginLeft="20dp"
                                 android:layout_marginRight="20dp"
@@ -536,7 +590,10 @@
 
                 <!--Contains the petition part-->
                 <LinearLayout
+                    android:id="@+id/petitionFormLinearLayout"
                     android:visibility="gone"
+                    android:alpha="0"
+                    android:translationX="400dp"
                     android:layout_width="match_parent"
                     android:orientation="vertical"
                     android:background="@drawable/dialog_bg"
@@ -559,6 +616,7 @@
                             android:layout_height="wrap_content">
 
                             <ImageView
+                                android:id="@+id/petitionPreviousImageView"
                                 android:layout_width="25dp"
                                 android:translationY="1dp"
                                 android:layout_gravity="center_vertical"
@@ -576,6 +634,7 @@
                         </LinearLayout>
 
                         <TextView
+                            android:id="@+id/uploadPetitionTextView"
                             android:layout_width="wrap_content"
                             android:text="@string/upload"
                             android:layout_marginEnd="10dp"
@@ -597,6 +656,7 @@
                         android:layout_height="wrap_content" />
 
                     <EditText
+                        android:id="@+id/petitionDetailsEditText"
                         android:layout_width="match_parent"
                         android:hint="@string/what_s_the_petition_about"
                         android:inputType="textMultiLine"
@@ -627,6 +687,7 @@
                             android:layout_height="wrap_content">
 
                             <ImageView
+                                android:id="@+id/openPetitionCameraImageView"
                                 android:layout_width="35dp"
                                 android:src="@drawable/ic_action_camera"
                                 android:layout_gravity="center_horizontal"
@@ -634,7 +695,7 @@
 
                             <TextView
                                 android:layout_width="wrap_content"
-                                android:text="Camera."
+                                android:text="@string/camera"
                                 android:textSize="14sp"
                                 android:layout_gravity="center_horizontal"
                                 android:layout_height="wrap_content" />
@@ -649,6 +710,7 @@
                             android:layout_height="wrap_content">
 
                             <ImageView
+                                android:id="@+id/openPetitionGalleryImageView"
                                 android:layout_width="35dp"
                                 android:translationY="2dp"
                                 android:src="@drawable/ic_action_open_gallery"
@@ -667,6 +729,7 @@
                     </LinearLayout>
 
                     <android.support.v7.widget.CardView
+                        android:id="@+id/selectedPetitionCardView"
                         android:layout_width="match_parent"
                         android:layout_marginTop="10dp"
                         android:layout_marginBottom="10dp"
@@ -681,19 +744,78 @@
                             android:layout_height="match_parent">
 
                             <ImageView
+                                android:id="@+id/selectedPetitionImageViewBack"
                                 android:layout_width="match_parent"
                                 android:scaleType="centerCrop"
+                                android:alpha="0.25"
+                                android:layout_height="match_parent" />
+
+                            <ImageView
+                                android:id="@+id/selectedPetitionImageView"
+                                android:layout_width="match_parent"
+                                android:scaleType="fitCenter"
                                 android:layout_height="match_parent" />
 
                             <ProgressBar
+                                android:id="@+id/petitionBlurProgressBar"
                                 style="?android:attr/progressBarStyle"
-                                android:layout_alignParentRight="true"
+                                android:layout_alignParentEnd="true"
                                 android:layout_width="60dp"
                                 android:layout_height="60dp"/>
 
                         </RelativeLayout>
 
                     </android.support.v7.widget.CardView>
+
+                </LinearLayout>
+
+                <!--Contains the finished up part-->
+                <LinearLayout
+                    android:id="@+id/finishedUpLinearLayout"
+                    android:visibility="gone"
+                    android:alpha="0"
+                    android:translationX="400dp"
+                    android:layout_width="match_parent"
+                    android:orientation="vertical"
+                    android:background="@drawable/dialog_bg"
+                    android:layout_margin="10dp"
+                    android:padding="5dp"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:text="@string/upload_success"
+                        android:layout_gravity="center_vertical"
+                        android:textColor="@color/titlecolor"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="20dp"
+                        android:layout_marginTop="10dp"
+                        android:textSize="17sp"
+                        android:layout_height="wrap_content" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:text="@string/your_post_has_been_uploaded"
+                        android:layout_marginLeft="20dp"
+                        android:layout_marginRight="20dp"
+                        android:layout_height="wrap_content" />
+
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+
+                        <Button
+                            android:id="@+id/finishUpButton"
+                            android:layout_width="wrap_content"
+                            android:text="@string/finish"
+                            android:layout_alignParentEnd="true"
+                            android:background="@null"
+                            android:layout_marginEnd="20dp"
+                            android:textColor="@color/titlecolor"
+                            android:layout_height="wrap_content" />
+
+                    </RelativeLayout>
+
 
                 </LinearLayout>
 

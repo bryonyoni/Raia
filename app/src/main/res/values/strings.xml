@@ -27,7 +27,7 @@
     <string name="password_must_be_strong">The password must contain at least 6 AlphaNumeric characters(numbers and letters, one being uppercase), and 1 Special Character.</string>
     <string name="upload_post">Upload Post.</string>
     <string name="post_type">Post Type.</string>
-    <string name="pleas_pick_the_type_of_post_your_uploading">Pleas pick the type of post your uploading.</string>
+    <string name="pleas_pick_the_type_of_post_your_uploading">Please pick the type of post your uploading.</string>
     <string name="announcement">Announcement.</string>
     <string name="poll">Poll.</string>
     <string name="petition">Petition.</string>
@@ -37,11 +37,18 @@
     <string name="whats_the_big_announcement">Whats the big announcement?</string>
     <string name="poll_details">Poll Details.</string>
     <string name="describe_a_poll_question_for_users_to_decide_and_the_options_to_choose">Describe a poll question for users to decide and the options to choose.</string>
-    <string name="poll_question">Poll question...</string>
+    <string name="poll_question">Poll question…</string>
     <string name="type_option">Type Option.</string>
     <string name="poll_options">Poll Options.</string>
     <string name="petition_details">Petition Details.</string>
     <string name="describe_what_your_petition_is_about_and_a_photo_to_go_along_with_it">Describe what your petition is about and a photo to go along with it.</string>
     <string name="what_s_the_petition_about">What\'s the petition about?</string>
     <string name="gallery">Gallery.</string>
+    <string name="youll_need_to_add_this">You\'ll need to add this.</string>
+    <string name="youll_need_to_add_an_image">Please set an image before doing that.</string>
+    <string name="upload_success">Upload Success.</string>
+    <string name="your_post_has_been_uploaded">Your post has been uploaded!</string>
+    <string name="maximum_of_4_poll_options_is_allowed">Maximum of 4 poll options is allowed.</string>
+    <string name="youll_need_to_add_an_option">You need to add a poll option.</string>
+    <string name="camera">Camera.</string>
 </resources>
