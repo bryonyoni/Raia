@@ -669,6 +669,7 @@ public class UploadPostActivity extends AppCompatActivity implements View.OnClic
                     PollOption pollOption = new PollOption(pollText);
                     pollOptions.add(pollOption);
                     setPollOptions();
+                    pollOptionEditText.setText("");
                 }
             }
         });
@@ -800,6 +801,7 @@ public class UploadPostActivity extends AppCompatActivity implements View.OnClic
                         BlurAnnouncementBackTask op = new BlurAnnouncementBackTask();
                         announcementBlurProgressBar.setVisibility(View.VISIBLE);
                         op.execute("");
+                        selectedAnnouncementImageViewBack.setImageBitmap(null);
                     }else if(isAtPetitionForm){
                         selectedPetitionImage = bm;
                         selectedPetitionCardView.setVisibility(View.VISIBLE);
@@ -808,6 +810,7 @@ public class UploadPostActivity extends AppCompatActivity implements View.OnClic
                         BlurPetitionBackTask op = new BlurPetitionBackTask();
                         petitionBlurProgressBar.setVisibility(View.VISIBLE);
                         op.execute("");
+                        selectedPetitionImageViewBack.setImageBitmap(null);
                     }
 
                 } catch (Exception e) {

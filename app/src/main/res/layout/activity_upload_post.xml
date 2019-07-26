@@ -5,6 +5,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="@color/background"
     android:id="@+id/uploadActivityCoordinatorLayout"
     tools:context=".Activities.UploadPostActivity">
 
@@ -25,7 +26,9 @@
                 android:orientation="horizontal"
                 android:background="@drawable/dialog_bg"
                 android:layout_margin="10dp"
-                android:padding="5dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:paddingStart="5dp"
                 android:gravity="center_vertical"
                 android:layout_height="wrap_content">
 
@@ -246,7 +249,7 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:orientation="horizontal"
+                        android:orientation="vertical"
                         android:layout_marginTop="10dp"
                         android:layout_marginBottom="10dp"
                         android:layout_marginLeft="15dp"
@@ -256,21 +259,21 @@
                         <!--Open camera layout-->
                         <LinearLayout
                             android:layout_width="wrap_content"
-                            android:orientation="vertical"
+                            android:orientation="horizontal"
                             android:layout_height="wrap_content">
 
                             <ImageView
                                 android:id="@+id/openAnnouncementCameraImageView"
                                 android:layout_width="35dp"
                                 android:src="@drawable/ic_action_camera"
-                                android:layout_gravity="center_horizontal"
+                                android:layout_gravity="center_vertical"
                                 android:layout_height="35dp" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:text="Camera."
                                 android:textSize="14sp"
-                                android:layout_gravity="center_horizontal"
+                                android:layout_gravity="center_vertical"
                                 android:layout_height="wrap_content" />
 
                         </LinearLayout>
@@ -278,7 +281,7 @@
                         <!--Open gallery layout-->
                         <LinearLayout
                             android:layout_width="wrap_content"
-                            android:orientation="vertical"
+                            android:orientation="horizontal"
                             android:layout_marginStart="20dp"
                             android:layout_height="wrap_content">
 
@@ -287,14 +290,14 @@
                                 android:layout_width="35dp"
                                 android:translationY="2dp"
                                 android:src="@drawable/ic_action_open_gallery"
-                                android:layout_gravity="center_horizontal"
+                                android:layout_gravity="center_vertical"
                                 android:layout_height="35dp" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:text="@string/gallery"
                                 android:textSize="14sp"
-                                android:layout_gravity="center_horizontal"
+                                android:layout_gravity="center_vertical"
                                 android:layout_height="wrap_content" />
 
                         </LinearLayout>
@@ -333,8 +336,8 @@
                                 android:id="@+id/announcementBlurProgressBar"
                                 style="?android:attr/progressBarStyle"
                                 android:layout_alignParentEnd="true"
-                                android:layout_width="60dp"
-                                android:layout_height="60dp"/>
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"/>
 
                         </RelativeLayout>
 
@@ -673,7 +676,7 @@
 
                     <LinearLayout
                         android:layout_width="match_parent"
-                        android:orientation="horizontal"
+                        android:orientation="vertical"
                         android:layout_marginTop="10dp"
                         android:layout_marginBottom="10dp"
                         android:layout_marginLeft="15dp"
@@ -683,21 +686,21 @@
                         <!--Open camera layout-->
                         <LinearLayout
                             android:layout_width="wrap_content"
-                            android:orientation="vertical"
+                            android:orientation="horizontal"
                             android:layout_height="wrap_content">
 
                             <ImageView
                                 android:id="@+id/openPetitionCameraImageView"
                                 android:layout_width="35dp"
                                 android:src="@drawable/ic_action_camera"
-                                android:layout_gravity="center_horizontal"
+                                android:layout_gravity="center_vertical"
                                 android:layout_height="35dp" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:text="@string/camera"
                                 android:textSize="14sp"
-                                android:layout_gravity="center_horizontal"
+                                android:layout_gravity="center_vertical"
                                 android:layout_height="wrap_content" />
 
                         </LinearLayout>
@@ -705,7 +708,7 @@
                         <!--Open gallery layout-->
                         <LinearLayout
                             android:layout_width="wrap_content"
-                            android:orientation="vertical"
+                            android:orientation="horizontal"
                             android:layout_marginStart="20dp"
                             android:layout_height="wrap_content">
 
@@ -714,14 +717,14 @@
                                 android:layout_width="35dp"
                                 android:translationY="2dp"
                                 android:src="@drawable/ic_action_open_gallery"
-                                android:layout_gravity="center_horizontal"
+                                android:layout_gravity="center_vertical"
                                 android:layout_height="35dp" />
 
                             <TextView
                                 android:layout_width="wrap_content"
                                 android:text="@string/gallery"
                                 android:textSize="14sp"
-                                android:layout_gravity="center_horizontal"
+                                android:layout_gravity="center_vertical"
                                 android:layout_height="wrap_content" />
 
                         </LinearLayout>
@@ -760,8 +763,9 @@
                                 android:id="@+id/petitionBlurProgressBar"
                                 style="?android:attr/progressBarStyle"
                                 android:layout_alignParentEnd="true"
-                                android:layout_width="60dp"
-                                android:layout_height="60dp"/>
+                                android:layout_margin="10dp"
+                                android:layout_width="30dp"
+                                android:layout_height="30dp"/>
 
                         </RelativeLayout>
 
