@@ -51,4 +51,5 @@
     <string name="maximum_of_4_poll_options_is_allowed">Maximum of 4 poll options is allowed.</string>
     <string name="youll_need_to_add_an_option">You need to add a poll option.</string>
     <string name="camera">Camera.</string>
+    <string name="your_county">Your County.</string>
 </resources>
