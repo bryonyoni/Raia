@@ -52,4 +52,6 @@
     <string name="youll_need_to_add_an_option">You need to add a poll option.</string>
     <string name="camera">Camera.</string>
     <string name="your_county">Your County.</string>
+    <string name="search_a_county">Search A County...</string>
+    <string name="your_feed">Your feed.</string>
 </resources>

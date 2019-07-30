@@ -11,6 +11,19 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <!--Layout for loading posts-->
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <android.support.v7.widget.RecyclerView
+                android:layout_width="match_parent"
+                android:layout_marginTop="80dp"
+                android:layout_marginBottom="80dp"
+                android:layout_height="match_parent"/>
+
+        </RelativeLayout>
+
         <!--Top bar part-->
         <RelativeLayout
             android:layout_width="match_parent"
@@ -38,7 +51,7 @@
 
                 <TextView
                     android:layout_width="wrap_content"
-                    android:text="@string/your_county"
+                    android:text="@string/your_feed"
                     android:layout_marginLeft="10dp"
                     android:textColor="@color/titlecolor"
                     android:textSize="21sp"
@@ -101,17 +114,91 @@
 
         </RelativeLayout>
 
-        <RelativeLayout
+        <!--Search part-->
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:orientation="vertical"
+            android:visibility="gone"
+            android:layout_height="wrap_content">
 
-            <android.support.v7.widget.RecyclerView
+            <LinearLayout
                 android:layout_width="match_parent"
-                android:layout_marginTop="80dp"
-                android:layout_marginBottom="80dp"
-                android:layout_height="match_parent"/>
+                android:orientation="vertical"
+                android:background="@drawable/dialog_bg"
+                android:layout_margin="10dp"
+                android:paddingTop="10dp"
+                android:paddingBottom="10dp"
+                android:paddingStart="5dp"
+                android:paddingEnd="10dp"
+                android:layout_height="wrap_content">
 
-        </RelativeLayout>
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:orientation="horizontal"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:layout_width="35dp"
+                        android:layout_gravity="center_vertical"
+                        android:src="@drawable/ic_action_activity_back"
+                        android:layout_height="35dp" />
+
+                    <EditText
+                        android:layout_width="match_parent"
+                        android:layout_gravity="center_vertical"
+                        android:background="@color/white"
+                        android:hint="@string/search_a_county"
+                        android:padding="10dp"
+                        android:textSize="12sp"
+                        android:layout_height="wrap_content" />
+
+                </LinearLayout>
+
+                <!--List of selected Counties-->
+                <android.support.v7.widget.RecyclerView
+                    android:layout_width="match_parent"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_height="wrap_content"/>
+
+            </LinearLayout>
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="5dp"
+                android:background="@drawable/dialog_bg"
+                android:layout_height="wrap_content">
+                
+                <!--Layout for all counties counties-->
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_marginLeft="15dp"
+                    android:layout_marginRight="15dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_marginBottom="10dp"
+                    android:orientation="vertical"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:text="All Counties."
+                        android:textColor="@color/colorPrimaryDark"
+                        android:layout_height="wrap_content" />
+
+                    <android.support.v7.widget.RecyclerView
+                        android:layout_width="match_parent"
+                        android:layout_marginTop="5dp"
+                        android:layout_height="wrap_content"/>
+                    
+                </LinearLayout>
+
+
+            </RelativeLayout>
+
+        </LinearLayout>
 
         <!--Bottom dock bar part-->
         <RelativeLayout
