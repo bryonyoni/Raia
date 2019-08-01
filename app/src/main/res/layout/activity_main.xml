@@ -17,10 +17,18 @@
             android:layout_height="match_parent">
 
             <android.support.v7.widget.RecyclerView
+                android:id="@+id/loadedPostsRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_marginTop="80dp"
                 android:layout_marginBottom="80dp"
                 android:layout_height="match_parent"/>
+
+            <ProgressBar
+                android:id="@+id/loadFeedProgressBar"
+                style="?android:attr/progressBarStyle"
+                android:layout_centerInParent="true"
+                android:layout_width="60dp"
+                android:layout_height="60dp"/>
 
         </RelativeLayout>
 
@@ -74,6 +82,7 @@
                     android:layout_height="wrap_content">
 
                     <ImageView
+                        android:id="@+id/filterImageView"
                         android:layout_width="30dp"
                         android:translationY="2dp"
                         android:layout_gravity="center_horizontal"
@@ -89,6 +98,7 @@
                     android:layout_height="wrap_content">
 
                     <ImageView
+                        android:id="@+id/feedbackImageView"
                         android:layout_width="30dp"
                         android:translationY="2dp"
                         android:layout_gravity="center_horizontal"
@@ -103,6 +113,7 @@
                     android:layout_height="wrap_content">
 
                     <ImageView
+                        android:id="@+id/accountImageView"
                         android:layout_width="30dp"
                         android:layout_gravity="center_horizontal"
                         android:src="@drawable/ic_action_account"
@@ -116,6 +127,7 @@
 
         <!--Search part-->
         <LinearLayout
+            android:id="@+id/searchLinearLayout"
             android:layout_width="match_parent"
             android:orientation="vertical"
             android:visibility="gone"
@@ -138,12 +150,14 @@
                     android:layout_height="wrap_content">
 
                     <ImageView
+                        android:id="@+id/backImageView"
                         android:layout_width="35dp"
                         android:layout_gravity="center_vertical"
                         android:src="@drawable/ic_action_activity_back"
                         android:layout_height="35dp" />
 
                     <EditText
+                        android:id="@+id/searchCountyEditText"
                         android:layout_width="match_parent"
                         android:layout_gravity="center_vertical"
                         android:background="@color/white"
@@ -156,6 +170,7 @@
 
                 <!--List of selected Counties-->
                 <android.support.v7.widget.RecyclerView
+                    android:id="@+id/selectedCountiesRecyclerView"
                     android:layout_width="match_parent"
                     android:layout_marginTop="5dp"
                     android:layout_marginLeft="20dp"
@@ -189,6 +204,7 @@
                         android:layout_height="wrap_content" />
 
                     <android.support.v7.widget.RecyclerView
+                        android:id="@+id/allCountiesRecyclerView"
                         android:layout_width="match_parent"
                         android:layout_marginTop="5dp"
                         android:layout_height="wrap_content"/>
@@ -202,101 +218,106 @@
 
         <!--Bottom dock bar part-->
         <RelativeLayout
-        android:layout_width="match_parent"
-        android:background="@drawable/dialog_bg"
-        android:layout_margin="10dp"
-        android:paddingTop="10dp"
-        android:layout_alignParentBottom="true"
-        android:paddingBottom="10dp"
-        android:paddingStart="5dp"
-        android:layout_height="wrap_content">
-
-        <LinearLayout
             android:layout_width="match_parent"
-            android:orientation="horizontal"
-            android:gravity="center_horizontal"
-            android:paddingRight="10dp"
-            android:paddingLeft="10dp"
+            android:background="@drawable/dialog_bg"
+            android:layout_margin="10dp"
+            android:paddingTop="10dp"
+            android:layout_alignParentBottom="true"
+            android:paddingBottom="10dp"
+            android:paddingStart="5dp"
             android:layout_height="wrap_content">
 
             <LinearLayout
-                android:layout_width="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginRight="20dp"
-                android:layout_marginLeft="20dp"
+                android:layout_width="match_parent"
+                android:orientation="horizontal"
+                android:gravity="center_horizontal"
+                android:paddingRight="10dp"
+                android:paddingLeft="10dp"
                 android:layout_height="wrap_content">
 
-                <ImageView
-                    android:layout_width="35dp"
-                    android:layout_gravity="center_horizontal"
-                    android:src="@drawable/ic_action_polls"
-                    android:layout_height="35dp" />
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/PollsImageView"
+                        android:layout_width="35dp"
+                        android:layout_gravity="center_horizontal"
+                        android:src="@drawable/ic_action_polls"
+                        android:layout_height="35dp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/announcementsImageView"
+                        android:layout_width="35dp"
+                        android:layout_gravity="center_horizontal"
+                        android:src="@drawable/ic_action_announcement"
+                        android:layout_height="35dp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/uploadPostImageView"
+                        android:layout_width="35dp"
+                        android:layout_gravity="center_horizontal"
+                        android:src="@drawable/ic_action_upload"
+                        android:layout_height="35dp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/petitionsImageView"
+                        android:layout_width="35dp"
+                        android:layout_gravity="center_horizontal"
+                        android:src="@drawable/ic_action_petition"
+                        android:layout_height="35dp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:orientation="vertical"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_height="wrap_content">
+
+                    <ImageView
+                        android:id="@+id/messagesImageView"
+                        android:layout_width="35dp"
+                        android:layout_gravity="center_horizontal"
+                        android:src="@drawable/ic_action_message"
+                        android:layout_height="35dp" />
+
+                </LinearLayout>
 
             </LinearLayout>
 
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginRight="20dp"
-                android:layout_marginLeft="20dp"
-                android:layout_height="wrap_content">
-
-                <ImageView
-                    android:layout_width="35dp"
-                    android:layout_gravity="center_horizontal"
-                    android:src="@drawable/ic_action_announcement"
-                    android:layout_height="35dp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginRight="20dp"
-                android:layout_marginLeft="20dp"
-                android:layout_height="wrap_content">
-
-                <ImageView
-                    android:layout_width="35dp"
-                    android:layout_gravity="center_horizontal"
-                    android:src="@drawable/ic_action_upload"
-                    android:layout_height="35dp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginRight="20dp"
-                android:layout_marginLeft="20dp"
-                android:layout_height="wrap_content">
-
-                <ImageView
-                    android:layout_width="35dp"
-                    android:layout_gravity="center_horizontal"
-                    android:src="@drawable/ic_action_petition"
-                    android:layout_height="35dp" />
-
-            </LinearLayout>
-
-            <LinearLayout
-                android:layout_width="wrap_content"
-                android:orientation="vertical"
-                android:layout_marginRight="20dp"
-                android:layout_marginLeft="20dp"
-                android:layout_height="wrap_content">
-
-                <ImageView
-                    android:layout_width="35dp"
-                    android:layout_gravity="center_horizontal"
-                    android:src="@drawable/ic_action_message"
-                    android:layout_height="35dp" />
-
-            </LinearLayout>
-
-        </LinearLayout>
-
-    </RelativeLayout>
+        </RelativeLayout>
 
     </RelativeLayout>
 

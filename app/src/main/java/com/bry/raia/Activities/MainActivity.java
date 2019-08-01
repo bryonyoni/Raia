@@ -1,19 +1,243 @@
 package com.bry.raia.Activities;
 
+import android.content.Context;
 import android.content.Intent;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 
+import com.bry.raia.Constants;
+import com.bry.raia.Models.Announcement;
+import com.bry.raia.Models.Petition;
+import com.bry.raia.Models.Poll;
+import com.bry.raia.Models.Post;
 import com.bry.raia.R;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
-public class MainActivity extends AppCompatActivity {
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
+
+import butterknife.Bind;
+import butterknife.ButterKnife;
+
+public class MainActivity extends AppCompatActivity implements View.OnClickListener{
+    private final String TAG = MainActivity.class.getSimpleName();
+    private Context mContext;
+
+    @Bind(R.id.filterImageView) ImageView filterImageView;
+    @Bind(R.id.feedbackImageView) ImageView feedbackImageView;
+    @Bind(R.id.accountImageView) ImageView accountImageView;
+
+    @Bind(R.id.searchLinearLayout) LinearLayout searchLinearLayout;
+    @Bind(R.id.backImageView) ImageView backImageView;
+    @Bind(R.id.searchCountyEditText) EditText searchCountyEditText;
+    @Bind(R.id.selectedCountiesRecyclerView) RecyclerView selectedCountiesRecyclerView;
+    @Bind(R.id.allCountiesRecyclerView) RecyclerView allCountiesRecyclerView;
+
+    @Bind(R.id.PollsImageView) ImageView PollsImageView;
+    @Bind(R.id.announcementsImageView) ImageView announcementsImageView;
+    @Bind(R.id.uploadPostImageView) ImageView uploadPostImageView;
+    @Bind(R.id.petitionsImageView) ImageView petitionsImageView;
+    @Bind(R.id.messagesImageView) ImageView messagesImageView;
+
+    @Bind(R.id.loadedPostsRecyclerView) RecyclerView loadedPostsRecyclerView;
+    @Bind(R.id.loadFeedProgressBar) ProgressBar loadFeedProgressBar;
+
+    private List<Post> allLoadedPosts = new ArrayList<>();
+    private List<Announcement> allLoadedAnnouncements = new ArrayList<>();
+    private boolean hasAnnouncementsLoaded = false;
+    private List<Petition> allLoadedPetitions = new ArrayList<>();
+    private boolean hasPetitionsLoaded = false;
+    private List<Poll> allLoadedPolls = new ArrayList<>();
+    private boolean hasPollsLoaded = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        ButterKnife.bind(this);
+        mContext = getApplicationContext();
 
+        setClickListeners();
+        loadPosts();
+    }
+
+    private void setClickListeners() {
+        PollsImageView.setOnClickListener(this);
+        announcementsImageView.setOnClickListener(this);
+        uploadPostImageView.setOnClickListener(this);
+        petitionsImageView.setOnClickListener(this);
+        messagesImageView.setOnClickListener(this);
+
+        filterImageView.setOnClickListener(this);
+        feedbackImageView.setOnClickListener(this);
+        accountImageView.setOnClickListener(this);
+    }
+
+    @Override
+    public void onClick(View v) {
+        if (v.equals(PollsImageView)){
+
+        }else if(v.equals(announcementsImageView)){
+
+        }else if(v.equals(uploadPostImageView)){
+            startActivity(new Intent(MainActivity.this, UploadPostActivity.class));
+
+        }else if(v.equals(petitionsImageView)){
+
+        }else if(v.equals(messagesImageView)){
+
+        }
+
+        else if(v.equals(filterImageView)){
+
+        }else if(v.equals(feedbackImageView)){
+
+        }else if(v.equals(accountImageView)){
+
+        }
+    }
+
+
+    private void loadPosts() {
+        loadedPostsRecyclerView.setVisibility(View.GONE);
+        loadFeedProgressBar.setVisibility(View.VISIBLE);
+
+        DatabaseReference announcementRef = FirebaseDatabase.getInstance().getReference(Constants.ANNOUNCEMENTS);
+        announcementRef.limitToFirst(Constants.POST_LOADING_LIMIT).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+                    for (DataSnapshot snap: dataSnapshot.getChildren()) {
+                        Announcement announcement = snap.getValue(Announcement.class);
+                        Post p = new Post();
+                        p.setAnnouncement(announcement);
+
+                        allLoadedPosts.add(p);
+                        allLoadedAnnouncements.add(announcement);
+                    }
+                }
+                hasAnnouncementsLoaded = true;
+
+                if(hasAnnouncementsLoaded && hasPetitionsLoaded && hasPollsLoaded){
+                    sortPosts();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        DatabaseReference petitionsRef = FirebaseDatabase.getInstance().getReference(Constants.PETITIONS);
+        petitionsRef.limitToFirst(Constants.POST_LOADING_LIMIT).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+                    for(DataSnapshot snap: dataSnapshot.getChildren()){
+                        Petition petition = snap.getValue(Petition.class);
+                        Post p = new Post();
+                        p.setPetition(petition);
+
+                        allLoadedPosts.add(p);
+                        allLoadedPetitions.add(petition);
+                    }
+                }
+                hasPetitionsLoaded = true;
+
+                if(hasAnnouncementsLoaded && hasPetitionsLoaded && hasPollsLoaded){
+                    sortPosts();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        DatabaseReference pollsRef = FirebaseDatabase.getInstance().getReference(Constants.POLLS);
+        pollsRef.limitToFirst(Constants.POST_LOADING_LIMIT).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+                    for(DataSnapshot snap: dataSnapshot.getChildren()){
+                        Poll poll = snap.getValue(Poll.class);
+                        Post p = new Post();
+                        p.setPoll(poll);
+
+                        allLoadedPosts.add(p);
+                        allLoadedPolls.add(poll);
+                    }
+                }
+                hasPollsLoaded = true;
+
+                if(hasAnnouncementsLoaded && hasPetitionsLoaded && hasPollsLoaded){
+                    sortPosts();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
 
     }
+
+    private void sortPosts() {
+        hasPollsLoaded = false;
+        hasPetitionsLoaded = false;
+        hasAnnouncementsLoaded = false;
+
+        HashMap<Long,Post> postsHashMap = new LinkedHashMap<>();
+        for(Post p: allLoadedPosts){
+            if(p.getPostType().equals(Constants.ANNOUNCEMENTS)){
+                //its a announcement
+                Long time = p.getAnnouncement().getAnnouncementCreationTime();
+                postsHashMap.put(time,p);
+
+            }else if(p.getPostType().equals(Constants.PETITIONS)){
+                //its a petition
+                Long time = p.getPetition().getPetitionCreationTime();
+                postsHashMap.put(time,p);
+
+            }else{
+                //its a poll
+                Long time = p.getPoll().getPollCreationTime();
+                postsHashMap.put(time,p);
+            }
+
+        }
+
+        List<Long> timesToSort = new ArrayList<>(postsHashMap.keySet());
+        Collections.sort(timesToSort);
+
+        allLoadedPosts.clear();
+        for(Long time:timesToSort) {
+            allLoadedPosts.add(postsHashMap.get(time));
+        }
+
+        loadPostsIntoRecyclerView();
+    }
+
+    private void loadPostsIntoRecyclerView() {
+
+    }
+
+
 }

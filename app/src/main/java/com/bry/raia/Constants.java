@@ -19,4 +19,6 @@ public class Constants {
     public static final String PETITIONS = "Petitions";
     public static final String UPLOADED_PETITIONS = "MyPetitions";
 
+    public static final int POST_LOADING_LIMIT = 100;
+
 }
