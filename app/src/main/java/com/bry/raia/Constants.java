@@ -20,5 +20,6 @@ public class Constants {
     public static final String UPLOADED_PETITIONS = "MyPetitions";
 
     public static final int POST_LOADING_LIMIT = 100;
+    public static final int MAX_POLL_AMOUNT = 4;
 
 }

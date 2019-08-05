@@ -664,7 +664,7 @@ public class UploadPostActivity extends AppCompatActivity implements View.OnClic
             public void onClick(View v) {
                 String pollText = pollOptionEditText.getText().toString().trim();
                 if(pollText.equals(""))pollOptionEditText.setError(getResources().getString(R.string.youll_need_to_add_this));
-                else if(pollOptions.size()==4) pollOptionEditText.setError(getResources().getString(R.string.maximum_of_4_poll_options_is_allowed));
+                else if(pollOptions.size()==Constants.MAX_POLL_AMOUNT) pollOptionEditText.setError(getResources().getString(R.string.maximum_of_4_poll_options_is_allowed));
                 else{
                     PollOption pollOption = new PollOption(pollText);
                     pollOptions.add(pollOption);
