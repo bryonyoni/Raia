@@ -122,6 +122,7 @@ public class Authenticator extends AppCompatActivity {
             public void onAuthStateChanged(@NonNull FirebaseAuth firebaseAuth){
                 final FirebaseUser user = firebaseAuth.getCurrentUser();
                 if(user != null){
+                    new DatabaseManager(mContext,"").loadUserDataFromFirebase();
                     Log.d(TAG,"User was found, opening main activity");
                     loadMainActivity();
                 }

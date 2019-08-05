@@ -108,7 +108,9 @@ public class UploadPostActivity extends AppCompatActivity implements View.OnClic
     @Bind(R.id.petitionPreviousImageView) ImageView petitionPreviousImageView;
     @Bind(R.id.uploadPetitionTextView) TextView uploadPetitionTextView;
     @Bind(R.id.petitionDetailsEditText) EditText petitionDetailsEditText;
+    @Bind(R.id.petitionSignatureTargetEditText) EditText petitionSignatureTargetEditText;
     private String petitionDetailsText = "";
+    private long targetPetitionSignatureNumber = 100;
     @Bind(R.id.openPetitionCameraImageView) ImageView openPetitionCameraImageView;
     @Bind(R.id.openPetitionGalleryImageView) ImageView openPetitionGalleryImageView;
     private Bitmap selectedPetitionImage = null;
@@ -488,15 +490,20 @@ public class UploadPostActivity extends AppCompatActivity implements View.OnClic
             @Override
             public void onClick(View v) {
                 petitionDetailsText = petitionDetailsEditText.getText().toString().trim();
+                if(!petitionSignatureTargetEditText.getText().toString().trim().equals(""))targetPetitionSignatureNumber = Long.parseLong(petitionSignatureTargetEditText.getText().toString().trim());
                 if(petitionDetailsText.equals(""))petitionDetailsEditText.setError(getResources().getString(R.string.youll_need_to_add_this));
                 else if(selectedPetitionImage == null) {
                     Snackbar.make(uploadActivityCoordinatorLayout, getResources().getString(R.string.youll_need_to_add_an_image), Snackbar.LENGTH_LONG).show();
+                }
+                else if(petitionSignatureTargetEditText.getText().toString().trim().equals("")){
+                    petitionSignatureTargetEditText.setError(getResources().getString(R.string.youll_need_to_add_this));
                 }else{
                     showLoadingScreens();
                     String imageString = encodeBitmapForFirebaseStorage(selectedPetitionImage);
                     String SUCCESSFUL_INTENT = "SUCCESSFUL_INTENT";
 
                     Petition petition = new Petition(petitionDetailsText,imageString,Calendar.getInstance().getTimeInMillis());
+                    petition.setPetitionSignatureTarget(targetPetitionSignatureNumber);
                     new DatabaseManager(mContext,SUCCESSFUL_INTENT).uploadPetition(petition);
 
                     LocalBroadcastManager.getInstance(mContext).registerReceiver(new BroadcastReceiver() {
@@ -617,7 +624,7 @@ public class UploadPostActivity extends AppCompatActivity implements View.OnClic
             public void onClick(View v) {
                 pollQueryText = pollQueryEditText.getText().toString().trim();
                 if(pollQueryText.equals(""))pollOptionEditText.setError(getResources().getString(R.string.youll_need_to_add_this));
-                else if(pollOptions.isEmpty()){
+                else if(pollOptions.size()<2){
                     Snackbar.make(uploadActivityCoordinatorLayout, getResources().getString(R.string.youll_need_to_add_an_option), Snackbar.LENGTH_LONG).show();
                 }else{
                     Poll poll = new Poll(pollQueryText,pollOptions);
@@ -685,6 +692,7 @@ public class UploadPostActivity extends AppCompatActivity implements View.OnClic
             if(i==0){
                 addedOption1LinearLayout.setVisibility(View.VISIBLE);
                 addedOption1TextView.setText(pollOptions.get(i).getOptionText());
+                pollOptions.get(i).setOptionId(""+i);
                 final int finalI = i;
                 deleteAddedOption1ImageView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -696,6 +704,7 @@ public class UploadPostActivity extends AppCompatActivity implements View.OnClic
             }else if(i==1){
                 addedOption2LinearLayout.setVisibility(View.VISIBLE);
                 addedOption2TextView.setText(pollOptions.get(i).getOptionText());
+                pollOptions.get(i).setOptionId(""+i);
                 final int finalI = i;
                 deleteAddedOption2ImageView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -707,6 +716,7 @@ public class UploadPostActivity extends AppCompatActivity implements View.OnClic
             }else if(i==2){
                 addedOption3LinearLayout.setVisibility(View.VISIBLE);
                 addedOption3TextView.setText(pollOptions.get(i).getOptionText());
+                pollOptions.get(i).setOptionId(""+i);
                 final int finalI = i;
                 deleteAddedOption3ImageView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -718,6 +728,7 @@ public class UploadPostActivity extends AppCompatActivity implements View.OnClic
             }else if(i==3){
                 addedOption4LinearLayout.setVisibility(View.VISIBLE);
                 addedOption4TextView.setText(pollOptions.get(i).getOptionText());
+                pollOptions.get(i).setOptionId(""+i);
                 final int finalI = i;
                 deleteAddedOption4ImageView.setOnClickListener(new View.OnClickListener() {
                     @Override

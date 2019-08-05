@@ -35,4 +35,8 @@ public class PollOption {
     public void setVotes(long votes) {
         this.votes = votes;
     }
+
+    public void addVote(){
+        votes++;
+    }
 }

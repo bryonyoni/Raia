@@ -153,4 +153,10 @@ public class DatabaseManager {
 
         return this;
     }
+
+    public DatabaseManager addVoteToPoll(Poll p, String optionId){
+
+
+        return this;
+    }
 }

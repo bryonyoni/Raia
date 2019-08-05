@@ -2,10 +2,14 @@ package com.bry.raia.Activities;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
+import android.util.Base64;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -232,12 +236,51 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             allLoadedPosts.add(postsHashMap.get(time));
         }
 
-        loadPostsIntoRecyclerView();
+        generateBitmapsFromPostTask gbfpt = new generateBitmapsFromPostTask();
+        gbfpt.execute("");
+    }
+
+    protected class generateBitmapsFromPostTask extends AsyncTask<String, Void, String> {
+
+        @Override
+        protected String doInBackground(String... strings) {
+            loadThePostImagesAsBitmaps();
+            return "executed";
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            super.onPostExecute(result);
+            loadPostsIntoRecyclerView();
+        }
+
+    }
+
+    private void loadThePostImagesAsBitmaps(){
+        for(Post p: allLoadedPosts){
+            if(p.getPostType().equals(Constants.ANNOUNCEMENTS)){
+                //its a announcement
+                p.getAnnouncement().setAnnouncementBitmap(decodeFromFirebaseBase64(p.getAnnouncement().getEncodedAnnouncementImage()));
+            }else if(p.getPostType().equals(Constants.PETITIONS)){
+                //its a petition
+                p.getPetition().setPetitionBitmap(decodeFromFirebaseBase64(p.getPetition().getEncodedPetitionImage()));
+
+            }else{
+                //its a poll
+
+            }
+
+        }
     }
 
     private void loadPostsIntoRecyclerView() {
 
     }
 
+
+    private Bitmap decodeFromFirebaseBase64(String image) {
+        byte[] decodedByteArray = android.util.Base64.decode(image, Base64.DEFAULT);
+        return BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
+    }
 
 }

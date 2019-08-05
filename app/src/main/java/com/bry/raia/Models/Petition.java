@@ -2,6 +2,10 @@ package com.bry.raia.Models;
 
 import android.graphics.Bitmap;
 
+import java.security.Signature;
+import java.util.ArrayList;
+import java.util.List;
+
 public class Petition {
     private String petitionId;
     private String petitionTitle;
@@ -11,6 +15,9 @@ public class Petition {
     private String uploaderId;
     private String uploaderUsername;
     private String uploaderEmail;
+    private County county;
+    private List<PetitionSignature> signatures = new ArrayList<>();
+    private long petitionSignatureTarget;
 
 
 
@@ -86,5 +93,34 @@ public class Petition {
 
     public void setEncodedPetitionImage(String encodedPetitionImage) {
         this.encodedPetitionImage = encodedPetitionImage;
+    }
+
+    public County getCounty() {
+        return county;
+    }
+
+    public void setCounty(County county) {
+        this.county = county;
+    }
+
+
+    public List<PetitionSignature> getSignatures() {
+        return signatures;
+    }
+
+    public void setSignatures(List<PetitionSignature> signatures) {
+        this.signatures = signatures;
+    }
+
+    public void addSignature(PetitionSignature signature){
+        this.signatures.add(signature);
+    }
+
+    public long getPetitionSignatureTarget() {
+        return petitionSignatureTarget;
+    }
+
+    public void setPetitionSignatureTarget(long petitionSignatureTarget) {
+        this.petitionSignatureTarget = petitionSignatureTarget;
     }
 }

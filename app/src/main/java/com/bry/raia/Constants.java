@@ -1,5 +1,7 @@
 package com.bry.raia;
 
+import com.bry.raia.Services.Utils;
+
 public class Constants {
     public static final String FIREBASE_USERS = "Users";
     public static final String USERNAME = "Username";
@@ -21,5 +23,6 @@ public class Constants {
 
     public static final int POST_LOADING_LIMIT = 100;
     public static final int MAX_POLL_AMOUNT = 4;
+    public static final int POST_CARD_VIEW_WIDTH = Utils.dpToPx(200);
 
 }

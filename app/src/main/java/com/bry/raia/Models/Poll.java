@@ -11,6 +11,7 @@ public class Poll {
     private String uploaderId;
     private String uploaderUsername;
     private String uploaderEmail;
+    private County county;
 
     public Poll(){}
 
@@ -74,5 +75,13 @@ public class Poll {
 
     public void setUploaderEmail(String uploaderEmail) {
         this.uploaderEmail = uploaderEmail;
+    }
+
+    public County getCounty() {
+        return county;
+    }
+
+    public void setCounty(County county) {
+        this.county = county;
     }
 }

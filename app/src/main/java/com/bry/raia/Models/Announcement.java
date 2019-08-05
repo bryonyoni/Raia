@@ -11,6 +11,7 @@ public class Announcement {
     private String uploaderId;
     private String uploaderUsername;
     private String uploaderEmail;
+    private County county;
 
 
     public Announcement(){}
@@ -84,5 +85,13 @@ public class Announcement {
 
     public void setUploaderEmail(String uploaderName) {
         this.uploaderEmail = uploaderName;
+    }
+
+    public County getCounty() {
+        return county;
+    }
+
+    public void setCounty(County county) {
+        this.county = county;
     }
 }
