@@ -38,11 +38,20 @@ import java.util.List;
 public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivityPostItemAdapter.ViewHolder> {
     private List<Post> mPosts;
     private Activity mActivity;
+    OnBottomReachedListener onBottomReachedListener;
 
 
     public MainActivityPostItemAdapter(List<Post> mPosts, Activity activity) {
         this.mPosts = mPosts;
         this.mActivity = activity;
+    }
+
+    public void setOnBottomReachedListener(OnBottomReachedListener onBottomReachedListener){
+        this.onBottomReachedListener = onBottomReachedListener;
+    }
+
+    public void addPostToList(Post item){
+        mPosts.add(item);
     }
 
 
@@ -597,5 +606,9 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
             signTextView = itemView.findViewById(R.id.signTextView);
 
         }
+    }
+
+    public interface OnBottomReachedListener {
+        void onBottomReached(int position);
     }
 }

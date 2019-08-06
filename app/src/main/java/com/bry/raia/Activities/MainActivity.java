@@ -8,6 +8,7 @@ import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
 import android.view.View;
@@ -16,6 +17,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 
+import com.bry.raia.Adapters.MainActivityPostItemAdapter;
 import com.bry.raia.Constants;
 import com.bry.raia.Models.Announcement;
 import com.bry.raia.Models.Petition;
@@ -58,6 +60,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Bind(R.id.messagesImageView) ImageView messagesImageView;
 
     @Bind(R.id.loadedPostsRecyclerView) RecyclerView loadedPostsRecyclerView;
+    private MainActivityPostItemAdapter mainActivityPostItemAdapter;
     @Bind(R.id.loadFeedProgressBar) ProgressBar loadFeedProgressBar;
 
     private List<Post> allLoadedPosts = new ArrayList<>();
@@ -274,6 +277,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void loadPostsIntoRecyclerView() {
+        mainActivityPostItemAdapter = new MainActivityPostItemAdapter(allLoadedPosts, MainActivity.this);
+        loadedPostsRecyclerView.setAdapter(mainActivityPostItemAdapter);
+        loadedPostsRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+
+        mainActivityPostItemAdapter.setOnBottomReachedListener(new MainActivityPostItemAdapter.OnBottomReachedListener() {
+            @Override
+            public void onBottomReached(int position) {
+                //when user has scrolled to bottom of list
+            }
+        });
+    }
+
+    private void loadMorePostItems() {
 
     }
 
