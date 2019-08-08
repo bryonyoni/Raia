@@ -21,7 +21,9 @@ import com.bry.raia.Adapters.MainActivityPostItemAdapter;
 import com.bry.raia.Constants;
 import com.bry.raia.Models.Announcement;
 import com.bry.raia.Models.Petition;
+import com.bry.raia.Models.PetitionSignature;
 import com.bry.raia.Models.Poll;
+import com.bry.raia.Models.PollOption;
 import com.bry.raia.Models.Post;
 import com.bry.raia.R;
 import com.google.firebase.database.DataSnapshot;
@@ -150,13 +152,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        DatabaseReference petitionsRef = FirebaseDatabase.getInstance().getReference(Constants.PETITIONS);
+        final DatabaseReference petitionsRef = FirebaseDatabase.getInstance().getReference(Constants.PETITIONS);
         petitionsRef.limitToFirst(Constants.POST_LOADING_LIMIT).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){
                     for(DataSnapshot snap: dataSnapshot.getChildren()){
                         Petition petition = snap.getValue(Petition.class);
+                        petition.getSignatures().clear();
+
+                        for(DataSnapshot signatureSnap:dataSnapshot.child(Constants.PETITION_SIGNATURES).getChildren()){
+                            PetitionSignature s = signatureSnap.getValue(PetitionSignature.class);
+                            petition.addSignature(s);
+                        }
+
                         Post p = new Post();
                         p.setPetition(petition);
 
@@ -177,13 +186,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        DatabaseReference pollsRef = FirebaseDatabase.getInstance().getReference(Constants.POLLS);
+        final DatabaseReference pollsRef = FirebaseDatabase.getInstance().getReference(Constants.POLLS);
         pollsRef.limitToFirst(Constants.POST_LOADING_LIMIT).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){
                     for(DataSnapshot snap: dataSnapshot.getChildren()){
                         Poll poll = snap.getValue(Poll.class);
+                        poll.getPollOptions().clear();
+                        for(DataSnapshot pollVoteSnap: snap.child(Constants.POLL_VOTES).getChildren()){
+                            PollOption option = pollVoteSnap.getValue(PollOption.class);
+                            poll.getPollOptions().add(option);
+                        }
                         Post p = new Post();
                         p.setPoll(poll);
 

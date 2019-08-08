@@ -8,7 +8,9 @@ import android.support.v4.content.LocalBroadcastManager;
 import com.bry.raia.Constants;
 import com.bry.raia.Models.Announcement;
 import com.bry.raia.Models.Petition;
+import com.bry.raia.Models.PetitionSignature;
 import com.bry.raia.Models.Poll;
+import com.bry.raia.Models.PollOption;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
@@ -17,7 +19,11 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 public class DatabaseManager {
     private final String TAG = DatabaseManager.class.getSimpleName();
@@ -50,6 +56,22 @@ public class DatabaseManager {
 
                 new SharedPreferenceManager(mContext).setEmailInSharedPref(email);
                 new SharedPreferenceManager(mContext).setNameInSharedPref(name);
+
+                List<String> usersSignedPetitionsIds = new ArrayList<>();
+                for(DataSnapshot petitionIdSnaps:dataSnapshot.child(Constants.MY_SIGNED_PETITIONS).getChildren()){
+                    usersSignedPetitionsIds.add(petitionIdSnaps.getValue(String.class));
+                }
+                new SharedPreferenceManager(mContext).recordAllPetitions(usersSignedPetitionsIds);
+
+                HashMap<String,PollOption> allUserVotedPolls = new LinkedHashMap<>();
+                for(DataSnapshot votedPollSnap:dataSnapshot.child(Constants.MY_VOTED_POLLS).getChildren()){
+                    String pollId = votedPollSnap.getKey();
+                    PollOption pollOption = votedPollSnap.getValue(PollOption.class);
+
+                    allUserVotedPolls.put(pollId,pollOption);
+                }
+
+                new SharedPreferenceManager(mContext).recordAllPollVotes(allUserVotedPolls);
             }
 
             @Override
@@ -151,11 +173,41 @@ public class DatabaseManager {
             }
         });
 
+        for(PollOption option: poll.getPollOptions()){
+            dbRef.child(Constants.POLL_VOTES).child(option.getOptionId()).setValue(option);
+        }
+
         return this;
     }
 
-    public DatabaseManager addVoteToPoll(Poll p, String optionId){
+    public DatabaseManager updatePollOptionData(Poll p, PollOption optionId){
+        DatabaseReference pollRef = FirebaseDatabase.getInstance().getReference(Constants.POLLS).child(p.getPollId()).child(Constants.POLL_VOTES)
+                .child(optionId.getOptionId());
+        pollRef.setValue(optionId);
 
+        return this;
+    }
+
+    public DatabaseManager updatePetitionSignatureData(Petition p, PetitionSignature signature){
+        DatabaseReference signatureRef = FirebaseDatabase.getInstance().getReference(Constants.POLLS).child(p.getPetitionId())
+                .child(Constants.PETITION_SIGNATURES).child(signature.getSignerId());
+        signatureRef.setValue(signature);
+
+        return this;
+    }
+
+    public DatabaseManager recordPetitionSignature(Petition petition){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference usernameRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_USERS).child(uid);
+        usernameRef.child(Constants.MY_SIGNED_PETITIONS).child(petition.getPetitionId()).setValue(petition.getPetitionId());
+
+        return this;
+    }
+
+    public DatabaseManager recordPollVote(Poll poll, PollOption pollOption){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference usernameRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_USERS).child(uid);
+        usernameRef.child(Constants.MY_VOTED_POLLS).child(poll.getPollId()).setValue(pollOption);
 
         return this;
     }

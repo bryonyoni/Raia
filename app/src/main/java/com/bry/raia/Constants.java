@@ -25,4 +25,10 @@ public class Constants {
     public static final int MAX_POLL_AMOUNT = 4;
     public static final int POST_CARD_VIEW_WIDTH = Utils.dpToPx(200);
 
+    public static final String MY_SIGNED_PETITIONS = "MySignedPetitions";
+    public static final String MY_VOTED_POLLS = "MyVotedPolls";
+
+    public static final String POLL_VOTES = "PollVotes";
+    public static final String PETITION_SIGNATURES = "PetitionSignatures";
+
 }

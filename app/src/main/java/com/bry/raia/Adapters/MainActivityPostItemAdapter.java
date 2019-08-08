@@ -25,14 +25,18 @@ import android.widget.TextView;
 import com.bry.raia.Constants;
 import com.bry.raia.Models.Announcement;
 import com.bry.raia.Models.Petition;
+import com.bry.raia.Models.PetitionSignature;
 import com.bry.raia.Models.Poll;
 import com.bry.raia.Models.PollOption;
 import com.bry.raia.Models.Post;
 import com.bry.raia.R;
 import com.bry.raia.Services.DatabaseManager;
+import com.bry.raia.Services.SharedPreferenceManager;
 import com.bry.raia.Services.Utils;
 import com.bumptech.glide.Glide;
+import com.google.firebase.auth.FirebaseAuth;
 
+import java.util.Calendar;
 import java.util.List;
 
 public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivityPostItemAdapter.ViewHolder> {
@@ -86,7 +90,7 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
 
         }else if(post.getPostType().equals(Constants.PETITIONS)){
             //its a petition
-            Petition petition = post.getPetition();
+            final Petition petition = post.getPetition();
             viewHolder.petitionCardView.setVisibility(View.VISIBLE);
             viewHolder.petitionUploaderNameTextView.setText(petition.getUploaderUsername());
             viewHolder.petitionCountyTextView.setText(petition.getCounty().getCountyName());
@@ -111,7 +115,8 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
             viewHolder.signTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-
+                    updatePetitionDataInSharedPreferencesAndFirebase(petition);
+                    viewHolder.signTextView.setVisibility(View.INVISIBLE);
                 }
             });
 
@@ -134,7 +139,7 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
                     viewHolder.option4CheckBox.setEnabled(false);
 
                     poll.getPollOptions().get(0).addVote();
-                    new DatabaseManager(mActivity,"").addVoteToPoll(poll,poll.getPollOptions().get(0).getOptionId());
+                    updatePollDataInSharedPrefAndFirebase(poll,poll.getPollOptions().get(0));
                     setPollData(poll,viewHolder,true);
                 }
             });
@@ -148,7 +153,7 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
                     viewHolder.option4CheckBox.setEnabled(false);
 
                     poll.getPollOptions().get(1).addVote();
-                    new DatabaseManager(mActivity,"").addVoteToPoll(poll,poll.getPollOptions().get(1).getOptionId());
+                    updatePollDataInSharedPrefAndFirebase(poll,poll.getPollOptions().get(1));
                     setPollData(poll,viewHolder,true);
                 }
             });
@@ -162,7 +167,7 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
                     viewHolder.option4CheckBox.setEnabled(false);
 
                     poll.getPollOptions().get(2).addVote();
-                    new DatabaseManager(mActivity,"").addVoteToPoll(poll,poll.getPollOptions().get(2).getOptionId());
+                    updatePollDataInSharedPrefAndFirebase(poll,poll.getPollOptions().get(2));
                     setPollData(poll,viewHolder,true);
                 }
             });
@@ -176,7 +181,7 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
                     viewHolder.option4CheckBox.setEnabled(false);
 
                     poll.getPollOptions().get(3).addVote();
-                    new DatabaseManager(mActivity,"").addVoteToPoll(poll,poll.getPollOptions().get(3).getOptionId());
+                    updatePollDataInSharedPrefAndFirebase(poll,poll.getPollOptions().get(3));
                     setPollData(poll,viewHolder,true);
                 }
             });
@@ -248,6 +253,7 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
 
         }
     }
+
 
     @Override
     public int getItemCount() {
@@ -610,5 +616,22 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
 
     public interface OnBottomReachedListener {
         void onBottomReached(int position);
+    }
+
+    private void updatePollDataInSharedPrefAndFirebase(Poll poll, PollOption po){
+        new DatabaseManager(mActivity,"").recordPollVote(poll,po).updatePollOptionData(poll,po);
+        new SharedPreferenceManager(mActivity).recordPollVote(poll.getPollId(),po);
+    }
+
+    private void updatePetitionDataInSharedPreferencesAndFirebase(Petition p){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        String name = new SharedPreferenceManager(mActivity).loadNameInSharedPref();
+        long timestamp = Calendar.getInstance().getTimeInMillis();
+        PetitionSignature signature = new PetitionSignature(uid,name,email,timestamp);
+
+        new DatabaseManager(mActivity,"").recordPetitionSignature(p).updatePetitionSignatureData(p,signature);
+
+        new SharedPreferenceManager(mActivity).recordPetition(p.getPetitionId());
     }
 }
