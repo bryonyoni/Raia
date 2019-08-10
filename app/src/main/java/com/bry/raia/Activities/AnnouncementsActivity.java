@@ -1,5 +1,7 @@
 package com.bry.raia.Activities;
 
+import android.support.v7.app.AppCompatActivity;
+import android.os.Bundle;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -40,9 +42,12 @@ import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
+import com.bry.raia.R;
 
-public class MainActivity extends AppCompatActivity implements View.OnClickListener{
-    private final String TAG = MainActivity.class.getSimpleName();
+import butterknife.ButterKnife;
+
+public class AnnouncementsActivity extends AppCompatActivity implements View.OnClickListener{
+    private final String TAG = AnnouncementsActivity.class.getSimpleName();
     private Context mContext;
 
     @Bind(R.id.filterImageView) ImageView filterImageView;
@@ -56,10 +61,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Bind(R.id.allCountiesRecyclerView) RecyclerView allCountiesRecyclerView;
 
     @Bind(R.id.PollsImageView) ImageView PollsImageView;
-    @Bind(R.id.announcementsImageView) ImageView announcementsImageView;
     @Bind(R.id.uploadPostImageView) ImageView uploadPostImageView;
     @Bind(R.id.petitionsImageView) ImageView petitionsImageView;
-    @Bind(R.id.messagesImageView) ImageView messagesImageView;
 
     @Bind(R.id.loadedPostsRecyclerView) RecyclerView loadedPostsRecyclerView;
     private MainActivityPostItemAdapter mainActivityPostItemAdapter;
@@ -76,7 +79,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.activity_announcements);
+
         ButterKnife.bind(this);
         mContext = getApplicationContext();
 
@@ -86,10 +90,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void setClickListeners() {
         PollsImageView.setOnClickListener(this);
-        announcementsImageView.setOnClickListener(this);
         uploadPostImageView.setOnClickListener(this);
         petitionsImageView.setOnClickListener(this);
-        messagesImageView.setOnClickListener(this);
 
         filterImageView.setOnClickListener(this);
         feedbackImageView.setOnClickListener(this);
@@ -100,18 +102,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View v) {
         if (v.equals(PollsImageView)){
 
-        }else if(v.equals(announcementsImageView)){
-
         }else if(v.equals(uploadPostImageView)){
-            startActivity(new Intent(MainActivity.this, UploadPostActivity.class));
+            startActivity(new Intent(AnnouncementsActivity.this, UploadPostActivity.class));
 
         }else if(v.equals(petitionsImageView)){
 
-        }else if(v.equals(messagesImageView)){
-
-        }
-
-        else if(v.equals(filterImageView)){
+        }else if(v.equals(filterImageView)){
 
         }else if(v.equals(feedbackImageView)){
 
@@ -141,9 +137,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 hasAnnouncementsLoaded = true;
 
-                if(hasAnnouncementsLoaded && hasPetitionsLoaded && hasPollsLoaded){
-                    sortPosts();
-                }
+//                if(hasAnnouncementsLoaded && hasPetitionsLoaded && hasPollsLoaded){
+//                    sortPosts();
+//                }
+                sortPosts();
             }
 
             @Override
@@ -152,71 +149,71 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        final DatabaseReference petitionsRef = FirebaseDatabase.getInstance().getReference(Constants.PETITIONS);
-        petitionsRef.limitToFirst(Constants.POST_LOADING_LIMIT).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()){
-                    for(DataSnapshot snap: dataSnapshot.getChildren()){
-                        Petition petition = snap.getValue(Petition.class);
-                        petition.getSignatures().clear();
-
-                        for(DataSnapshot signatureSnap:dataSnapshot.child(Constants.PETITION_SIGNATURES).getChildren()){
-                            PetitionSignature s = signatureSnap.getValue(PetitionSignature.class);
-                            petition.addSignature(s);
-                        }
-
-                        Post p = new Post();
-                        p.setPetition(petition);
-
-                        allLoadedPosts.add(p);
-                        allLoadedPetitions.add(petition);
-                    }
-                }
-                hasPetitionsLoaded = true;
-
-                if(hasAnnouncementsLoaded && hasPetitionsLoaded && hasPollsLoaded){
-                    sortPosts();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
-        final DatabaseReference pollsRef = FirebaseDatabase.getInstance().getReference(Constants.POLLS);
-        pollsRef.limitToFirst(Constants.POST_LOADING_LIMIT).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()){
-                    for(DataSnapshot snap: dataSnapshot.getChildren()){
-                        Poll poll = snap.getValue(Poll.class);
-                        poll.getPollOptions().clear();
-                        for(DataSnapshot pollVoteSnap: snap.child(Constants.POLL_VOTES).getChildren()){
-                            PollOption option = pollVoteSnap.getValue(PollOption.class);
-                            poll.getPollOptions().add(option);
-                        }
-                        Post p = new Post();
-                        p.setPoll(poll);
-
-                        allLoadedPosts.add(p);
-                        allLoadedPolls.add(poll);
-                    }
-                }
-                hasPollsLoaded = true;
-
-                if(hasAnnouncementsLoaded && hasPetitionsLoaded && hasPollsLoaded){
-                    sortPosts();
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+//        final DatabaseReference petitionsRef = FirebaseDatabase.getInstance().getReference(Constants.PETITIONS);
+//        petitionsRef.limitToFirst(Constants.POST_LOADING_LIMIT).addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                if(dataSnapshot.exists()){
+//                    for(DataSnapshot snap: dataSnapshot.getChildren()){
+//                        Petition petition = snap.getValue(Petition.class);
+//                        petition.getSignatures().clear();
+//
+//                        for(DataSnapshot signatureSnap:dataSnapshot.child(Constants.PETITION_SIGNATURES).getChildren()){
+//                            PetitionSignature s = signatureSnap.getValue(PetitionSignature.class);
+//                            petition.addSignature(s);
+//                        }
+//
+//                        Post p = new Post();
+//                        p.setPetition(petition);
+//
+//                        allLoadedPosts.add(p);
+//                        allLoadedPetitions.add(petition);
+//                    }
+//                }
+//                hasPetitionsLoaded = true;
+//
+//                if(hasAnnouncementsLoaded && hasPetitionsLoaded && hasPollsLoaded){
+//                    sortPosts();
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//
+//            }
+//        });
+//
+//        final DatabaseReference pollsRef = FirebaseDatabase.getInstance().getReference(Constants.POLLS);
+//        pollsRef.limitToFirst(Constants.POST_LOADING_LIMIT).addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                if(dataSnapshot.exists()){
+//                    for(DataSnapshot snap: dataSnapshot.getChildren()){
+//                        Poll poll = snap.getValue(Poll.class);
+//                        poll.getPollOptions().clear();
+//                        for(DataSnapshot pollVoteSnap: snap.child(Constants.POLL_VOTES).getChildren()){
+//                            PollOption option = pollVoteSnap.getValue(PollOption.class);
+//                            poll.getPollOptions().add(option);
+//                        }
+//                        Post p = new Post();
+//                        p.setPoll(poll);
+//
+//                        allLoadedPosts.add(p);
+//                        allLoadedPolls.add(poll);
+//                    }
+//                }
+//                hasPollsLoaded = true;
+//
+//                if(hasAnnouncementsLoaded && hasPetitionsLoaded && hasPollsLoaded){
+//                    sortPosts();
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//
+//            }
+//        });
 
     }
 
@@ -293,7 +290,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void loadPostsIntoRecyclerView() {
-        mainActivityPostItemAdapter = new MainActivityPostItemAdapter(allLoadedPosts, MainActivity.this);
+        mainActivityPostItemAdapter = new MainActivityPostItemAdapter(allLoadedPosts, AnnouncementsActivity.this);
         loadedPostsRecyclerView.setAdapter(mainActivityPostItemAdapter);
         loadedPostsRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
 
@@ -312,7 +309,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         final List<Post> morePosts = new ArrayList<>();
 
         DatabaseReference announcementRef = FirebaseDatabase.getInstance().getReference(Constants.ANNOUNCEMENTS);
-        announcementRef.startAt(allLoadedAnnouncements.get(allLoadedAnnouncements.size()-1).getAnnouncementId()).limitToFirst(Constants.POST_LOADING_LIMIT).addListenerForSingleValueEvent(new ValueEventListener() {
+        announcementRef.startAt(allLoadedAnnouncements.get(allLoadedAnnouncements.size()-1).getAnnouncementId())
+                .limitToFirst(Constants.POST_LOADING_LIMIT).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){
@@ -327,9 +325,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 }
                 hasAnnouncementsLoaded = true;
 
-                if(hasAnnouncementsLoaded && hasPetitionsLoaded && hasPollsLoaded){
-                    sortNewPostItems(morePosts);
-                }
+//                if(hasAnnouncementsLoaded && hasPetitionsLoaded && hasPollsLoaded){
+//                    sortNewPostItems(morePosts);
+//                }
+                sortNewPostItems(morePosts);
             }
 
             @Override
@@ -338,73 +337,73 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        final DatabaseReference petitionsRef = FirebaseDatabase.getInstance().getReference(Constants.PETITIONS);
-        petitionsRef.startAt(allLoadedPetitions.get(allLoadedPetitions.size()-1).getPetitionId())
-                .limitToFirst(Constants.POST_LOADING_LIMIT).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()){
-                    for(DataSnapshot snap: dataSnapshot.getChildren()){
-                        Petition petition = snap.getValue(Petition.class);
-                        petition.getSignatures().clear();
-
-                        for(DataSnapshot signatureSnap:dataSnapshot.child(Constants.PETITION_SIGNATURES).getChildren()){
-                            PetitionSignature s = signatureSnap.getValue(PetitionSignature.class);
-                            petition.addSignature(s);
-                        }
-
-                        Post p = new Post();
-                        p.setPetition(petition);
-
-                        morePosts.add(p);
-                        allLoadedPetitions.add(petition);
-                    }
-                }
-                hasPetitionsLoaded = true;
-
-                if(hasAnnouncementsLoaded && hasPetitionsLoaded && hasPollsLoaded){
-                    sortNewPostItems(morePosts);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
-
-        final DatabaseReference pollsRef = FirebaseDatabase.getInstance().getReference(Constants.POLLS);
-        pollsRef.startAt(allLoadedPolls.get(allLoadedPolls.size()-1).getPollId())
-                .limitToFirst(Constants.POST_LOADING_LIMIT).addListenerForSingleValueEvent(new ValueEventListener() {
-            @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if(dataSnapshot.exists()){
-                    for(DataSnapshot snap: dataSnapshot.getChildren()){
-                        Poll poll = snap.getValue(Poll.class);
-                        poll.getPollOptions().clear();
-                        for(DataSnapshot pollVoteSnap: snap.child(Constants.POLL_VOTES).getChildren()){
-                            PollOption option = pollVoteSnap.getValue(PollOption.class);
-                            poll.getPollOptions().add(option);
-                        }
-                        Post p = new Post();
-                        p.setPoll(poll);
-
-                        morePosts.add(p);
-                        allLoadedPolls.add(poll);
-                    }
-                }
-                hasPollsLoaded = true;
-
-                if(hasAnnouncementsLoaded && hasPetitionsLoaded && hasPollsLoaded){
-                    sortNewPostItems(morePosts);
-                }
-            }
-
-            @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-
-            }
-        });
+//        final DatabaseReference petitionsRef = FirebaseDatabase.getInstance().getReference(Constants.PETITIONS);
+//        petitionsRef.startAt(allLoadedPetitions.get(allLoadedPetitions.size()-1).getPetitionId())
+//                .limitToFirst(Constants.POST_LOADING_LIMIT).addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                if(dataSnapshot.exists()){
+//                    for(DataSnapshot snap: dataSnapshot.getChildren()){
+//                        Petition petition = snap.getValue(Petition.class);
+//                        petition.getSignatures().clear();
+//
+//                        for(DataSnapshot signatureSnap:dataSnapshot.child(Constants.PETITION_SIGNATURES).getChildren()){
+//                            PetitionSignature s = signatureSnap.getValue(PetitionSignature.class);
+//                            petition.addSignature(s);
+//                        }
+//
+//                        Post p = new Post();
+//                        p.setPetition(petition);
+//
+//                        morePosts.add(p);
+//                        allLoadedPetitions.add(petition);
+//                    }
+//                }
+//                hasPetitionsLoaded = true;
+//
+//                if(hasAnnouncementsLoaded && hasPetitionsLoaded && hasPollsLoaded){
+//                    sortNewPostItems(morePosts);
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//
+//            }
+//        });
+//
+//        final DatabaseReference pollsRef = FirebaseDatabase.getInstance().getReference(Constants.POLLS);
+//        pollsRef.startAt(allLoadedPolls.get(allLoadedPolls.size()-1).getPollId())
+//                .limitToFirst(Constants.POST_LOADING_LIMIT).addListenerForSingleValueEvent(new ValueEventListener() {
+//            @Override
+//            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+//                if(dataSnapshot.exists()){
+//                    for(DataSnapshot snap: dataSnapshot.getChildren()){
+//                        Poll poll = snap.getValue(Poll.class);
+//                        poll.getPollOptions().clear();
+//                        for(DataSnapshot pollVoteSnap: snap.child(Constants.POLL_VOTES).getChildren()){
+//                            PollOption option = pollVoteSnap.getValue(PollOption.class);
+//                            poll.getPollOptions().add(option);
+//                        }
+//                        Post p = new Post();
+//                        p.setPoll(poll);
+//
+//                        morePosts.add(p);
+//                        allLoadedPolls.add(poll);
+//                    }
+//                }
+//                hasPollsLoaded = true;
+//
+//                if(hasAnnouncementsLoaded && hasPetitionsLoaded && hasPollsLoaded){
+//                    sortNewPostItems(morePosts);
+//                }
+//            }
+//
+//            @Override
+//            public void onCancelled(@NonNull DatabaseError databaseError) {
+//
+//            }
+//        });
     }
 
     private void sortNewPostItems(List<Post> morePosts){
@@ -495,5 +494,4 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         byte[] decodedByteArray = android.util.Base64.decode(image, Base64.DEFAULT);
         return BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
     }
-
 }

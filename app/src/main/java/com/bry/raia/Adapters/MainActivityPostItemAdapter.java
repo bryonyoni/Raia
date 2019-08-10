@@ -120,6 +120,10 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
                 }
             });
 
+            if(new SharedPreferenceManager(mActivity).hasUserSignedPetition(petition)){
+                viewHolder.signTextView.setVisibility(View.INVISIBLE);
+            }
+
         }else{
             //its a poll
             final Poll poll = post.getPoll();
@@ -186,6 +190,35 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
                 }
             });
             setPollData(poll,viewHolder,false);
+
+            if(new SharedPreferenceManager(mActivity).hasUserVotedInPoll(poll)){
+                PollOption po = new SharedPreferenceManager(mActivity).getWhichPollOptionSelected(poll);
+                if(poll.getPollOptions().get(0).getOptionId().equals(po.getOptionId())){
+                    viewHolder.pollOption1CheckBox.setChecked(true);
+                    viewHolder.pollOption1CheckBox.setEnabled(false);
+                    viewHolder.option2CheckBox.setEnabled(false);
+                    viewHolder.option3CheckBox.setEnabled(false);
+                    viewHolder.option4CheckBox.setEnabled(false);
+                }else if(poll.getPollOptions().size()>1 && poll.getPollOptions().get(1).getOptionId().equals(po.getOptionId())){
+                    viewHolder.option2CheckBox.setChecked(true);
+                    viewHolder.pollOption1CheckBox.setEnabled(false);
+                    viewHolder.option2CheckBox.setEnabled(false);
+                    viewHolder.option3CheckBox.setEnabled(false);
+                    viewHolder.option4CheckBox.setEnabled(false);
+                }else if(poll.getPollOptions().size()>2 && poll.getPollOptions().get(2).getOptionId().equals(po.getOptionId())){
+                    viewHolder.option3CheckBox.setChecked(true);
+                    viewHolder.pollOption1CheckBox.setEnabled(false);
+                    viewHolder.option2CheckBox.setEnabled(false);
+                    viewHolder.option3CheckBox.setEnabled(false);
+                    viewHolder.option4CheckBox.setEnabled(false);
+                }else if(poll.getPollOptions().size()>3 && poll.getPollOptions().get(3).getOptionId().equals(po.getOptionId())){
+                    viewHolder.option4CheckBox.setChecked(true);
+                    viewHolder.pollOption1CheckBox.setEnabled(false);
+                    viewHolder.option2CheckBox.setEnabled(false);
+                    viewHolder.option3CheckBox.setEnabled(false);
+                    viewHolder.option4CheckBox.setEnabled(false);
+                }
+            }
 
         }
     }

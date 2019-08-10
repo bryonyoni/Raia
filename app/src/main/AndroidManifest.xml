@@ -28,7 +28,10 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".Activities.UploadPostActivity"></activity>
+        <activity android:name=".Activities.PetitionsActivity"></activity>
+        <activity android:name=".Activities.AnnouncementsActivity" />
+        <activity android:name=".Activities.PollsActivity" />
+        <activity android:name=".Activities.UploadPostActivity" />
         <activity android:name=".Activities.Authenticator">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
