@@ -49,6 +49,7 @@ public class PollsActivity extends AppCompatActivity implements View.OnClickList
     private final String TAG = PollsActivity.class.getSimpleName();
     private Context mContext;
 
+    @Bind(R.id.previousActivityImageView) ImageView previousActivityImageView;
     @Bind(R.id.filterImageView) ImageView filterImageView;
     @Bind(R.id.feedbackImageView) ImageView feedbackImageView;
     @Bind(R.id.accountImageView) ImageView accountImageView;
@@ -96,6 +97,7 @@ public class PollsActivity extends AppCompatActivity implements View.OnClickList
         filterImageView.setOnClickListener(this);
         feedbackImageView.setOnClickListener(this);
         accountImageView.setOnClickListener(this);
+        previousActivityImageView.setOnClickListener(this);
     }
 
     @Override
@@ -113,6 +115,8 @@ public class PollsActivity extends AppCompatActivity implements View.OnClickList
 
         }else if(v.equals(accountImageView)){
 
+        }else if(v.equals(previousActivityImageView)){
+            finish();
         }
     }
 

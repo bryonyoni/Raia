@@ -169,245 +169,245 @@
                         android:layout_height="wrap_content" />
 
                     <RelativeLayout
-                            android:layout_width="match_parent"
-                            android:layout_marginBottom="10dp"
-                            android:layout_height="match_parent">
+                        android:layout_width="match_parent"
+                        android:layout_marginBottom="10dp"
+                        android:layout_height="match_parent">
 
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:orientation="vertical"
+                            android:gravity="center_vertical"
+                            android:layout_height="wrap_content">
+
+                            <!--Option 1-->
                             <LinearLayout
+                                android:id="@+id/option1LinearLayout"
                                 android:layout_width="match_parent"
                                 android:orientation="vertical"
-                                android:gravity="center_vertical"
+                                android:layout_marginTop="5dp"
+                                android:layout_marginBottom="5dp"
                                 android:layout_height="wrap_content">
 
-                                <!--Option 1-->
-                                <LinearLayout
-                                    android:id="@+id/option1LinearLayout"
+                                <!--option text and percentage-->
+                                <RelativeLayout
                                     android:layout_width="match_parent"
-                                    android:orientation="vertical"
-                                    android:layout_marginTop="5dp"
-                                    android:layout_marginBottom="5dp"
                                     android:layout_height="wrap_content">
 
-                                    <!--option text and percentage-->
-                                    <RelativeLayout
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content">
+                                    <CheckBox
+                                        android:id="@+id/pollOption1CheckBox"
+                                        android:layout_width="wrap_content"
+                                        android:text="Option One."
+                                        android:scaleX="0.9"
+                                        android:scaleY="0.9"
+                                        android:textSize="12sp"
+                                        android:layout_marginStart="1dp"
+                                        android:layout_centerVertical="true"
+                                        android:textColor="@color/grey"
+                                        android:layout_height="30dp" />
 
-                                        <CheckBox
-                                            android:id="@+id/pollOption1CheckBox"
-                                            android:layout_width="wrap_content"
-                                            android:text="Option One."
-                                            android:scaleX="0.9"
-                                            android:scaleY="0.9"
-                                            android:textSize="12sp"
-                                            android:layout_marginStart="1dp"
-                                            android:layout_centerVertical="true"
-                                            android:textColor="@color/grey"
-                                            android:layout_height="30dp" />
-
-                                        <TextView
-                                            android:id="@+id/option1PercentageTextView"
-                                            android:layout_width="wrap_content"
-                                            android:text="37%"
-                                            android:layout_marginRight="10dp"
-                                            android:textSize="12sp"
-                                            android:layout_centerVertical="true"
-                                            android:layout_alignParentEnd="true"
-                                            android:layout_height="wrap_content" />
-
-                                    </RelativeLayout>
-
-                                    <!--percentage bar-->
-                                    <RelativeLayout
-                                        android:layout_width="match_parent"
+                                    <TextView
+                                        android:id="@+id/option1PercentageTextView"
+                                        android:layout_width="wrap_content"
+                                        android:text="37%"
                                         android:layout_marginRight="10dp"
-                                        android:layout_marginLeft="10dp"
-                                        android:background="@drawable/dialog_bg_stroke"
-                                        android:layout_height="4dp">
+                                        android:textSize="12sp"
+                                        android:layout_centerVertical="true"
+                                        android:layout_alignParentEnd="true"
+                                        android:layout_height="wrap_content" />
 
-                                        <View
-                                            android:id="@+id/option1PercentageBarView"
-                                            android:layout_width="match_parent"
-                                            android:translationX="-160dp"
-                                            android:background="@color/colorAccent"
-                                            android:layout_height="match_parent"/>
+                                </RelativeLayout>
 
-                                    </RelativeLayout>
-
-                                </LinearLayout>
-
-                                <!--Option 2-->
-                                <LinearLayout
-                                    android:id="@+id/option2LinearLayout"
+                                <!--percentage bar-->
+                                <RelativeLayout
                                     android:layout_width="match_parent"
-                                    android:orientation="vertical"
-                                    android:layout_marginTop="5dp"
-                                    android:layout_marginBottom="5dp"
-                                    android:layout_height="wrap_content">
+                                    android:layout_marginRight="10dp"
+                                    android:layout_marginLeft="10dp"
+                                    android:background="@drawable/dialog_bg_stroke"
+                                    android:layout_height="4dp">
 
-                                    <!--option text and percentage-->
-                                    <RelativeLayout
+                                    <View
+                                        android:id="@+id/option1PercentageBarView"
                                         android:layout_width="match_parent"
-                                        android:layout_height="wrap_content">
+                                        android:translationX="-160dp"
+                                        android:background="@color/colorAccent"
+                                        android:layout_height="match_parent"/>
 
-                                        <CheckBox
-                                            android:id="@+id/option2CheckBox"
-                                            android:layout_width="wrap_content"
-                                            android:text="Option One."
-                                            android:scaleX="0.9"
-                                            android:scaleY="0.9"
-                                            android:textSize="12sp"
-                                            android:layout_marginStart="1dp"
-                                            android:layout_centerVertical="true"
-                                            android:textColor="@color/grey"
-                                            android:layout_height="30dp" />
-
-                                        <TextView
-                                            android:id="@+id/option2PercentageTextView"
-                                            android:layout_width="wrap_content"
-                                            android:text="37%"
-                                            android:layout_marginRight="10dp"
-                                            android:textSize="12sp"
-                                            android:layout_centerVertical="true"
-                                            android:layout_alignParentEnd="true"
-                                            android:layout_height="wrap_content" />
-
-                                    </RelativeLayout>
-
-                                    <!--percentage bar-->
-                                    <RelativeLayout
-                                        android:layout_width="match_parent"
-                                        android:layout_marginRight="10dp"
-                                        android:layout_marginLeft="10dp"
-                                        android:background="@drawable/dialog_bg_stroke"
-                                        android:layout_height="4dp">
-
-                                        <View
-                                            android:id="@+id/option2PercentageBar"
-                                            android:layout_width="match_parent"
-                                            android:translationX="-160dp"
-                                            android:background="@color/colorAccent"
-                                            android:layout_height="match_parent"/>
-
-                                    </RelativeLayout>
-
-                                </LinearLayout>
-
-                                <!--Option 3-->
-                                <LinearLayout
-                                    android:id="@+id/option3LinearLayout"
-                                    android:layout_width="match_parent"
-                                    android:orientation="vertical"
-                                    android:layout_marginTop="5dp"
-                                    android:layout_marginBottom="5dp"
-                                    android:layout_height="wrap_content">
-
-                                    <!--option text and percentage-->
-                                    <RelativeLayout
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content">
-
-                                        <CheckBox
-                                            android:id="@+id/option3CheckBox"
-                                            android:layout_width="wrap_content"
-                                            android:text="Option One."
-                                            android:scaleX="0.9"
-                                            android:scaleY="0.9"
-                                            android:textSize="12sp"
-                                            android:layout_marginStart="1dp"
-                                            android:layout_centerVertical="true"
-                                            android:textColor="@color/grey"
-                                            android:layout_height="30dp" />
-
-                                        <TextView
-                                            android:id="@+id/option3PercentageTextView"
-                                            android:layout_width="wrap_content"
-                                            android:text="37%"
-                                            android:layout_marginRight="10dp"
-                                            android:textSize="12sp"
-                                            android:layout_centerVertical="true"
-                                            android:layout_alignParentEnd="true"
-                                            android:layout_height="wrap_content" />
-
-                                    </RelativeLayout>
-
-                                    <!--percentage bar-->
-                                    <RelativeLayout
-                                        android:layout_width="match_parent"
-                                        android:layout_marginRight="10dp"
-                                        android:layout_marginLeft="10dp"
-                                        android:background="@drawable/dialog_bg_stroke"
-                                        android:layout_height="4dp">
-
-                                        <View
-                                            android:id="@+id/option3PercentageView"
-                                            android:layout_width="match_parent"
-                                            android:translationX="-160dp"
-                                            android:background="@color/colorAccent"
-                                            android:layout_height="match_parent"/>
-
-                                    </RelativeLayout>
-
-                                </LinearLayout>
-
-                                <!--Option 4-->
-                                <LinearLayout
-                                    android:id="@+id/option4LinearLayout"
-                                    android:layout_width="match_parent"
-                                    android:orientation="vertical"
-                                    android:layout_marginTop="5dp"
-                                    android:layout_marginBottom="5dp"
-                                    android:layout_height="wrap_content">
-
-                                    <!--option text and percentage-->
-                                    <RelativeLayout
-                                        android:layout_width="match_parent"
-                                        android:layout_height="wrap_content">
-
-                                        <CheckBox
-                                            android:id="@+id/option4CheckBox"
-                                            android:layout_width="wrap_content"
-                                            android:text="Option One."
-                                            android:scaleX="0.9"
-                                            android:scaleY="0.9"
-                                            android:textSize="12sp"
-                                            android:layout_marginStart="1dp"
-                                            android:layout_centerVertical="true"
-                                            android:textColor="@color/grey"
-                                            android:layout_height="30dp" />
-
-                                        <TextView
-                                            android:id="@+id/option4PercentageTextView"
-                                            android:layout_width="wrap_content"
-                                            android:text="37%"
-                                            android:layout_marginRight="10dp"
-                                            android:textSize="12sp"
-                                            android:layout_centerVertical="true"
-                                            android:layout_alignParentEnd="true"
-                                            android:layout_height="wrap_content" />
-
-                                    </RelativeLayout>
-
-                                    <!--percentage bar-->
-                                    <RelativeLayout
-                                        android:layout_width="match_parent"
-                                        android:layout_marginRight="10dp"
-                                        android:layout_marginLeft="10dp"
-                                        android:background="@drawable/dialog_bg_stroke"
-                                        android:layout_height="4dp">
-
-                                        <View
-                                            android:id="@+id/option4PercentageBarView"
-                                            android:layout_width="match_parent"
-                                            android:translationX="-160dp"
-                                            android:background="@color/colorAccent"
-                                            android:layout_height="match_parent"/>
-
-                                    </RelativeLayout>
-
-                                </LinearLayout>
+                                </RelativeLayout>
 
                             </LinearLayout>
+
+                            <!--Option 2-->
+                            <LinearLayout
+                                android:id="@+id/option2LinearLayout"
+                                android:layout_width="match_parent"
+                                android:orientation="vertical"
+                                android:layout_marginTop="5dp"
+                                android:layout_marginBottom="5dp"
+                                android:layout_height="wrap_content">
+
+                                <!--option text and percentage-->
+                                <RelativeLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content">
+
+                                    <CheckBox
+                                        android:id="@+id/option2CheckBox"
+                                        android:layout_width="wrap_content"
+                                        android:text="Option One."
+                                        android:scaleX="0.9"
+                                        android:scaleY="0.9"
+                                        android:textSize="12sp"
+                                        android:layout_marginStart="1dp"
+                                        android:layout_centerVertical="true"
+                                        android:textColor="@color/grey"
+                                        android:layout_height="30dp" />
+
+                                    <TextView
+                                        android:id="@+id/option2PercentageTextView"
+                                        android:layout_width="wrap_content"
+                                        android:text="37%"
+                                        android:layout_marginRight="10dp"
+                                        android:textSize="12sp"
+                                        android:layout_centerVertical="true"
+                                        android:layout_alignParentEnd="true"
+                                        android:layout_height="wrap_content" />
+
+                                </RelativeLayout>
+
+                                <!--percentage bar-->
+                                <RelativeLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_marginRight="10dp"
+                                    android:layout_marginLeft="10dp"
+                                    android:background="@drawable/dialog_bg_stroke"
+                                    android:layout_height="4dp">
+
+                                    <View
+                                        android:id="@+id/option2PercentageBar"
+                                        android:layout_width="match_parent"
+                                        android:translationX="-160dp"
+                                        android:background="@color/colorAccent"
+                                        android:layout_height="match_parent"/>
+
+                                </RelativeLayout>
+
+                            </LinearLayout>
+
+                            <!--Option 3-->
+                            <LinearLayout
+                                android:id="@+id/option3LinearLayout"
+                                android:layout_width="match_parent"
+                                android:orientation="vertical"
+                                android:layout_marginTop="5dp"
+                                android:layout_marginBottom="5dp"
+                                android:layout_height="wrap_content">
+
+                                <!--option text and percentage-->
+                                <RelativeLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content">
+
+                                    <CheckBox
+                                        android:id="@+id/option3CheckBox"
+                                        android:layout_width="wrap_content"
+                                        android:text="Option One."
+                                        android:scaleX="0.9"
+                                        android:scaleY="0.9"
+                                        android:textSize="12sp"
+                                        android:layout_marginStart="1dp"
+                                        android:layout_centerVertical="true"
+                                        android:textColor="@color/grey"
+                                        android:layout_height="30dp" />
+
+                                    <TextView
+                                        android:id="@+id/option3PercentageTextView"
+                                        android:layout_width="wrap_content"
+                                        android:text="37%"
+                                        android:layout_marginRight="10dp"
+                                        android:textSize="12sp"
+                                        android:layout_centerVertical="true"
+                                        android:layout_alignParentEnd="true"
+                                        android:layout_height="wrap_content" />
+
+                                </RelativeLayout>
+
+                                <!--percentage bar-->
+                                <RelativeLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_marginRight="10dp"
+                                    android:layout_marginLeft="10dp"
+                                    android:background="@drawable/dialog_bg_stroke"
+                                    android:layout_height="4dp">
+
+                                    <View
+                                        android:id="@+id/option3PercentageView"
+                                        android:layout_width="match_parent"
+                                        android:translationX="-160dp"
+                                        android:background="@color/colorAccent"
+                                        android:layout_height="match_parent"/>
+
+                                </RelativeLayout>
+
+                            </LinearLayout>
+
+                            <!--Option 4-->
+                            <LinearLayout
+                                android:id="@+id/option4LinearLayout"
+                                android:layout_width="match_parent"
+                                android:orientation="vertical"
+                                android:layout_marginTop="5dp"
+                                android:layout_marginBottom="5dp"
+                                android:layout_height="wrap_content">
+
+                                <!--option text and percentage-->
+                                <RelativeLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_height="wrap_content">
+
+                                    <CheckBox
+                                        android:id="@+id/option4CheckBox"
+                                        android:layout_width="wrap_content"
+                                        android:text="Option One."
+                                        android:scaleX="0.9"
+                                        android:scaleY="0.9"
+                                        android:textSize="12sp"
+                                        android:layout_marginStart="1dp"
+                                        android:layout_centerVertical="true"
+                                        android:textColor="@color/grey"
+                                        android:layout_height="30dp" />
+
+                                    <TextView
+                                        android:id="@+id/option4PercentageTextView"
+                                        android:layout_width="wrap_content"
+                                        android:text="37%"
+                                        android:layout_marginRight="10dp"
+                                        android:textSize="12sp"
+                                        android:layout_centerVertical="true"
+                                        android:layout_alignParentEnd="true"
+                                        android:layout_height="wrap_content" />
+
+                                </RelativeLayout>
+
+                                <!--percentage bar-->
+                                <RelativeLayout
+                                    android:layout_width="match_parent"
+                                    android:layout_marginRight="10dp"
+                                    android:layout_marginLeft="10dp"
+                                    android:background="@drawable/dialog_bg_stroke"
+                                    android:layout_height="4dp">
+
+                                    <View
+                                        android:id="@+id/option4PercentageBarView"
+                                        android:layout_width="match_parent"
+                                        android:translationX="-160dp"
+                                        android:background="@color/colorAccent"
+                                        android:layout_height="match_parent"/>
+
+                                </RelativeLayout>
+
+                            </LinearLayout>
+
+                        </LinearLayout>
 
                     </RelativeLayout>
 

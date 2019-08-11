@@ -52,7 +52,7 @@
 
                 <ImageView
                     android:id="@+id/previousActivityImageView"
-                    android:visibility="gone"
+                    android:visibility="visible"
                     android:layout_width="30dp"
                     android:translationY="1dp"
                     android:src="@drawable/ic_action_activity_back"
@@ -60,7 +60,7 @@
 
                 <TextView
                     android:layout_width="wrap_content"
-                    android:text="@string/your_feed"
+                    android:text="@string/polls"
                     android:layout_marginLeft="10dp"
                     android:textColor="@color/titlecolor"
                     android:textSize="21sp"
@@ -72,14 +72,14 @@
                 android:layout_width="match_parent"
                 android:orientation="horizontal"
                 android:gravity="end"
-                android:paddingRight="20dp"
-                android:paddingLeft="20dp"
+                android:paddingRight="10dp"
+                android:paddingLeft="10dp"
                 android:layout_height="wrap_content">
 
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:orientation="vertical"
-                    android:layout_marginRight="20dp"
+                    android:layout_marginRight="10dp"
                     android:layout_height="wrap_content">
 
                     <ImageView
@@ -95,6 +95,7 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:orientation="vertical"
+                    android:visibility="gone"
                     android:layout_marginRight="20dp"
                     android:layout_height="wrap_content">
 
@@ -111,6 +112,7 @@
                 <LinearLayout
                     android:layout_width="wrap_content"
                     android:orientation="vertical"
+                    android:visibility="gone"
                     android:layout_height="wrap_content">
 
                     <ImageView

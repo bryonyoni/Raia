@@ -50,6 +50,7 @@ public class PetitionsActivity extends AppCompatActivity implements View.OnClick
     private final String TAG = PollsActivity.class.getSimpleName();
     private Context mContext;
 
+    @Bind(R.id.previousActivityImageView) ImageView previousActivityImageView;
     @Bind(R.id.filterImageView) ImageView filterImageView;
     @Bind(R.id.feedbackImageView) ImageView feedbackImageView;
     @Bind(R.id.accountImageView) ImageView accountImageView;
@@ -96,6 +97,7 @@ public class PetitionsActivity extends AppCompatActivity implements View.OnClick
         filterImageView.setOnClickListener(this);
         feedbackImageView.setOnClickListener(this);
         accountImageView.setOnClickListener(this);
+        previousActivityImageView.setOnClickListener(this);
     }
 
     @Override
@@ -113,7 +115,9 @@ public class PetitionsActivity extends AppCompatActivity implements View.OnClick
 
         }else if(v.equals(accountImageView)){
 
-        }
+        }else if(v.equals(previousActivityImageView)){
+             finish();
+         }
     }
 
 

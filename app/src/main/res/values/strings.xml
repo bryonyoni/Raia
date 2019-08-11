@@ -55,4 +55,7 @@
     <string name="search_a_county">Search A County…</string>
     <string name="your_feed">Your feed.</string>
     <string name="number_of_signatures_targeted">Number of signatures targeted.</string>
+    <string name="polls">Polls.</string>
+    <string name="petitions">Petitions.</string>
+    <string name="add_a_comment">Add a comment.</string>
 </resources>

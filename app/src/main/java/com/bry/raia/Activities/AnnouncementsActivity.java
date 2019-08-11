@@ -50,6 +50,7 @@ public class AnnouncementsActivity extends AppCompatActivity implements View.OnC
     private final String TAG = AnnouncementsActivity.class.getSimpleName();
     private Context mContext;
 
+    @Bind(R.id.previousActivityImageView) ImageView previousActivityImageView;
     @Bind(R.id.filterImageView) ImageView filterImageView;
     @Bind(R.id.feedbackImageView) ImageView feedbackImageView;
     @Bind(R.id.accountImageView) ImageView accountImageView;
@@ -96,6 +97,7 @@ public class AnnouncementsActivity extends AppCompatActivity implements View.OnC
         filterImageView.setOnClickListener(this);
         feedbackImageView.setOnClickListener(this);
         accountImageView.setOnClickListener(this);
+        previousActivityImageView.setOnClickListener(this);
     }
 
     @Override
@@ -113,6 +115,8 @@ public class AnnouncementsActivity extends AppCompatActivity implements View.OnC
 
         }else if(v.equals(accountImageView)){
 
+        }else if(v.equals(previousActivityImageView)){
+            finish();
         }
     }
 
