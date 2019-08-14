@@ -231,6 +231,7 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
         }
         //option 1
         viewHolder.pollOption1CheckBox.setText(poll.getPollOptions().get(0).getOptionText());
+        viewHolder.option1LinearLayout.setVisibility(View.VISIBLE);
         long option1Percentage = (poll.getPollOptions().get(0).getVotes()/totalVotes)*100;
         if(isShowingResult){
             viewHolder.option1PercentageTextView.setText(option1Percentage+"%");
@@ -244,6 +245,7 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
         if(poll.getPollOptions().get(1)!=null) {
             //option 2
             viewHolder.option2CheckBox.setText(poll.getPollOptions().get(1).getOptionText());
+            viewHolder.option2LinearLayout.setVisibility(View.VISIBLE);
             long option2Percentage = (poll.getPollOptions().get(1).getVotes() / totalVotes) * 100;
             if(isShowingResult){
                 viewHolder.option2PercentageTextView.setText(option2Percentage + "%");
@@ -259,6 +261,7 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
         if(poll.getPollOptions().get(2)!=null) {
             //option 3
             viewHolder.option3CheckBox.setText(poll.getPollOptions().get(2).getOptionText());
+            viewHolder.option3LinearLayout.setVisibility(View.VISIBLE);
             long option3Percentage = (poll.getPollOptions().get(2).getVotes() / totalVotes) * 100;
             if(isShowingResult){
                 viewHolder.option3PercentageTextView.setText(option3Percentage + "%");
@@ -273,6 +276,7 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
 
         if(poll.getPollOptions().get(3)!=null) {
             //option 4
+            viewHolder.option4LinearLayout.setVisibility(View.VISIBLE);
             viewHolder.option4CheckBox.setText(poll.getPollOptions().get(3).getOptionText());
             long option4Percentage = (poll.getPollOptions().get(3).getVotes() / totalVotes) * 100;
             if(isShowingResult){
