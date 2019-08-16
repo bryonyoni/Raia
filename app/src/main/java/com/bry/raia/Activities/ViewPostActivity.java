@@ -1,9 +1,11 @@
 package com.bry.raia.Activities;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.CardView;
+import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.view.View;
@@ -16,8 +18,10 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 
 import com.bry.raia.Adapters.MainActivityPostItemAdapter;
+import com.bry.raia.Adapters.ViewPostActivityCommentItemAdapter;
 import com.bry.raia.Constants;
 import com.bry.raia.Models.Announcement;
+import com.bry.raia.Models.Comment;
 import com.bry.raia.Models.Petition;
 import com.bry.raia.Models.PetitionSignature;
 import com.bry.raia.Models.Poll;
@@ -29,8 +33,15 @@ import com.bry.raia.Services.SharedPreferenceManager;
 import com.bry.raia.Services.Utils;
 import com.bry.raia.Variables;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -83,6 +94,8 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     @Bind(R.id.sendCommentImageView) ImageView sendCommentImageView;
     @Bind(R.id.commentsRecyclerView) RecyclerView commentsRecyclerView;
     @Bind(R.id.noCommentsTextView) TextView noCommentsTextView;
+    ViewPostActivityCommentItemAdapter vpActivityCommentAdapter;
+    List<Comment> allComments = new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -97,7 +110,43 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void loadComments() {
+        String postId;
 
+        if(mPost.getPostType().equals(Constants.ANNOUNCEMENTS)){
+            postId = mPost.getAnnouncement().getAnnouncementId();
+        }else if(mPost.getPostType().equals(Constants.PETITIONS)){
+            postId = mPost.getPetition().getPetitionId();
+        }else {
+            postId = mPost.getPoll().getPollId();
+        }
+
+        DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference(Constants.COMMENTS).child(postId);
+        commentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                List<Comment> allComments = new ArrayList<>();
+                if(dataSnapshot.exists()){
+                    for(DataSnapshot commentSnap:dataSnapshot.getChildren()){
+                        Comment comment = commentSnap.getValue(Comment.class);
+                        if(commentSnap.child(Constants.REPLIES).exists()){
+                            //some replies exist
+                            for(DataSnapshot replySnap:dataSnapshot.child(Constants.REPLIES).getChildren()){
+                                Comment reply = replySnap.getValue(Comment.class);
+                                comment.addReply(reply);
+                            }
+                        }
+                        allComments.add(comment);
+                    }
+                }
+
+                loadCommentsIntoRecyclerView(allComments);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
     }
 
     private void setData() {
@@ -347,6 +396,47 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void addComment() {
+        String postId;
 
+        if(mPost.getPostType().equals(Constants.ANNOUNCEMENTS)){
+            postId = mPost.getAnnouncement().getAnnouncementId();
+        }else if(mPost.getPostType().equals(Constants.PETITIONS)){
+            postId = mPost.getPetition().getPetitionId();
+        }else {
+            postId = mPost.getPoll().getPollId();
+        }
+
+        String commentText = addCommentEditText.getText().toString().trim();
+        if(!commentText.equals("")){
+            addCommentEditText.setText("");
+
+            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            Comment comment = new Comment(commentText,uid,new SharedPreferenceManager(mContext).loadNameInSharedPref());
+
+            DatabaseReference replyRef = FirebaseDatabase.getInstance().getReference(Constants.COMMENTS).child(postId);
+            DatabaseReference pushRef = replyRef.push();
+            String commentId = pushRef.getKey();
+            comment.setCommentId(commentId);
+
+            pushRef.setValue(comment);
+            addNewCommentToRecyclerView(comment);
+
+        }else{
+            addCommentEditText.setError(getResources().getString(R.string.say_something));
+        }
+    }
+
+    private void loadCommentsIntoRecyclerView(List<Comment> loadedComments) {
+        vpActivityCommentAdapter = new ViewPostActivityCommentItemAdapter( ViewPostActivity.this,loadedComments, true,mPost);
+        commentsRecyclerView.setAdapter(vpActivityCommentAdapter);
+        commentsRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+        allComments = loadedComments;
+    }
+
+    private void addNewCommentToRecyclerView(Comment comment){
+        allComments.add(comment);
+        vpActivityCommentAdapter.addComment(comment);
+        vpActivityCommentAdapter.notifyItemInserted(allComments.size()-1);
+        vpActivityCommentAdapter.notifyDataSetChanged();
     }
 }

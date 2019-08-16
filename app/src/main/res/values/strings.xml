@@ -58,6 +58,7 @@
     <string name="polls">Polls.</string>
     <string name="petitions">Petitions.</string>
     <string name="add_a_comment">Add a comment.</string>
-    <string name="announcement">Announcement.</string>
-    <string name="petition">Petition.</string>
+    <string name="say_something">Say something!</string>
+    <string name="cancel">Cancel.</string>
+    <string name="reply">Reply.</string>
 </resources>

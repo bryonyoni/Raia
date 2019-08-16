@@ -30,5 +30,7 @@ public class Constants {
 
     public static final String POLL_VOTES = "PollVotes";
     public static final String PETITION_SIGNATURES = "PetitionSignatures";
+    public static final String COMMENTS = "Comments";
+    public static final String REPLIES = "Replies";
 
 }

@@ -2,6 +2,7 @@ package com.bry.raia.Adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.Image;
@@ -22,6 +23,8 @@ import android.widget.ProgressBar;
 import android.widget.TextClock;
 import android.widget.TextView;
 
+import com.bry.raia.Activities.MainActivity;
+import com.bry.raia.Activities.ViewPostActivity;
 import com.bry.raia.Constants;
 import com.bry.raia.Models.Announcement;
 import com.bry.raia.Models.Petition;
@@ -33,6 +36,7 @@ import com.bry.raia.R;
 import com.bry.raia.Services.DatabaseManager;
 import com.bry.raia.Services.SharedPreferenceManager;
 import com.bry.raia.Services.Utils;
+import com.bry.raia.Variables;
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -87,6 +91,17 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
             BlurPostBackTask bp = new BlurPostBackTask();
             bp.setFields(post,viewHolder.announcementBlurProgressBar,viewHolder.petitionImageViewBack);
 
+            viewHolder.announcementImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Variables.postToBeViewed  = post;
+                    Variables.postToBeViewedImageBackground = Variables.blurredBacks.get(post.getAnnouncement().getAnnouncementId());
+
+                    Intent i = new Intent(mActivity, ViewPostActivity.class);
+                    mActivity.startActivity(i);
+                }
+            });
+
 
         }else if(post.getPostType().equals(Constants.PETITIONS)){
             //its a petition
@@ -123,6 +138,17 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
             if(new SharedPreferenceManager(mActivity).hasUserSignedPetition(petition)){
                 viewHolder.signTextView.setVisibility(View.INVISIBLE);
             }
+
+            viewHolder.petitionImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Variables.postToBeViewed  = post;
+                    Variables.postToBeViewedImageBackground = Variables.blurredBacks.get(post.getPetition().getPetitionId());
+
+                    Intent i = new Intent(mActivity, ViewPostActivity.class);
+                    mActivity.startActivity(i);
+                }
+            });
 
         }else{
             //its a poll
@@ -220,7 +246,17 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
                 }
             }
 
+            viewHolder.pollCardView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Variables.postToBeViewed  = post;
+                    Intent i = new Intent(mActivity, ViewPostActivity.class);
+                    mActivity.startActivity(i);
+                }
+            });
+
         }
+
     }
 
     private void setPollData(Poll poll, ViewHolder viewHolder, boolean isShowingResult){
@@ -333,6 +369,12 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
 
             announcementBlurProgressBar.setVisibility(View.GONE);
             announcementImageView.setImageBitmap(blurredBackImage);
+
+            if(post.getPostType().equals(Constants.ANNOUNCEMENTS)) {
+                Variables.blurredBacks.put(post.getAnnouncement().getAnnouncementId(),blurredBackImage);
+            }else if(post.getPostType().equals(Constants.PETITIONS)){
+                Variables.blurredBacks.put(post.getPetition().getPetitionId(),blurredBackImage);
+            }
         }
 
     }
