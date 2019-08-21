@@ -1,5 +1,6 @@
 package com.bry.raia.Activities;
 
+import android.animation.Animator;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
@@ -9,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.DisplayMetrics;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
@@ -60,6 +62,8 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     @Bind(R.id.announcementPostImageViewBack) ImageView announcementPostImageViewBack;
     @Bind(R.id.announcementImageView) ImageView announcementImageView;
     @Bind(R.id.announcementBlurProgressBar) ProgressBar announcementBlurProgressBar;
+    @Bind(R.id.loadingContainerLinearLayout) LinearLayout loadingContainerLinearLayout;
+    private boolean canAnimateLoadingScreens = false;
 
     @Bind(R.id.pollCardView)CardView pollCardView;
     @Bind(R.id.pollUploaderNameTextView)TextView pollUploaderNameTextView;
@@ -427,10 +431,15 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     }
 
     private void loadCommentsIntoRecyclerView(List<Comment> loadedComments) {
-        vpActivityCommentAdapter = new ViewPostActivityCommentItemAdapter( ViewPostActivity.this,loadedComments, true,mPost);
-        commentsRecyclerView.setAdapter(vpActivityCommentAdapter);
-        commentsRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
-        allComments = loadedComments;
+        if(loadedComments.isEmpty()){
+            noCommentsTextView.setVisibility(View.VISIBLE);
+            commentsRecyclerView.setVisibility(View.GONE);
+        }else{
+            vpActivityCommentAdapter = new ViewPostActivityCommentItemAdapter( ViewPostActivity.this,loadedComments, true,mPost);
+            commentsRecyclerView.setAdapter(vpActivityCommentAdapter);
+            commentsRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+            allComments = loadedComments;
+        }
     }
 
     private void addNewCommentToRecyclerView(Comment comment){
@@ -439,4 +448,72 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
         vpActivityCommentAdapter.notifyItemInserted(allComments.size()-1);
         vpActivityCommentAdapter.notifyDataSetChanged();
     }
+
+    private void startLoadingAnimations(){
+        final float alpha = 0.3f;
+        final int duration = 2000;
+
+        final float alphaR = 1f;
+        final int durationR = 800;
+
+        if(canAnimateLoadingScreens) {
+            loadingContainerLinearLayout.animate().alpha(alpha).setDuration(duration).setInterpolator(new LinearInterpolator())
+                    .setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            loadingContainerLinearLayout.animate().alpha(alphaR).setDuration(durationR).setInterpolator(new LinearInterpolator())
+                                    .setListener(new Animator.AnimatorListener() {
+                                        @Override
+                                        public void onAnimationStart(Animator animator) {
+
+                                        }
+
+                                        @Override
+                                        public void onAnimationEnd(Animator animator) {
+                                            startLoadingAnimations();
+                                        }
+
+                                        @Override
+                                        public void onAnimationCancel(Animator animator) {
+
+                                        }
+
+                                        @Override
+                                        public void onAnimationRepeat(Animator animator) {
+
+                                        }
+                                    });
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
+
+                        }
+                    });
+        }
+    }
+
+    private void hideCommentsLoadingAnimations(){
+        canAnimateLoadingScreens = false;
+        loadingContainerLinearLayout.setVisibility(View.GONE);
+        commentsRecyclerView.setVisibility(View.VISIBLE);
+    }
+
+    private void showCommentsLoadingAnimations(){
+        canAnimateLoadingScreens = true;
+        loadingContainerLinearLayout.setVisibility(View.VISIBLE);
+        commentsRecyclerView.setVisibility(View.GONE);
+        startLoadingAnimations();
+    }
+
 }

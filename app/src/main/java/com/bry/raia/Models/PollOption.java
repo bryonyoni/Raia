@@ -1,5 +1,7 @@
 package com.bry.raia.Models;
 
+import java.util.UUID;
+
 public class PollOption {
     private String optionId;
     private String optionText;
@@ -38,5 +40,15 @@ public class PollOption {
 
     public void addVote(){
         votes++;
+    }
+
+    public String generatePollOptionId(){
+        return generateRandomString();
+    }
+
+    private String generateRandomString(){
+        String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+        String uuid2 = UUID.randomUUID().toString().replaceAll("-", "");
+        return uuid+uuid2;
     }
 }

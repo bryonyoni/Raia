@@ -1,13 +1,17 @@
 package com.bry.raia.Adapters;
 
+import android.animation.Animator;
 import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.Image;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
@@ -15,11 +19,13 @@ import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.LinearInterpolator;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextClock;
 import android.widget.TextView;
 
@@ -47,6 +53,7 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
     private List<Post> mPosts;
     private Activity mActivity;
     OnBottomReachedListener onBottomReachedListener;
+    private boolean canAnimateLoadingScreens,canAnimateImageLoadingScreens;
 
 
     public MainActivityPostItemAdapter(List<Post> mPosts, Activity activity) {
@@ -87,9 +94,9 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
             viewHolder.announcementCountyNameTextView.setText(announcement.getCounty().getCountyName());
             viewHolder.announcementDetailsTextView.setText(announcement.getAnnouncementTitle());
 
-            viewHolder.announcementImageView.setImageBitmap(announcement.getAnnouncementBitmap());
+            startImageLoadingAnimations(viewHolder);
             BlurPostBackTask bp = new BlurPostBackTask();
-            bp.setFields(post,viewHolder.announcementBlurProgressBar,viewHolder.petitionImageViewBack);
+            bp.setFields(post,viewHolder.petitionImageViewBack,viewHolder.petitionImageView);
 
             viewHolder.announcementImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
@@ -111,9 +118,11 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
             viewHolder.petitionCountyTextView.setText(petition.getCounty().getCountyName());
             viewHolder.petitionDetailsTextView.setText(petition.getPetitionTitle());
 
-            viewHolder.petitionImageView.setImageBitmap(petition.getPetitionBitmap());
+//            viewHolder.petitionImageView.setImageBitmap(petition.getPetitionBitmap());
             BlurPostBackTask bp = new BlurPostBackTask();
-            bp.setFields(post,viewHolder.petitionBlurProgressBar,viewHolder.announcementPostImageViewBack);
+
+            startImageLoadingAnimations(viewHolder);
+            bp.setFields(post,viewHolder.announcementPostImageViewBack,viewHolder.announcementImageView);
 
             viewHolder.numberSignedTextView.setText(String.format("%d signed", petition.getSignatures().size()));
 
@@ -257,6 +266,190 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
 
         }
 
+        if(mPosts.size()-1==i){
+            //its the last element so showing loading animation below
+            canAnimateLoadingScreens = true;
+            viewHolder.loadingContainerLinearLayout.setVisibility(View.VISIBLE);
+            startLoadingAnimations(viewHolder.loadingContainerLinearLayout);
+
+            LocalBroadcastManager.getInstance(mActivity).registerReceiver(new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    canAnimateLoadingScreens = false;
+                    viewHolder.loadingContainerLinearLayout.setVisibility(View.GONE);
+                    LocalBroadcastManager.getInstance(mActivity).unregisterReceiver(this);
+                }
+            },new IntentFilter("LOADING-SCREEN"));
+
+        }else{
+            canAnimateLoadingScreens = false;
+            viewHolder.loadingContainerLinearLayout.setVisibility(View.GONE);
+        }
+
+    }
+
+    private void startLoadingAnimations(final RelativeLayout loadingContainerLinearLayout){
+        final float alpha = 0.3f;
+        final int duration = 2000;
+
+        final float alphaR = 1f;
+        final int durationR = 800;
+
+        if(canAnimateLoadingScreens) {
+            loadingContainerLinearLayout.animate().alpha(alpha).setDuration(duration).setInterpolator(new LinearInterpolator())
+                    .setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            loadingContainerLinearLayout.animate().alpha(alphaR).setDuration(durationR).setInterpolator(new LinearInterpolator())
+                                    .setListener(new Animator.AnimatorListener() {
+                                        @Override
+                                        public void onAnimationStart(Animator animator) {
+
+                                        }
+
+                                        @Override
+                                        public void onAnimationEnd(Animator animator) {
+                                            startLoadingAnimations(loadingContainerLinearLayout);
+                                        }
+
+                                        @Override
+                                        public void onAnimationCancel(Animator animator) {
+
+                                        }
+
+                                        @Override
+                                        public void onAnimationRepeat(Animator animator) {
+
+                                        }
+                                    });
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
+
+                        }
+                    });
+        }
+    }
+
+    private void startImageLoadingAnimations(final ViewHolder viewHolder){
+        final float alpha = 0.3f;
+        final int duration = 2000;
+
+        final float alphaR = 1f;
+        final int durationR = 800;
+
+        if(canAnimateImageLoadingScreens) {
+            viewHolder.petitionImageViewBack.setBackgroundResource(R.drawable.b);
+            viewHolder.announcementPostImageViewBack.setBackgroundResource(R.drawable.b);
+
+            viewHolder.announcementPostImageViewBack.animate().alpha(alpha).setDuration(duration).setInterpolator(new LinearInterpolator())
+                    .setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            viewHolder.announcementPostImageViewBack.animate().alpha(alphaR).setDuration(durationR).setInterpolator(new LinearInterpolator())
+                                    .setListener(new Animator.AnimatorListener() {
+                                        @Override
+                                        public void onAnimationStart(Animator animator) {
+
+                                        }
+
+                                        @Override
+                                        public void onAnimationEnd(Animator animator) {
+                                        }
+
+                                        @Override
+                                        public void onAnimationCancel(Animator animator) {
+
+                                        }
+
+                                        @Override
+                                        public void onAnimationRepeat(Animator animator) {
+
+                                        }
+                                    });
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
+
+                        }
+                    }).start();
+
+            viewHolder.petitionImageViewBack.animate().alpha(alpha).setDuration(duration).setInterpolator(new LinearInterpolator())
+                    .setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            viewHolder.petitionImageViewBack.animate().alpha(alphaR).setDuration(durationR).setInterpolator(new LinearInterpolator())
+                                    .setListener(new Animator.AnimatorListener() {
+                                        @Override
+                                        public void onAnimationStart(Animator animator) {
+
+                                        }
+
+                                        @Override
+                                        public void onAnimationEnd(Animator animator) {
+                                            startImageLoadingAnimations(viewHolder);
+                                        }
+
+                                        @Override
+                                        public void onAnimationCancel(Animator animator) {
+
+                                        }
+
+                                        @Override
+                                        public void onAnimationRepeat(Animator animator) {
+
+                                        }
+                                    });
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
+
+                        }
+                    }).start();
+        }else{
+            viewHolder.petitionImageViewBack.clearAnimation();
+            viewHolder.announcementPostImageViewBack.clearAnimation();
+
+            viewHolder.announcementPostImageViewBack.setAlpha(1f);
+            viewHolder.petitionImageViewBack.setAlpha(1f);
+        }
+    }
+
+    private void stopImageLoadingAnimations(){
+        canAnimateImageLoadingScreens = false;
     }
 
     private void setPollData(Poll poll, ViewHolder viewHolder, boolean isShowingResult){
@@ -336,13 +529,13 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
     private class BlurPostBackTask extends AsyncTask<String, Void, String> {
         private Post post;
         private Bitmap blurredBackImage;
-        private ProgressBar announcementBlurProgressBar;
         private ImageView announcementImageView;
+        private ImageView announcementImageViewBack;
 
-        public void setFields(Post post, ProgressBar pBar, ImageView annImageView){
+        public void setFields(Post post, ImageView annImageViewBack,ImageView annImageView){
             this.post = post;
-            this.announcementBlurProgressBar = pBar;
             this.announcementImageView = annImageView;
+            this.announcementImageViewBack = annImageViewBack;
         }
 
         @Override
@@ -366,14 +559,15 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-
-            announcementBlurProgressBar.setVisibility(View.GONE);
-            announcementImageView.setImageBitmap(blurredBackImage);
-
+            stopImageLoadingAnimations();
             if(post.getPostType().equals(Constants.ANNOUNCEMENTS)) {
                 Variables.blurredBacks.put(post.getAnnouncement().getAnnouncementId(),blurredBackImage);
+                announcementImageViewBack.setImageBitmap(blurredBackImage);
+                announcementImageView.setImageBitmap(post.getAnnouncement().getAnnouncementBitmap());
             }else if(post.getPostType().equals(Constants.PETITIONS)){
                 Variables.blurredBacks.put(post.getPetition().getPetitionId(),blurredBackImage);
+                announcementImageViewBack.setImageBitmap(blurredBackImage);
+                announcementImageView.setImageBitmap(post.getPetition().getPetitionBitmap());
             }
         }
 
@@ -591,6 +785,7 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
 
     class ViewHolder extends RecyclerView.ViewHolder{
        ImageView userImageView;
+       RelativeLayout loadingContainerLinearLayout;
 
        //Announcement part
        CardView announcementCardView;
@@ -642,6 +837,8 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
 
        ViewHolder(View itemView) {
             super(itemView);
+
+           loadingContainerLinearLayout = itemView.findViewById(R.id.loadingContainerLinearLayout);
 
             //announcement ui
             announcementCardView = itemView.findViewById(R.id.announcementCardView);

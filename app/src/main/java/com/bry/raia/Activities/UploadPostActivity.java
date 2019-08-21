@@ -42,6 +42,7 @@ import java.io.ByteArrayOutputStream;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.UUID;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -692,7 +693,7 @@ public class UploadPostActivity extends AppCompatActivity implements View.OnClic
             if(i==0){
                 addedOption1LinearLayout.setVisibility(View.VISIBLE);
                 addedOption1TextView.setText(pollOptions.get(i).getOptionText());
-                pollOptions.get(i).setOptionId(""+i);
+                pollOptions.get(i).setOptionId(generatePollOptionId());
                 final int finalI = i;
                 deleteAddedOption1ImageView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -704,7 +705,7 @@ public class UploadPostActivity extends AppCompatActivity implements View.OnClic
             }else if(i==1){
                 addedOption2LinearLayout.setVisibility(View.VISIBLE);
                 addedOption2TextView.setText(pollOptions.get(i).getOptionText());
-                pollOptions.get(i).setOptionId(""+i);
+                pollOptions.get(i).setOptionId(generatePollOptionId());
                 final int finalI = i;
                 deleteAddedOption2ImageView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -716,7 +717,7 @@ public class UploadPostActivity extends AppCompatActivity implements View.OnClic
             }else if(i==2){
                 addedOption3LinearLayout.setVisibility(View.VISIBLE);
                 addedOption3TextView.setText(pollOptions.get(i).getOptionText());
-                pollOptions.get(i).setOptionId(""+i);
+                pollOptions.get(i).setOptionId(generatePollOptionId());
                 final int finalI = i;
                 deleteAddedOption3ImageView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -728,7 +729,7 @@ public class UploadPostActivity extends AppCompatActivity implements View.OnClic
             }else if(i==3){
                 addedOption4LinearLayout.setVisibility(View.VISIBLE);
                 addedOption4TextView.setText(pollOptions.get(i).getOptionText());
-                pollOptions.get(i).setOptionId(""+i);
+                pollOptions.get(i).setOptionId(generatePollOptionId());
                 final int finalI = i;
                 deleteAddedOption4ImageView.setOnClickListener(new View.OnClickListener() {
                     @Override
@@ -1143,5 +1144,10 @@ public class UploadPostActivity extends AppCompatActivity implements View.OnClic
         return Base64.encodeToString(baos.toByteArray(), Base64.DEFAULT);
     }
 
+    public String generatePollOptionId(){
+        String uuid = UUID.randomUUID().toString().replaceAll("-", "");
+        String uuid2 = UUID.randomUUID().toString().replaceAll("-", "");
+        return uuid+uuid2;
+    }
 
 }

@@ -1,5 +1,6 @@
 package com.bry.raia.Activities;
 
+import android.animation.Animator;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -12,6 +13,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -64,6 +66,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Bind(R.id.loadedPostsRecyclerView) RecyclerView loadedPostsRecyclerView;
     private MainActivityPostItemAdapter mainActivityPostItemAdapter;
     @Bind(R.id.loadFeedProgressBar) ProgressBar loadFeedProgressBar;
+    @Bind(R.id.loadingContainerLinearLayout) LinearLayout loadingContainerLinearLayout;
+    private boolean canAnimateLoadingScreens = false;
 
     private List<Post> allLoadedPosts = new ArrayList<>();
     private List<Announcement> allLoadedAnnouncements = new ArrayList<>();
@@ -122,8 +126,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
 
     private void loadPosts() {
-        loadedPostsRecyclerView.setVisibility(View.GONE);
-        loadFeedProgressBar.setVisibility(View.VISIBLE);
+        showLoadingAnimations();
 
         DatabaseReference announcementRef = FirebaseDatabase.getInstance().getReference(Constants.ANNOUNCEMENTS);
         announcementRef.limitToFirst(Constants.POST_LOADING_LIMIT).addListenerForSingleValueEvent(new ValueEventListener() {
@@ -304,6 +307,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 loadMorePostItems();
             }
         });
+
+        hideLoadingAnimations();
     }
 
     private void loadMorePostItems() {
@@ -494,6 +499,74 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Bitmap decodeFromFirebaseBase64(String image) {
         byte[] decodedByteArray = android.util.Base64.decode(image, Base64.DEFAULT);
         return BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
+    }
+
+
+    private void startLoadingAnimations(){
+        final float alpha = 0.3f;
+        final int duration = 2000;
+
+        final float alphaR = 1f;
+        final int durationR = 800;
+
+        if(canAnimateLoadingScreens) {
+            loadingContainerLinearLayout.animate().alpha(alpha).setDuration(duration).setInterpolator(new LinearInterpolator())
+                    .setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            loadingContainerLinearLayout.animate().alpha(alphaR).setDuration(durationR).setInterpolator(new LinearInterpolator())
+                                    .setListener(new Animator.AnimatorListener() {
+                                        @Override
+                                        public void onAnimationStart(Animator animator) {
+
+                                        }
+
+                                        @Override
+                                        public void onAnimationEnd(Animator animator) {
+                                            startLoadingAnimations();
+                                        }
+
+                                        @Override
+                                        public void onAnimationCancel(Animator animator) {
+
+                                        }
+
+                                        @Override
+                                        public void onAnimationRepeat(Animator animator) {
+
+                                        }
+                                    });
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
+
+                        }
+                    });
+        }
+    }
+
+    private void hideLoadingAnimations(){
+        canAnimateLoadingScreens = false;
+        loadingContainerLinearLayout.setVisibility(View.GONE);
+        loadedPostsRecyclerView.setVisibility(View.VISIBLE);
+    }
+
+    private void showLoadingAnimations(){
+        canAnimateLoadingScreens = true;
+        loadingContainerLinearLayout.setVisibility(View.VISIBLE);
+        loadedPostsRecyclerView.setVisibility(View.GONE);
+        startLoadingAnimations();
     }
 
 }
