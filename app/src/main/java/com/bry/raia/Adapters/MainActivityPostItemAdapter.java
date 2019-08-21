@@ -85,7 +85,7 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
     @Override
     public void onBindViewHolder(@NonNull final MainActivityPostItemAdapter.ViewHolder viewHolder, int i) {
         final Post post = mPosts.get(i);
-
+        canAnimateLoadingScreens = true;
         if(post.getPostType().equals(Constants.ANNOUNCEMENTS)){
             //its a announcement
             Announcement announcement = post.getAnnouncement();

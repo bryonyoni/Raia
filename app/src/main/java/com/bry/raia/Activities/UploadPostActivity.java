@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.support.v7.widget.CardView;
 import android.util.Base64;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -132,6 +133,8 @@ public class UploadPostActivity extends AppCompatActivity implements View.OnClic
     private final int PICK_IMAGE_REQUEST = 1012;
     private final int REQUEST_IMAGE_CAPTURE = 1;
     private Uri mFilepath;
+
+    private boolean canAnimateLoadingScreens = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -808,21 +811,21 @@ public class UploadPostActivity extends AppCompatActivity implements View.OnClic
                     if(isAtAnnouncementForm){
                         selectedAnnouncementImage = bm;
                         selectedAnnouncementCardView.setVisibility(View.VISIBLE);
-                        selectedAnnouncementImageView.setImageBitmap(bm);
-
+//                        selectedAnnouncementImageView.setImageBitmap(bm);
+                        showAnnouncementAndPetitionAnimations();
                         BlurAnnouncementBackTask op = new BlurAnnouncementBackTask();
-                        announcementBlurProgressBar.setVisibility(View.VISIBLE);
+//                        announcementBlurProgressBar.setVisibility(View.VISIBLE);
                         op.execute("");
-                        selectedAnnouncementImageViewBack.setImageBitmap(null);
+//                        selectedAnnouncementImageViewBack.setImageBitmap(null);
                     }else if(isAtPetitionForm){
                         selectedPetitionImage = bm;
                         selectedPetitionCardView.setVisibility(View.VISIBLE);
-                        selectedPetitionImageView.setImageBitmap(bm);
-
+//                        selectedPetitionImageView.setImageBitmap(bm);
+                        showAnnouncementAndPetitionAnimations();
                         BlurPetitionBackTask op = new BlurPetitionBackTask();
-                        petitionBlurProgressBar.setVisibility(View.VISIBLE);
+//                        petitionBlurProgressBar.setVisibility(View.VISIBLE);
                         op.execute("");
-                        selectedPetitionImageViewBack.setImageBitmap(null);
+//                        selectedPetitionImageViewBack.setImageBitmap(null);
                     }
 
                 } catch (Exception e) {
@@ -840,18 +843,18 @@ public class UploadPostActivity extends AppCompatActivity implements View.OnClic
                 if(isAtAnnouncementForm){
                     selectedAnnouncementImage = bm;
                     selectedAnnouncementCardView.setVisibility(View.VISIBLE);
-                    selectedAnnouncementImageView.setImageBitmap(bm);
-
+//                    selectedAnnouncementImageView.setImageBitmap(bm);
+                    showAnnouncementAndPetitionAnimations();
                     BlurAnnouncementBackTask op = new BlurAnnouncementBackTask();
-                    announcementBlurProgressBar.setVisibility(View.VISIBLE);
+//                    announcementBlurProgressBar.setVisibility(View.VISIBLE);
                     op.execute("");
                 }else if(isAtPetitionForm){
                     selectedPetitionImage = bm;
                     selectedPetitionCardView.setVisibility(View.VISIBLE);
-                    selectedPetitionImageView.setImageBitmap(bm);
-
+//                    selectedPetitionImageView.setImageBitmap(bm);
+                    showAnnouncementAndPetitionAnimations();
                     BlurPetitionBackTask op = new BlurPetitionBackTask();
-                    petitionBlurProgressBar.setVisibility(View.VISIBLE);
+//                    petitionBlurProgressBar.setVisibility(View.VISIBLE);
                     op.execute("");
                 }
             }catch (Exception e){
@@ -888,8 +891,11 @@ public class UploadPostActivity extends AppCompatActivity implements View.OnClic
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
+            hideAnnouncementAndPetitionAnimations();
+
             selectedAnnouncementImageViewBack.setImageBitmap(blurredBackImage);
-            announcementBlurProgressBar.setVisibility(View.GONE);
+            selectedAnnouncementImageView.setImageBitmap(selectedAnnouncementImage);
+//            announcementBlurProgressBar.setVisibility(View.GONE);
         }
 
     }
@@ -905,8 +911,11 @@ public class UploadPostActivity extends AppCompatActivity implements View.OnClic
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
+            hideAnnouncementAndPetitionAnimations();
+
+            selectedPetitionImageView.setImageBitmap(selectedPetitionImage);
             selectedPetitionImageViewBack.setImageBitmap(blurredPetitionBackImage);
-            petitionBlurProgressBar.setVisibility(View.GONE);
+//            petitionBlurProgressBar.setVisibility(View.GONE);
         }
 
     }
@@ -1148,6 +1157,115 @@ public class UploadPostActivity extends AppCompatActivity implements View.OnClic
         String uuid = UUID.randomUUID().toString().replaceAll("-", "");
         String uuid2 = UUID.randomUUID().toString().replaceAll("-", "");
         return uuid+uuid2;
+    }
+
+
+    private void showAnnouncementAndPetitionAnimations(){
+        final float alpha = 0.3f;
+        final int duration = 2000;
+
+        final float alphaR = 1f;
+        final int durationR = 800;
+
+        selectedAnnouncementImageViewBack.setBackgroundResource(R.drawable.b);
+        selectedPetitionImageViewBack.setBackgroundResource(R.drawable.b);
+
+        if(canAnimateLoadingScreens) {
+            selectedAnnouncementImageViewBack.animate().alpha(alpha).setDuration(duration).setInterpolator(new LinearInterpolator())
+                    .setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            selectedAnnouncementImageViewBack.animate().alpha(alphaR).setDuration(durationR).setInterpolator(new LinearInterpolator())
+                                    .setListener(new Animator.AnimatorListener() {
+                                        @Override
+                                        public void onAnimationStart(Animator animator) {
+
+                                        }
+
+                                        @Override
+                                        public void onAnimationEnd(Animator animator) {
+
+                                        }
+
+                                        @Override
+                                        public void onAnimationCancel(Animator animator) {
+
+                                        }
+
+                                        @Override
+                                        public void onAnimationRepeat(Animator animator) {
+
+                                        }
+                                    });
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
+
+                        }
+                    }).start();
+
+            selectedAnnouncementImageViewBack.animate().alpha(alpha).setDuration(duration).setInterpolator(new LinearInterpolator())
+                    .setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            selectedAnnouncementImageViewBack.animate().alpha(alphaR).setDuration(durationR).setInterpolator(new LinearInterpolator())
+                                    .setListener(new Animator.AnimatorListener() {
+                                        @Override
+                                        public void onAnimationStart(Animator animator) {
+
+                                        }
+
+                                        @Override
+                                        public void onAnimationEnd(Animator animator) {
+                                            showAnnouncementAndPetitionAnimations();
+                                        }
+
+                                        @Override
+                                        public void onAnimationCancel(Animator animator) {
+
+                                        }
+
+                                        @Override
+                                        public void onAnimationRepeat(Animator animator) {
+
+                                        }
+                                    });
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
+
+                        }
+                    }).start();
+        }else{
+            selectedAnnouncementImageViewBack.clearAnimation();
+            selectedAnnouncementImageViewBack.clearAnimation();
+        }
+    }
+
+    private void hideAnnouncementAndPetitionAnimations(){
+        canAnimateLoadingScreens = false;
     }
 
 }
