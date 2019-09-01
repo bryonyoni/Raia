@@ -49,7 +49,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Bind(R.id.filterImageView) ImageView filterImageView;
     @Bind(R.id.feedbackImageView) ImageView feedbackImageView;
-    @Bind(R.id.accountImageView) ImageView accountImageView;
 
     @Bind(R.id.searchLinearLayout) LinearLayout searchLinearLayout;
     @Bind(R.id.backImageView) ImageView backImageView;
@@ -57,10 +56,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Bind(R.id.selectedCountiesRecyclerView) RecyclerView selectedCountiesRecyclerView;
     @Bind(R.id.allCountiesRecyclerView) RecyclerView allCountiesRecyclerView;
 
-    @Bind(R.id.PollsImageView) ImageView PollsImageView;
-    @Bind(R.id.announcementsImageView) ImageView announcementsImageView;
+    @Bind(R.id.accountImageView) ImageView accountImageView;
     @Bind(R.id.uploadPostImageView) ImageView uploadPostImageView;
-    @Bind(R.id.petitionsImageView) ImageView petitionsImageView;
     @Bind(R.id.messagesImageView) ImageView messagesImageView;
 
     @Bind(R.id.loadedPostsRecyclerView) RecyclerView loadedPostsRecyclerView;
@@ -89,10 +86,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void setClickListeners() {
-        PollsImageView.setOnClickListener(this);
-        announcementsImageView.setOnClickListener(this);
         uploadPostImageView.setOnClickListener(this);
-        petitionsImageView.setOnClickListener(this);
         messagesImageView.setOnClickListener(this);
 
         filterImageView.setOnClickListener(this);
@@ -102,20 +96,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Override
     public void onClick(View v) {
-        if (v.equals(PollsImageView)){
-
-        }else if(v.equals(announcementsImageView)){
-
-        }else if(v.equals(uploadPostImageView)){
+        if(v.equals(uploadPostImageView)){
             startActivity(new Intent(MainActivity.this, UploadPostActivity.class));
-
-        }else if(v.equals(petitionsImageView)){
-
         }else if(v.equals(messagesImageView)){
 
-        }
-
-        else if(v.equals(filterImageView)){
+        }else if(v.equals(filterImageView)){
 
         }else if(v.equals(feedbackImageView)){
 
@@ -308,7 +293,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        hideLoadingAnimations();
+//        hideLoadingAnimations();
     }
 
     private void loadMorePostItems() {
@@ -504,7 +489,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void startLoadingAnimations(){
         final float alpha = 0.3f;
-        final int duration = 2000;
+        final int duration = 800;
 
         final float alphaR = 1f;
         final int durationR = 800;

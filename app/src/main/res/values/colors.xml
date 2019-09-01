@@ -8,6 +8,7 @@
     <color name="hintcolor">#C5C5C5</color>
     <color name="titlecolor">#134C97</color>
     <color name="whiteish">#EEEEEE</color>
+    <color name="whiteish2">#F8F8F8</color>
     <color name="grey">#555555</color>
     <color name="background">#EEF7F7F7</color>
 </resources>

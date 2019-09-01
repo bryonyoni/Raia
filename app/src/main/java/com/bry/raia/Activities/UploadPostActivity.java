@@ -1162,10 +1162,10 @@ public class UploadPostActivity extends AppCompatActivity implements View.OnClic
 
     private void showAnnouncementAndPetitionAnimations(){
         final float alpha = 0.3f;
-        final int duration = 2000;
+        final int duration = 600;
 
         final float alphaR = 1f;
-        final int durationR = 800;
+        final int durationR = 600;
 
         selectedAnnouncementImageViewBack.setBackgroundResource(R.drawable.b);
         selectedPetitionImageViewBack.setBackgroundResource(R.drawable.b);

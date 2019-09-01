@@ -61,4 +61,7 @@
     <string name="say_something">Say something!</string>
     <string name="cancel">Cancel.</string>
     <string name="reply">Reply.</string>
+    <string name="messages">Messages.</string>
+    <string name="your_account">Your Account.</string>
+    <string name="feedback">Feedback.</string>
 </resources>
