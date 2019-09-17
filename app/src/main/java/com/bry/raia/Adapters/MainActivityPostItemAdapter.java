@@ -91,8 +91,10 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
             Announcement announcement = post.getAnnouncement();
             viewHolder.announcementCardView.setVisibility(View.VISIBLE);
             viewHolder.announcementUploaderNameTextView.setText(announcement.getUploaderUsername());
-            viewHolder.announcementCountyNameTextView.setText(announcement.getCounty().getCountyName());
-            viewHolder.announcementDetailsTextView.setText(announcement.getAnnouncementTitle());
+            if(announcement.getCounty()!=null) {
+                viewHolder.announcementCountyNameTextView.setText(announcement.getCounty().getCountyName());
+                viewHolder.announcementDetailsTextView.setText(announcement.getAnnouncementTitle());
+            }
 
             startImageLoadingAnimations(viewHolder);
             BlurPostBackTask bp = new BlurPostBackTask();
@@ -288,7 +290,7 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
 
     }
 
-    private void startLoadingAnimations(final RelativeLayout loadingContainerLinearLayout){
+    private void startLoadingAnimations(final LinearLayout loadingContainerLinearLayout){
         final float alpha = 0.3f;
         final int duration = 2000;
 
@@ -785,7 +787,7 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
 
     class ViewHolder extends RecyclerView.ViewHolder{
        ImageView userImageView;
-       RelativeLayout loadingContainerLinearLayout;
+       LinearLayout loadingContainerLinearLayout;
 
        //Announcement part
        CardView announcementCardView;

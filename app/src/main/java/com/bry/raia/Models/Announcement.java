@@ -88,7 +88,9 @@ public class Announcement {
     }
 
     public County getCounty() {
-        return county;
+        if (county==null){
+            return new County();
+        }else return county;
     }
 
     public void setCounty(County county) {

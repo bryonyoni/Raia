@@ -16,11 +16,32 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
 
-            <android.support.v7.widget.RecyclerView
+            <!--loading screen card-->
+            <android.support.v7.widget.CardView
+                android:id="@+id/optionsCardView"
+                android:visibility="gone"
+                android:layout_width="match_parent"
+                app:cardCornerRadius="14dp"
+                android:scaleY="0.2"
+                android:scaleX="0.2"
+                android:translationY="-90dp"
+                android:translationX="-160dp"
+                app:cardElevation="1dp"
+                app:cardBackgroundColor="@color/greyish"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                android:layout_marginTop="50dp"
+                android:layout_height="20dp">
+
+
+            </android.support.v7.widget.CardView>
+
+            <com.bry.raia.Models.MyRecyclerView
                 android:id="@+id/loadedPostsRecyclerView"
                 android:layout_width="match_parent"
-                android:layout_marginTop="60dp"
-                android:layout_marginBottom="70dp"
+                android:layout_marginTop="43dp"
+                android:overScrollMode="never"
+                android:layout_marginBottom="50dp"
                 android:layout_height="match_parent"/>
 
             <ProgressBar

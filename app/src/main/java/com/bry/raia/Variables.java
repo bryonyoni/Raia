@@ -14,4 +14,6 @@ public class Variables {
     public static HashMap<String,Bitmap> blurredBacks = new LinkedHashMap<>();
 
 
+    public static boolean hasReachedBottomOfPage;
+    public static boolean hasOptionsCardOpen = false;
 }

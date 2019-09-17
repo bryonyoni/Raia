@@ -7,27 +7,36 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
+import android.util.Log;
+import android.view.GestureDetector;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 
 import com.bry.raia.Adapters.MainActivityPostItemAdapter;
 import com.bry.raia.Constants;
 import com.bry.raia.Models.Announcement;
+import com.bry.raia.Models.MyRecyclerView;
 import com.bry.raia.Models.Petition;
 import com.bry.raia.Models.PetitionSignature;
 import com.bry.raia.Models.Poll;
 import com.bry.raia.Models.PollOption;
 import com.bry.raia.Models.Post;
 import com.bry.raia.R;
+import com.bry.raia.Services.Utils;
+import com.bry.raia.Variables;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -54,13 +63,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Bind(R.id.backImageView) ImageView backImageView;
     @Bind(R.id.searchCountyEditText) EditText searchCountyEditText;
     @Bind(R.id.selectedCountiesRecyclerView) RecyclerView selectedCountiesRecyclerView;
+    @Bind(R.id.optionsCardView) CardView optionsCardView;
     @Bind(R.id.allCountiesRecyclerView) RecyclerView allCountiesRecyclerView;
 
     @Bind(R.id.accountImageView) ImageView accountImageView;
     @Bind(R.id.uploadPostImageView) ImageView uploadPostImageView;
     @Bind(R.id.messagesImageView) ImageView messagesImageView;
 
-    @Bind(R.id.loadedPostsRecyclerView) RecyclerView loadedPostsRecyclerView;
+    @Bind(R.id.loadedPostsRecyclerView) MyRecyclerView loadedPostsRecyclerView;
     private MainActivityPostItemAdapter mainActivityPostItemAdapter;
     @Bind(R.id.loadFeedProgressBar) ProgressBar loadFeedProgressBar;
     @Bind(R.id.loadingContainerLinearLayout) LinearLayout loadingContainerLinearLayout;
@@ -73,6 +83,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean hasPetitionsLoaded = false;
     private List<Poll> allLoadedPolls = new ArrayList<>();
     private boolean hasPollsLoaded = false;
+    private int mAnimationTime = 300;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -293,7 +304,39 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-//        hideLoadingAnimations();
+        hideLoadingAnimations();
+        if(allLoadedPosts.isEmpty()){
+
+        }
+        setUpOverScrollForLoadMorePosts();
+    }
+
+    private void setUpOverScrollForLoadMorePosts(){
+        swipeTopGestureDetector = new GestureDetector(mContext, new MySwipeForReloadGestureListener());
+
+        loadedPostsRecyclerView.setOnScrollChangedCallback(new MyRecyclerView.OnScrollChangedCallback() {
+            @Override
+            public void onScroll(int l, int t, int oldl, int oldt) {
+                isAtTopOfPage = t<=1;
+            }
+        });
+
+        loadedPostsRecyclerView.setOnTouchEvent(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                if (swipeTopGestureDetector.onTouchEvent(event)) {
+                    return true;
+                }
+                if (event.getAction() == MotionEvent.ACTION_UP) {
+                    if (isDownSwipingBoi) {
+                        isDownSwipingBoi = false;
+                        restoreScrollView();
+                    }
+                }
+                return false;
+            }
+        });
+        restoreScrollView();
     }
 
     private void loadMorePostItems() {
@@ -552,6 +595,204 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         loadingContainerLinearLayout.setVisibility(View.VISIBLE);
         loadedPostsRecyclerView.setVisibility(View.GONE);
         startLoadingAnimations();
+    }
+
+
+
+    private int y_deltaBoi;
+    private boolean isDownSwipingBoi = false;
+    private GestureDetector swipeTopGestureDetector;
+    private boolean isAtTopOfPage = true;
+    private int prevPos = 0;
+
+    class MySwipeForReloadGestureListener extends GestureDetector.SimpleOnGestureListener {
+        int origX = 0;
+        int origY = 0;
+
+
+        @Override
+        public boolean onDown(MotionEvent event) {
+//            Log.d(TAG, "onDown: ");
+            final int X = (int) event.getRawX();
+            final int Y = (int) event.getRawY();
+            Log.e(TAG, "onDown: event.getRawX(): " + event.getRawX() + " event.getRawY()" + event.getRawY());
+
+            RelativeLayout.LayoutParams lParams = (RelativeLayout.LayoutParams) loadedPostsRecyclerView.getLayoutParams();
+            y_deltaBoi = Y - lParams.topMargin;
+
+            origX = lParams.leftMargin;
+            origY = lParams.topMargin;
+
+
+            return true;
+        }
+
+        @Override
+        public boolean onScroll(MotionEvent e1, MotionEvent e2, float distanceX, float distanceY) {
+            final int Y = (int) e2.getRawY();
+            final int X = (int) e2.getRawX();
+
+            if(isAtTopOfPage){
+                onTouchScrollView((double)(Y - y_deltaBoi));
+            }else restoreScrollView();
+            isDownSwipingBoi = true;
+
+            return true;
+        }
+
+        @Override
+        public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX, float velocityY) {
+            Log.d(TAG,"velocityY-"+velocityY);
+            if(isAtTopOfPage) {
+                if (velocityY>0 && Math.abs(velocityY) > Math.abs(velocityX) && Math.abs(velocityY) > 2800 && Math.abs(velocityY) < 8000 ) {
+                    showLoadingScreens();
+                }else{
+                    restoreScrollView();
+                }
+            }else restoreScrollView();
+            isDownSwipingBoi = false;
+            return false;
+
+        }
+
+    }
+
+    private boolean isScrollPosChanged = false;
+    private boolean isOptionsExpanded = false;
+    private void onTouchScrollView(double pos){
+        int trans = (int) ((pos - Utils.dpToPx(10)) * 0.25);
+        if(isOptionsExpanded && trans>0){
+            trans = 0;
+        }
+        Log.e("boiiii","transformation: "+trans);
+
+        if(!isOptionsExpanded){
+            loadedPostsRecyclerView.setTranslationY(trans);
+        }else{
+            loadedPostsRecyclerView.setTranslationY(Utils.dpToPx(20)+trans);
+        }
+        optionsCardView.setVisibility(View.VISIBLE);
+
+        double percentage = ((double)trans) / (double)2400;
+
+        double transY = (1-percentage)* Utils.dpToPx(-90);
+        double transX = (1-percentage)* Utils.dpToPx(-160);
+        if(isOptionsExpanded){
+            transY = (percentage)* Utils.dpToPx(-90);
+            transX = (percentage)* Utils.dpToPx(-160);
+
+            optionsCardView.setScaleX(1f+(float)percentage);
+            optionsCardView.setScaleY(1f+(float) percentage);
+        }else{
+            optionsCardView.setScaleX((float)percentage);
+            if(optionsCardView.getScaleY()==1f){
+//                percentage*=.05;
+            }
+            optionsCardView.setScaleY((float) percentage);
+
+            if(trans>100){
+                optionsCardView.setVisibility(View.VISIBLE);
+            }else{
+                optionsCardView.setVisibility(View.INVISIBLE);
+            }
+        }
+
+        if(isOptionsExpanded){
+            optionsCardView.setTranslationY(-(float) transY);
+            optionsCardView.setTranslationX(-(float) transX);
+        }else {
+            optionsCardView.setTranslationY((float) transY);
+            optionsCardView.setTranslationX((float) transX);
+        }
+    }
+
+    private void restoreScrollView(){
+        isOptionsExpanded = false;
+        Variables.hasOptionsCardOpen = false;
+        final float scale = 0.2f;
+        optionsCardView.animate().setDuration(300).scaleX(scale).scaleY(scale).translationY(Utils.dpToPx(-90))
+                .translationX(Utils.dpToPx(-160)).setInterpolator(new LinearOutSlowInInterpolator()).start();
+
+        optionsCardView.setVisibility(View.VISIBLE);
+        loadedPostsRecyclerView.animate().translationY(0).setDuration(300).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+//                RelativeLayout.LayoutParams par = (RelativeLayout.LayoutParams) webViewCardView.getLayoutParams();
+//                par.topMargin = Utils.dpToPx(3);
+//                webViewCardView.setLayoutParams(par);
+
+                        loadedPostsRecyclerView.setTranslationY(0);
+
+                        optionsCardView.setTranslationY(Utils.dpToPx(-90));
+                        optionsCardView.setTranslationX(Utils.dpToPx(-160));
+
+                        optionsCardView.setScaleX(scale);
+                        optionsCardView.setScaleY(scale);
+
+                        optionsCardView.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                }).start();
+
+    }
+
+    private void showLoadingScreens(){
+        isOptionsExpanded = true;
+        Variables.hasOptionsCardOpen = true;
+        loadedPostsRecyclerView.animate().translationY(Utils.dpToPx(20)).setDuration(300).setInterpolator(new LinearOutSlowInInterpolator()).start();
+
+        optionsCardView.setVisibility(View.VISIBLE);
+
+        optionsCardView.animate().setDuration(300).scaleX(1f).scaleY(1f).translationY(0)
+                .translationX(0).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        optionsCardView.setTranslationY(0);
+                        optionsCardView.setTranslationX(0);
+
+                        optionsCardView.setScaleX(1f);
+                        optionsCardView.setScaleY(1f);
+
+                        optionsCardView.setVisibility(View.VISIBLE);
+
+                        loadedPostsRecyclerView.setTranslationY(Utils.dpToPx(20));
+
+//                        RelativeLayout.LayoutParams par = (RelativeLayout.LayoutParams) webViewCardView.getLayoutParams();
+//                        par.topMargin = Utils.dpToPx(210);
+//                        webViewCardView.setLayoutParams(par);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                }).start();
     }
 
 }
