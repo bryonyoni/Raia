@@ -96,6 +96,7 @@ public class Petition {
     }
 
     public County getCounty() {
+        if(county==null)return new County();
         return county;
     }
 

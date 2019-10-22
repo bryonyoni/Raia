@@ -16,4 +16,7 @@ public class Variables {
 
     public static boolean hasReachedBottomOfPage;
     public static boolean hasOptionsCardOpen = false;
+
+    public static Bitmap image;
+    public static Bitmap imageBack;
 }

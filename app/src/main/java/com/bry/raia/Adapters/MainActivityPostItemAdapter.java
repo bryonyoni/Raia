@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.media.Image;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
@@ -16,6 +17,7 @@ import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -28,6 +30,7 @@ import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextClock;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bry.raia.Activities.MainActivity;
 import com.bry.raia.Activities.ViewPostActivity;
@@ -45,6 +48,11 @@ import com.bry.raia.Services.Utils;
 import com.bry.raia.Variables;
 import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseError;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
+import com.google.firebase.database.ValueEventListener;
 
 import java.util.Calendar;
 import java.util.List;
@@ -54,6 +62,8 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
     private Activity mActivity;
     OnBottomReachedListener onBottomReachedListener;
     private boolean canAnimateLoadingScreens,canAnimateImageLoadingScreens;
+    private Bitmap postImage;
+    private Bitmap postImageBack;
 
 
     public MainActivityPostItemAdapter(List<Post> mPosts, Activity activity) {
@@ -85,10 +95,12 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
     @Override
     public void onBindViewHolder(@NonNull final MainActivityPostItemAdapter.ViewHolder viewHolder, int i) {
         final Post post = mPosts.get(i);
+
         canAnimateLoadingScreens = true;
         if(post.getPostType().equals(Constants.ANNOUNCEMENTS)){
             //its a announcement
             Announcement announcement = post.getAnnouncement();
+            Log.e("PostItemAdapter","Post is an announcement: "+announcement.getAnnouncementTitle());
             viewHolder.announcementCardView.setVisibility(View.VISIBLE);
             viewHolder.announcementUploaderNameTextView.setText(announcement.getUploaderUsername());
             if(announcement.getCounty()!=null) {
@@ -96,80 +108,131 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
                 viewHolder.announcementDetailsTextView.setText(announcement.getAnnouncementTitle());
             }
 
+            canAnimateImageLoadingScreens = true;
             startImageLoadingAnimations(viewHolder);
-            BlurPostBackTask bp = new BlurPostBackTask();
-            bp.setFields(post,viewHolder.petitionImageViewBack,viewHolder.petitionImageView);
+            loadImageFromFirebase(viewHolder,post);
+//            BlurPostBackTask bp = new BlurPostBackTask();
+//            bp.setFields(post,viewHolder.petitionImageViewBack,viewHolder.petitionImageView);
 
             viewHolder.announcementImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Variables.postToBeViewed  = post;
+                    BitmapDrawable bitmapDrawable = ((BitmapDrawable) viewHolder.announcementImageView.getDrawable());
+                    Bitmap bitmap = bitmapDrawable .getBitmap();
+                    Variables.image = bitmap;
+                    BitmapDrawable bitmapDrawableBack = ((BitmapDrawable) viewHolder.announcementPostImageViewBack.getDrawable());
+                    Bitmap bitmapBack = bitmapDrawableBack.getBitmap();
+                    Variables.imageBack = bitmapBack;
                     Variables.postToBeViewedImageBackground = Variables.blurredBacks.get(post.getAnnouncement().getAnnouncementId());
 
-                    Intent i = new Intent(mActivity, ViewPostActivity.class);
-                    mActivity.startActivity(i);
+//                    Intent i = new Intent(mActivity, ViewPostActivity.class);
+//                    mActivity.startActivity(i);
+
+                    LocalBroadcastManager.getInstance(mActivity).sendBroadcast(new Intent(Constants.SHOW_VIEW_POST));
                 }
             });
 
 
-        }else if(post.getPostType().equals(Constants.PETITIONS)){
+        }
+        else if(post.getPostType().equals(Constants.PETITIONS)){
             //its a petition
             final Petition petition = post.getPetition();
+            Log.e("PostItemAdapter","Post is a petition: "+petition.getPetitionTitle());
             viewHolder.petitionCardView.setVisibility(View.VISIBLE);
             viewHolder.petitionUploaderNameTextView.setText(petition.getUploaderUsername());
             viewHolder.petitionCountyTextView.setText(petition.getCounty().getCountyName());
             viewHolder.petitionDetailsTextView.setText(petition.getPetitionTitle());
 
 //            viewHolder.petitionImageView.setImageBitmap(petition.getPetitionBitmap());
-            BlurPostBackTask bp = new BlurPostBackTask();
+//            BlurPostBackTask bp = new BlurPostBackTask();
 
+            canAnimateImageLoadingScreens = true;
             startImageLoadingAnimations(viewHolder);
-            bp.setFields(post,viewHolder.announcementPostImageViewBack,viewHolder.announcementImageView);
+            loadImageFromFirebase(viewHolder,post);
+//            bp.setFields(post,viewHolder.announcementPostImageViewBack,viewHolder.announcementImageView);
 
             viewHolder.numberSignedTextView.setText(String.format("%d signed", petition.getSignatures().size()));
 
             long percentage = (petition.getSignatures().size()/petition.getPetitionSignatureTarget())*100;
-            if(percentage<100){
-                //just sets the translation to a fraction of the number of people left to sign, multiplied by the petition bar width
-                int barWidth = Utils.dpToPx(Constants.POST_CARD_VIEW_WIDTH-20);
-                int translation = (int)(((100-(percentage/100))/100)*barWidth);
-                viewHolder.petitionPercentageView.setTranslationX(translation);
-            }else{
-                viewHolder.petitionPercentageView.setTranslationX(0);
+            Log.e("PostItemAdapter","percentage: "+(int)percentage);
+            int per = (int) percentage;
+            viewHolder.petitionPercentageProgressView.setProgress(per);
+
+
+            if(new SharedPreferenceManager(mActivity).hasUserSignedPetition(petition)){
+                viewHolder.signTextView.setAlpha(0.4f);
             }
 
             viewHolder.signTextView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
-                    updatePetitionDataInSharedPreferencesAndFirebase(petition);
-                    viewHolder.signTextView.setVisibility(View.INVISIBLE);
+                    if(!new SharedPreferenceManager(mActivity).hasUserSignedPetition(petition)) {
+                        updatePetitionDataInSharedPreferencesAndFirebase(petition);
+                        viewHolder.signTextView.setAlpha(0.4f);
+                    }
                 }
             });
 
-            if(new SharedPreferenceManager(mActivity).hasUserSignedPetition(petition)){
-                viewHolder.signTextView.setVisibility(View.INVISIBLE);
-            }
 
             viewHolder.petitionImageView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Variables.postToBeViewed  = post;
+                    BitmapDrawable bitmapDrawable = ((BitmapDrawable) viewHolder.petitionImageView.getDrawable());
+                    Bitmap bitmap = bitmapDrawable .getBitmap();
+                    Variables.image = bitmap;
+                    BitmapDrawable bitmapDrawableBack = ((BitmapDrawable) viewHolder.petitionImageViewBack.getDrawable());
+                    Bitmap bitmapBack = bitmapDrawableBack.getBitmap();
+                    Variables.imageBack = bitmapBack;
                     Variables.postToBeViewedImageBackground = Variables.blurredBacks.get(post.getPetition().getPetitionId());
 
-                    Intent i = new Intent(mActivity, ViewPostActivity.class);
-                    mActivity.startActivity(i);
+//                    Intent i = new Intent(mActivity, ViewPostActivity.class);
+//                    mActivity.startActivity(i);
+
+                    LocalBroadcastManager.getInstance(mActivity).sendBroadcast(new Intent(Constants.SHOW_VIEW_POST));
+
                 }
             });
 
-        }else{
+        }
+        else if(post.getPostType().equals(Constants.POLLS)){
             //its a poll
             final Poll poll = post.getPoll();
+            Log.e("PostItemAdapter","Post is a poll: "+poll.getPollTitle()+ " type: "+post.getPostType());
             viewHolder.pollCardView.setVisibility(View.VISIBLE);
             viewHolder.pollUploaderNameTextView.setText(poll.getUploaderUsername());
             viewHolder.pollCountyNameTextView.setText(poll.getCounty().getCountyName());
             viewHolder.pollDetailsTextView.setText(poll.getPollTitle());
 
-            /*To-Do: add logic for auto setting previously checked data*/
+            if(new SharedPreferenceManager(mActivity).hasUserVotedInPoll(poll)){
+                PollOption po = new SharedPreferenceManager(mActivity).getWhichPollOptionSelected(poll);
+                if(poll.getPollOptions().get(0).getOptionId().equals(po.getOptionId())){
+                    viewHolder.pollOption1CheckBox.setChecked(true);
+                    viewHolder.pollOption1CheckBox.setEnabled(false);
+                    viewHolder.option2CheckBox.setEnabled(false);
+                    viewHolder.option3CheckBox.setEnabled(false);
+                    viewHolder.option4CheckBox.setEnabled(false);
+                }else if(poll.getPollOptions().size()>1 && poll.getPollOptions().get(1).getOptionId().equals(po.getOptionId())){
+                    viewHolder.option2CheckBox.setChecked(true);
+                    viewHolder.pollOption1CheckBox.setEnabled(false);
+                    viewHolder.option2CheckBox.setEnabled(false);
+                    viewHolder.option3CheckBox.setEnabled(false);
+                    viewHolder.option4CheckBox.setEnabled(false);
+                }else if(poll.getPollOptions().size()>2 && poll.getPollOptions().get(2).getOptionId().equals(po.getOptionId())){
+                    viewHolder.option3CheckBox.setChecked(true);
+                    viewHolder.pollOption1CheckBox.setEnabled(false);
+                    viewHolder.option2CheckBox.setEnabled(false);
+                    viewHolder.option3CheckBox.setEnabled(false);
+                    viewHolder.option4CheckBox.setEnabled(false);
+                }else if(poll.getPollOptions().size()>3 && poll.getPollOptions().get(3).getOptionId().equals(po.getOptionId())){
+                    viewHolder.option4CheckBox.setChecked(true);
+                    viewHolder.pollOption1CheckBox.setEnabled(false);
+                    viewHolder.option2CheckBox.setEnabled(false);
+                    viewHolder.option3CheckBox.setEnabled(false);
+                    viewHolder.option4CheckBox.setEnabled(false);
+                }
+            }
 
             viewHolder.pollOption1CheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
                 @Override
@@ -228,41 +291,15 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
             });
             setPollData(poll,viewHolder,false);
 
-            if(new SharedPreferenceManager(mActivity).hasUserVotedInPoll(poll)){
-                PollOption po = new SharedPreferenceManager(mActivity).getWhichPollOptionSelected(poll);
-                if(poll.getPollOptions().get(0).getOptionId().equals(po.getOptionId())){
-                    viewHolder.pollOption1CheckBox.setChecked(true);
-                    viewHolder.pollOption1CheckBox.setEnabled(false);
-                    viewHolder.option2CheckBox.setEnabled(false);
-                    viewHolder.option3CheckBox.setEnabled(false);
-                    viewHolder.option4CheckBox.setEnabled(false);
-                }else if(poll.getPollOptions().size()>1 && poll.getPollOptions().get(1).getOptionId().equals(po.getOptionId())){
-                    viewHolder.option2CheckBox.setChecked(true);
-                    viewHolder.pollOption1CheckBox.setEnabled(false);
-                    viewHolder.option2CheckBox.setEnabled(false);
-                    viewHolder.option3CheckBox.setEnabled(false);
-                    viewHolder.option4CheckBox.setEnabled(false);
-                }else if(poll.getPollOptions().size()>2 && poll.getPollOptions().get(2).getOptionId().equals(po.getOptionId())){
-                    viewHolder.option3CheckBox.setChecked(true);
-                    viewHolder.pollOption1CheckBox.setEnabled(false);
-                    viewHolder.option2CheckBox.setEnabled(false);
-                    viewHolder.option3CheckBox.setEnabled(false);
-                    viewHolder.option4CheckBox.setEnabled(false);
-                }else if(poll.getPollOptions().size()>3 && poll.getPollOptions().get(3).getOptionId().equals(po.getOptionId())){
-                    viewHolder.option4CheckBox.setChecked(true);
-                    viewHolder.pollOption1CheckBox.setEnabled(false);
-                    viewHolder.option2CheckBox.setEnabled(false);
-                    viewHolder.option3CheckBox.setEnabled(false);
-                    viewHolder.option4CheckBox.setEnabled(false);
-                }
-            }
-
             viewHolder.pollCardView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Variables.postToBeViewed  = post;
-                    Intent i = new Intent(mActivity, ViewPostActivity.class);
-                    mActivity.startActivity(i);
+//                    Intent i = new Intent(mActivity, ViewPostActivity.class);
+//                    mActivity.startActivity(i);
+
+                    LocalBroadcastManager.getInstance(mActivity).sendBroadcast(new Intent(Constants.SHOW_VIEW_POST));
+
                 }
             });
 
@@ -271,8 +308,8 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
         if(mPosts.size()-1==i){
             //its the last element so showing loading animation below
             canAnimateLoadingScreens = true;
-            viewHolder.loadingContainerLinearLayout.setVisibility(View.VISIBLE);
-            startLoadingAnimations(viewHolder.loadingContainerLinearLayout);
+            viewHolder.loadingContainerLinearLayout.setVisibility(View.GONE);
+//            startLoadingAnimations(viewHolder.loadingContainerLinearLayout);
 
             LocalBroadcastManager.getInstance(mActivity).registerReceiver(new BroadcastReceiver() {
                 @Override
@@ -289,6 +326,42 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
         }
 
     }
+
+    private void loadImageFromFirebase(final ViewHolder viewHolder,final Post post){
+        String id = "";
+        if(post.getPostType().equals(Constants.ANNOUNCEMENTS)){
+            id = post.getAnnouncement().getAnnouncementId();
+        }else if(post.getPostType().equals(Constants.PETITIONS)){
+            id = post.getPetition().getPetitionId();
+        }
+
+        DatabaseReference imageRef = FirebaseDatabase.getInstance().getReference(Constants.UPLOAD_IMAGES).child(id);
+        imageRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                String image = dataSnapshot.getValue(String.class);
+                if(post.getPostType().equals(Constants.ANNOUNCEMENTS)){
+                    post.getAnnouncement().setEncodedAnnouncementImage(image);
+                }else if(post.getPostType().equals(Constants.PETITIONS)){
+                    post.getPetition().setEncodedPetitionImage(image);
+                }
+
+                generateBitmaps(viewHolder,post);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private void generateBitmaps(final ViewHolder viewHolder,final Post post){
+        BlurPostBackTask bl = new BlurPostBackTask();
+        bl.setFields(post,viewHolder);
+        bl.execute();
+    }
+
 
     private void startLoadingAnimations(final LinearLayout loadingContainerLinearLayout){
         final float alpha = 0.3f;
@@ -345,15 +418,14 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
     }
 
     private void startImageLoadingAnimations(final ViewHolder viewHolder){
-        final float alpha = 0.3f;
-        final int duration = 2000;
+        final float alpha = 0f;
+        final int duration = 600;
 
-        final float alphaR = 1f;
-        final int durationR = 800;
+        final float alphaR = 0.4f;
+        final int durationR = 600;
 
         if(canAnimateImageLoadingScreens) {
-            viewHolder.petitionImageViewBack.setBackgroundResource(R.drawable.b);
-            viewHolder.announcementPostImageViewBack.setBackgroundResource(R.drawable.b);
+            viewHolder.announcementPostImageViewBack.setVisibility(View.VISIBLE);
 
             viewHolder.announcementPostImageViewBack.animate().alpha(alpha).setDuration(duration).setInterpolator(new LinearInterpolator())
                     .setListener(new Animator.AnimatorListener() {
@@ -442,81 +514,92 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
                         }
                     }).start();
         }else{
+            viewHolder.petitionImageViewBack.setVisibility(View.VISIBLE);
             viewHolder.petitionImageViewBack.clearAnimation();
             viewHolder.announcementPostImageViewBack.clearAnimation();
 
-            viewHolder.announcementPostImageViewBack.setAlpha(1f);
-            viewHolder.petitionImageViewBack.setAlpha(1f);
+//            viewHolder.announcementPostImageViewBack.setAlpha(0.25f);
+//            viewHolder.petitionImageViewBack.setAlpha(0.25f);
         }
+
     }
 
-    private void stopImageLoadingAnimations(){
+    private void stopImageLoadingAnimations(final ViewHolder viewHolder){
         canAnimateImageLoadingScreens = false;
     }
 
     private void setPollData(Poll poll, ViewHolder viewHolder, boolean isShowingResult){
+        isShowingResult = new SharedPreferenceManager(mActivity).hasUserVotedInPoll(poll);
+
         int totalVotes = 0;
         int barWidth = Utils.dpToPx(Constants.POST_CARD_VIEW_WIDTH-20);
         for(PollOption op:poll.getPollOptions()){
             totalVotes+=op.getVotes();
         }
+        viewHolder.option1LinearLayout.setVisibility(View.GONE);
+        viewHolder.option2LinearLayout.setVisibility(View.GONE);
+        viewHolder.option3LinearLayout.setVisibility(View.GONE);
+        viewHolder.option4LinearLayout.setVisibility(View.GONE);
         //option 1
         viewHolder.pollOption1CheckBox.setText(poll.getPollOptions().get(0).getOptionText());
         viewHolder.option1LinearLayout.setVisibility(View.VISIBLE);
-        long option1Percentage = (poll.getPollOptions().get(0).getVotes()/totalVotes)*100;
+
+        if(totalVotes==0) viewHolder.pollVoteCountTextView.setText(mActivity.getResources().getString(R.string.zero_votes));
+        else if(totalVotes==1)viewHolder.pollVoteCountTextView.setText(mActivity.getResources().getString(R.string.one_vote));
+        else viewHolder.pollVoteCountTextView.setText(totalVotes+mActivity.getResources().getString(R.string.votes));
+
+        int div = totalVotes;
+        if(div==0) div=1;
+        int option1Percentage = (int)((poll.getPollOptions().get(0).getVotes()/(div))*100);
         if(isShowingResult){
             viewHolder.option1PercentageTextView.setText(option1Percentage+"%");
-            int translation1 = (int)(((100-(option1Percentage/100))/100)*barWidth);
-            viewHolder.option1PercentageBarView.setTranslationX(translation1);
+            viewHolder.option1PercentageBarView.setProgress(option1Percentage);
         }else{
             viewHolder.option1PercentageTextView.setText("0%");
-            viewHolder.option1PercentageBarView.setTranslationX(0);
+            viewHolder.option1PercentageBarView.setProgress(option1Percentage);
         }
 
-        if(poll.getPollOptions().get(1)!=null) {
+        if(poll.getPollOptions().size()>1) {
             //option 2
             viewHolder.option2CheckBox.setText(poll.getPollOptions().get(1).getOptionText());
             viewHolder.option2LinearLayout.setVisibility(View.VISIBLE);
-            long option2Percentage = (poll.getPollOptions().get(1).getVotes() / totalVotes) * 100;
+            int option2Percentage = (int)(poll.getPollOptions().get(1).getVotes() / div) * 100;
             if(isShowingResult){
                 viewHolder.option2PercentageTextView.setText(option2Percentage + "%");
-                int translation2 = (int) (((100 - (option2Percentage / 100)) / 100) * barWidth);
-                viewHolder.option2PercentageBar.setTranslationX(translation2);
+                viewHolder.option2PercentageBar.setProgress(option2Percentage);
             }else{
                 viewHolder.option2PercentageTextView.setText("0%");
-                viewHolder.option2PercentageBar.setTranslationX(0);
+                viewHolder.option2PercentageBar.setProgress(option2Percentage);
             }
 
         }
 
-        if(poll.getPollOptions().get(2)!=null) {
+        if(poll.getPollOptions().size()>2) {
             //option 3
             viewHolder.option3CheckBox.setText(poll.getPollOptions().get(2).getOptionText());
             viewHolder.option3LinearLayout.setVisibility(View.VISIBLE);
-            long option3Percentage = (poll.getPollOptions().get(2).getVotes() / totalVotes) * 100;
+            int option3Percentage = (int)(poll.getPollOptions().get(2).getVotes() / div) * 100;
             if(isShowingResult){
                 viewHolder.option3PercentageTextView.setText(option3Percentage + "%");
-                int translation3 = (int) (((100 - (option3Percentage / 100)) / 100) * barWidth);
-                viewHolder.option3PercentageView.setTranslationX(translation3);
+                viewHolder.option3PercentageView.setProgress(option3Percentage);
             }else{
                 viewHolder.option3PercentageTextView.setText("0%");
-                viewHolder.option3PercentageView.setTranslationX(0);
+                viewHolder.option3PercentageView.setProgress(option3Percentage);
             }
 
         }
 
-        if(poll.getPollOptions().get(3)!=null) {
+        if(poll.getPollOptions().size()>3) {
             //option 4
             viewHolder.option4LinearLayout.setVisibility(View.VISIBLE);
             viewHolder.option4CheckBox.setText(poll.getPollOptions().get(3).getOptionText());
-            long option4Percentage = (poll.getPollOptions().get(3).getVotes() / totalVotes) * 100;
+            int option4Percentage = (int)(poll.getPollOptions().get(3).getVotes() / div) * 100;
             if(isShowingResult){
                 viewHolder.option4PercentageTextView.setText(option4Percentage + "%");
-                int translation4 = (int) (((100 - (option4Percentage / 100)) / 100) * barWidth);
-                viewHolder.option4PercentageBarView.setTranslationX(translation4);
+                viewHolder.option4PercentageBarView.setProgress(option4Percentage);
             }else{
                 viewHolder.option4PercentageTextView.setText("0%");
-                viewHolder.option4PercentageBarView.setTranslationX(0);
+                viewHolder.option4PercentageBarView.setProgress(option4Percentage);
             }
 
         }
@@ -531,29 +614,32 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
     private class BlurPostBackTask extends AsyncTask<String, Void, String> {
         private Post post;
         private Bitmap blurredBackImage;
-        private ImageView announcementImageView;
-        private ImageView announcementImageViewBack;
+        private Bitmap backImage;
+        private ViewHolder viewHolder;
 
-        public void setFields(Post post, ImageView annImageViewBack,ImageView annImageView){
+        public void setFields(Post post, ViewHolder viewHolder){
             this.post = post;
-            this.announcementImageView = annImageView;
-            this.announcementImageViewBack = annImageViewBack;
+            this.viewHolder = viewHolder;
         }
 
         @Override
         protected String doInBackground(String... strings) {
+            String image;
             if(post.getPostType().equals(Constants.ANNOUNCEMENTS)){
-                //its a announcement
-                Announcement announcement = post.getAnnouncement();
-                blurredBackImage = fastBlur(announcement.getAnnouncementBitmap(),0.7f,27);
-            }else if(post.getPostType().equals(Constants.PETITIONS)){
-                //its a petition
-                Petition petition = post.getPetition();
-                blurredBackImage = fastBlur(petition.getPetitionBitmap(),0.7f,27);
+                image = post.getAnnouncement().getEncodedAnnouncementImage();
             }else{
-                //its a poll
-
+                image = post.getPetition().getEncodedPetitionImage();
             }
+            byte[] decodedByteArray = android.util.Base64.decode(image, Base64.DEFAULT);
+            backImage = BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
+            if(post.getPostType().equals(Constants.ANNOUNCEMENTS)){
+                post.getAnnouncement().setAnnouncementBitmap(backImage);
+            }else{
+                post.getPetition().setPetitionBitmap(backImage);
+            }
+            blurredBackImage = fastBlur(backImage,0.7f,27);
+
+
 
             return "executed";
         }
@@ -561,15 +647,21 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
         @Override
         protected void onPostExecute(String result) {
             super.onPostExecute(result);
-            stopImageLoadingAnimations();
+            stopImageLoadingAnimations(viewHolder);
             if(post.getPostType().equals(Constants.ANNOUNCEMENTS)) {
                 Variables.blurredBacks.put(post.getAnnouncement().getAnnouncementId(),blurredBackImage);
-                announcementImageViewBack.setImageBitmap(blurredBackImage);
-                announcementImageView.setImageBitmap(post.getAnnouncement().getAnnouncementBitmap());
+                viewHolder.announcementPostImageViewBack.setImageBitmap(blurredBackImage);
+                viewHolder.announcementImageView.setImageBitmap(post.getAnnouncement().getAnnouncementBitmap());
+                viewHolder.announcementPostImageViewBack.setAlpha(0.25f);
+                postImage = backImage;
+                postImageBack = blurredBackImage;
             }else if(post.getPostType().equals(Constants.PETITIONS)){
                 Variables.blurredBacks.put(post.getPetition().getPetitionId(),blurredBackImage);
-                announcementImageViewBack.setImageBitmap(blurredBackImage);
-                announcementImageView.setImageBitmap(post.getPetition().getPetitionBitmap());
+                viewHolder.petitionImageViewBack.setImageBitmap(blurredBackImage);
+                viewHolder.petitionImageView.setImageBitmap(post.getPetition().getPetitionBitmap());
+                viewHolder.petitionImageViewBack.setAlpha(0.25f);
+                postImage = backImage;
+                postImageBack = blurredBackImage;
             }
         }
 
@@ -807,22 +899,24 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
        LinearLayout option1LinearLayout;
        CheckBox pollOption1CheckBox;
        TextView option1PercentageTextView;
-       View option1PercentageBarView;
+       ProgressBar option1PercentageBarView;
 
        LinearLayout option2LinearLayout;
        CheckBox option2CheckBox;
        TextView option2PercentageTextView;
-       View option2PercentageBar;
+       ProgressBar option2PercentageBar;
 
        LinearLayout option3LinearLayout;
        CheckBox option3CheckBox;
        TextView option3PercentageTextView;
-       View option3PercentageView;
+       ProgressBar option3PercentageView;
 
        LinearLayout option4LinearLayout;
        CheckBox option4CheckBox;
        TextView option4PercentageTextView;
-       View option4PercentageBarView;
+       ProgressBar option4PercentageBarView;
+
+       TextView pollVoteCountTextView;
 
        //petitionPart
        CardView petitionCardView;
@@ -832,7 +926,7 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
        ImageView petitionImageViewBack;
        ImageView petitionImageView;
        ProgressBar petitionBlurProgressBar;
-       View petitionPercentageView;
+       ProgressBar petitionPercentageProgressView;
        TextView numberSignedTextView;
        TextView signTextView;
 
@@ -865,7 +959,7 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
             option2LinearLayout = itemView.findViewById(R.id.option2LinearLayout);
             option2CheckBox = itemView.findViewById(R.id.option2CheckBox);
             option2PercentageTextView = itemView.findViewById(R.id.option2PercentageTextView);
-            option2PercentageBar = itemView.findViewById(R.id.option2PercentageBar);
+            option2PercentageBar = itemView.findViewById(R.id.option2PercentageBarView);
 
             option3LinearLayout = itemView.findViewById(R.id.option3LinearLayout);
             option3CheckBox = itemView.findViewById(R.id.option3CheckBox);
@@ -877,6 +971,8 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
             option4PercentageTextView = itemView.findViewById(R.id.option4PercentageTextView);
             option4PercentageBarView = itemView.findViewById(R.id.option4PercentageBarView);
 
+           pollVoteCountTextView = itemView.findViewById(R.id.pollVoteCountTextView);
+
             //petition ui
             petitionCardView = itemView.findViewById(R.id.petitionCardView);
             petitionUploaderNameTextView = itemView.findViewById(R.id.petitionUploaderNameTextView);
@@ -885,7 +981,7 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
             petitionImageViewBack = itemView.findViewById(R.id.petitionImageViewBack);
             petitionImageView = itemView.findViewById(R.id.petitionImageView);
             petitionBlurProgressBar = itemView.findViewById(R.id.petitionBlurProgressBar);
-            petitionPercentageView = itemView.findViewById(R.id.petitionPercentageView);
+            petitionPercentageProgressView = itemView.findViewById(R.id.petitionPercentageProgressView);
             numberSignedTextView = itemView.findViewById(R.id.numberSignedTextView);
             signTextView = itemView.findViewById(R.id.signTextView);
 

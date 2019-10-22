@@ -17,9 +17,9 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-import com.bry.raia.Adapters.MainActivityPostItemAdapter;
 import com.bry.raia.Adapters.ViewPostActivityCommentItemAdapter;
 import com.bry.raia.Constants;
 import com.bry.raia.Models.Announcement;
@@ -65,10 +65,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
     @Bind(R.id.loadingContainerLinearLayout) LinearLayout loadingContainerLinearLayout;
     private boolean canAnimateLoadingScreens = false;
 
-    @Bind(R.id.pollCardView)CardView pollCardView;
-    @Bind(R.id.pollUploaderNameTextView)TextView pollUploaderNameTextView;
-    @Bind(R.id.pollCountyNameTextView)TextView pollCountyNameTextView;
-    @Bind(R.id.pollDetailsTextView)TextView pollDetailsTextView;
+    @Bind(R.id.pollLinearLayout) RelativeLayout pollLinearLayout;
     @Bind(R.id.option1LinearLayout)LinearLayout option1LinearLayout;
     @Bind(R.id.pollOption1CheckBox)CheckBox pollOption1CheckBox;
     @Bind(R.id.option1PercentageTextView)TextView option1PercentageTextView;
@@ -166,8 +163,8 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
             userNameTextView.setText(String.format("By %s to %s", announcement.getUploaderUsername(), announcement.getCounty().getCountyName()));
             postTitleTextView.setText(announcement.getAnnouncementTitle());
 
-            announcementImageView.setImageBitmap(announcement.getAnnouncementBitmap());
-            announcementPostImageViewBack.setImageBitmap(Variables.postToBeViewedImageBackground);
+            announcementImageView.setImageBitmap(Variables.image);
+            announcementPostImageViewBack.setImageBitmap(Variables.imageBack);
         }else if(mPost.getPostType().equals(Constants.PETITIONS)){
             //its a petition
             final Petition petition = mPost.getPetition();
@@ -176,8 +173,8 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
             userNameTextView.setText(String.format("By %s to %s", petition.getUploaderUsername(), petition.getCounty().getCountyName()));
             postTitleTextView.setText(petition.getPetitionTitle());
 
-            petitionImageView.setImageBitmap(petition.getPetitionBitmap());
-            petitionImageViewBack.setImageBitmap(Variables.postToBeViewedImageBackground);
+            petitionImageView.setImageBitmap(Variables.image);
+            petitionImageViewBack.setImageBitmap(Variables.imageBack);
             numberSignedTextView.setText(String.format("%d signed", petition.getSignatures().size()));
 
             long percentage = (petition.getSignatures().size()/petition.getPetitionSignatureTarget())*100;
@@ -205,10 +202,9 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
         }else {
             //its a poll
             final Poll poll = mPost.getPoll();
-            pollCardView.setVisibility(View.VISIBLE);
-            pollUploaderNameTextView.setText(poll.getUploaderUsername());
-            pollCountyNameTextView.setText(poll.getCounty().getCountyName());
-            pollDetailsTextView.setText(poll.getPollTitle());
+            pollLinearLayout.setVisibility(View.VISIBLE);
+            userNameTextView.setText("By "+poll.getUploaderUsername());
+            postTitleTextView.setText(poll.getPollTitle());
 
             /*To-Do: add logic for auto setting previously checked data*/
 

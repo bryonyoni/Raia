@@ -33,4 +33,6 @@ public class Constants {
     public static final String COMMENTS = "Comments";
     public static final String REPLIES = "Replies";
 
+    public static final String SHOW_VIEW_POST = "SHOW_VIEW_POST";
+
 }

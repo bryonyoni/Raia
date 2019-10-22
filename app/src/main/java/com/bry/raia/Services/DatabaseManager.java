@@ -189,7 +189,7 @@ public class DatabaseManager {
     }
 
     public DatabaseManager updatePetitionSignatureData(Petition p, PetitionSignature signature){
-        DatabaseReference signatureRef = FirebaseDatabase.getInstance().getReference(Constants.POLLS).child(p.getPetitionId())
+        DatabaseReference signatureRef = FirebaseDatabase.getInstance().getReference(Constants.PETITIONS).child(p.getPetitionId())
                 .child(Constants.PETITION_SIGNATURES).child(signature.getSignerId());
         signatureRef.setValue(signature);
 

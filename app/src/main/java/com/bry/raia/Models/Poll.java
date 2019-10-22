@@ -78,6 +78,7 @@ public class Poll {
     }
 
     public County getCounty() {
+        if(county==null) return new County();
         return county;
     }
 

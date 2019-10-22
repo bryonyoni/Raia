@@ -44,9 +44,9 @@ public class Post {
             type= Constants.ANNOUNCEMENTS;
         }else if(petition!=null){
             type= Constants.PETITIONS;
-        }else{
+        }else if(poll!=null){
             type= Constants.POLLS;
-        }
+        }else type = null;
         return type;
     }
 

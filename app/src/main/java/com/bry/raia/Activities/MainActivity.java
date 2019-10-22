@@ -1,12 +1,15 @@
 package com.bry.raia.Activities;
 
 import android.animation.Animator;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -19,11 +22,15 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
+import android.widget.Toast;
 
 import com.bry.raia.Adapters.MainActivityPostItemAdapter;
 import com.bry.raia.Constants;
@@ -35,8 +42,11 @@ import com.bry.raia.Models.Poll;
 import com.bry.raia.Models.PollOption;
 import com.bry.raia.Models.Post;
 import com.bry.raia.R;
+import com.bry.raia.Services.DatabaseManager;
+import com.bry.raia.Services.SharedPreferenceManager;
 import com.bry.raia.Services.Utils;
 import com.bry.raia.Variables;
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -44,6 +54,7 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -63,7 +74,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Bind(R.id.backImageView) ImageView backImageView;
     @Bind(R.id.searchCountyEditText) EditText searchCountyEditText;
     @Bind(R.id.selectedCountiesRecyclerView) RecyclerView selectedCountiesRecyclerView;
-    @Bind(R.id.optionsCardView) CardView optionsCardView;
+    @Bind(R.id.loadNewPostsLoaderLinearLayout) LinearLayout loadNewPostsLoaderLinearLayout;
     @Bind(R.id.allCountiesRecyclerView) RecyclerView allCountiesRecyclerView;
 
     @Bind(R.id.accountImageView) ImageView accountImageView;
@@ -85,6 +96,47 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean hasPollsLoaded = false;
     private int mAnimationTime = 300;
 
+    @Bind(R.id.viewPostRelativeLayout) RelativeLayout viewPostRelativeLayout;
+    private boolean isViewPostShowing = false;
+    @Bind(R.id.postTypeTextView) TextView postTypeTextView;
+    @Bind(R.id.userNameTextView) TextView userNameTextView;
+    @Bind(R.id.postTitleTextView) TextView postTitleTextView;
+    @Bind(R.id.announcementCardView) LinearLayout announcementCardView;
+    @Bind(R.id.announcementPostImageViewBack) ImageView announcementPostImageViewBack;
+    @Bind(R.id.announcementImageView) ImageView announcementImageView;
+    @Bind(R.id.AnnouncementTitleTextView) TextView AnnouncementTitleTextView;
+
+    @Bind(R.id.petitionUiLinearLayout) LinearLayout petitionUiLinearLayout;
+    @Bind(R.id.petitionImageViewBack) ImageView petitionImageViewBack;
+    @Bind(R.id.petitionImageView) ImageView petitionImageView;
+    @Bind(R.id.numberSignedTextView) TextView numberSignedTextView;
+    @Bind(R.id.petitionPercentageView) ProgressBar petitionPercentageView;
+    @Bind(R.id.signTextView) TextView signTextView;
+    @Bind(R.id.PetitionTitleTextView) TextView PetitionTitleTextView;
+
+    @Bind(R.id.pollRelativeLayout) RelativeLayout pollRelativeLayout;
+    @Bind(R.id.option1LinearLayout) LinearLayout option1LinearLayout;
+    @Bind(R.id.pollOption1CheckBox)CheckBox pollOption1CheckBox;
+    @Bind(R.id.option1PercentageTextView)TextView option1PercentageTextView;
+    @Bind(R.id.option1PercentageBarView)ProgressBar option1PercentageBarView;
+    @Bind(R.id.option2LinearLayout)LinearLayout option2LinearLayout;
+    @Bind(R.id.option2CheckBox)CheckBox option2CheckBox;
+    @Bind(R.id.option2PercentageTextView)TextView option2PercentageTextView;
+    @Bind(R.id.option2PercentageBarView)ProgressBar option2PercentageBar;
+    @Bind(R.id.option3LinearLayout)LinearLayout option3LinearLayout;
+    @Bind(R.id.option3CheckBox)CheckBox option3CheckBox;
+    @Bind(R.id.option3PercentageTextView)TextView option3PercentageTextView;
+    @Bind(R.id.option3PercentageBarView)ProgressBar option3PercentageView;
+    @Bind(R.id.option4LinearLayout)LinearLayout option4LinearLayout;
+    @Bind(R.id.option4CheckBox)CheckBox option4CheckBox;
+    @Bind(R.id.option4PercentageTextView)TextView option4PercentageTextView;
+    @Bind(R.id.option4PercentageBarView)ProgressBar option4PercentageBarView;
+
+    @Bind(R.id.pollVoteCountTextView) TextView pollVoteCountTextView;
+    @Bind(R.id.PollTitleTextView) TextView PollTitleTextView;
+    private boolean isPresetingCheckButons = false;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -94,6 +146,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         setClickListeners();
         loadPosts();
+
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverToViewPost,
+                new IntentFilter(Constants.SHOW_VIEW_POST));
     }
 
     private void setClickListeners() {
@@ -276,15 +331,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         for(Post p: allLoadedPosts){
             if(p.getPostType().equals(Constants.ANNOUNCEMENTS)){
                 //its a announcement
-                if(p.getAnnouncement().getAnnouncementBitmap()==null)
-                    p.getAnnouncement().setAnnouncementBitmap(decodeFromFirebaseBase64(p.getAnnouncement().getEncodedAnnouncementImage()));
+                if(p.getAnnouncement().getAnnouncementBitmap()==null){}
+//                    p.getAnnouncement().setAnnouncementBitmap(decodeFromFirebaseBase64(p.getAnnouncement().getEncodedAnnouncementImage()));
             }else if(p.getPostType().equals(Constants.PETITIONS)){
                 //its a petition
-                if(p.getPetition().getPetitionBitmap()==null)
-                    p.getPetition().setPetitionBitmap(decodeFromFirebaseBase64(p.getPetition().getEncodedPetitionImage()));
-
-            }else{
-                //its a poll
+                if(p.getPetition().getPetitionBitmap()==null){}
+//                    p.getPetition().setPetitionBitmap(decodeFromFirebaseBase64(p.getPetition().getEncodedPetitionImage()));
 
             }
 
@@ -292,6 +344,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void loadPostsIntoRecyclerView() {
+        Log.e("MainActivity","Number of items: "+allLoadedPosts.size());
         mainActivityPostItemAdapter = new MainActivityPostItemAdapter(allLoadedPosts, MainActivity.this);
         loadedPostsRecyclerView.setAdapter(mainActivityPostItemAdapter);
         loadedPostsRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
@@ -308,7 +361,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(allLoadedPosts.isEmpty()){
 
         }
-        setUpOverScrollForLoadMorePosts();
+//        setUpOverScrollForLoadMorePosts();
     }
 
     private void setUpOverScrollForLoadMorePosts(){
@@ -659,61 +712,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private boolean isScrollPosChanged = false;
     private boolean isOptionsExpanded = false;
+    private int tranY = Utils.dpToPx(-190);
     private void onTouchScrollView(double pos){
         int trans = (int) ((pos - Utils.dpToPx(10)) * 0.25);
-        if(isOptionsExpanded && trans>0){
-            trans = 0;
-        }
-        Log.e("boiiii","transformation: "+trans);
-
+        loadNewPostsLoaderLinearLayout.setVisibility(View.VISIBLE);
         if(!isOptionsExpanded){
-            loadedPostsRecyclerView.setTranslationY(trans);
+            loadNewPostsLoaderLinearLayout.setTranslationY(tranY+trans);
+            loadedPostsRecyclerView.setTranslationY(Utils.dpToPx(10)+trans);
         }else{
-            loadedPostsRecyclerView.setTranslationY(Utils.dpToPx(20)+trans);
-        }
-        optionsCardView.setVisibility(View.VISIBLE);
-
-        double percentage = ((double)trans) / (double)2400;
-
-        double transY = (1-percentage)* Utils.dpToPx(-90);
-        double transX = (1-percentage)* Utils.dpToPx(-160);
-        if(isOptionsExpanded){
-            transY = (percentage)* Utils.dpToPx(-90);
-            transX = (percentage)* Utils.dpToPx(-160);
-
-            optionsCardView.setScaleX(1f+(float)percentage);
-            optionsCardView.setScaleY(1f+(float) percentage);
-        }else{
-            optionsCardView.setScaleX((float)percentage);
-            if(optionsCardView.getScaleY()==1f){
-//                percentage*=.05;
-            }
-            optionsCardView.setScaleY((float) percentage);
-
-            if(trans>100){
-                optionsCardView.setVisibility(View.VISIBLE);
-            }else{
-                optionsCardView.setVisibility(View.INVISIBLE);
-            }
+            loadNewPostsLoaderLinearLayout.setTranslationY(Utils.dpToPx(-120)+trans);
+            loadedPostsRecyclerView.setTranslationY(Utils.dpToPx(80)+trans);
         }
 
-        if(isOptionsExpanded){
-            optionsCardView.setTranslationY(-(float) transY);
-            optionsCardView.setTranslationX(-(float) transX);
-        }else {
-            optionsCardView.setTranslationY((float) transY);
-            optionsCardView.setTranslationX((float) transX);
-        }
     }
 
     private void restoreScrollView(){
         isOptionsExpanded = false;
         Variables.hasOptionsCardOpen = false;
-        final float scale = 0.2f;
-        optionsCardView.animate().setDuration(300).scaleX(scale).scaleY(scale).translationY(Utils.dpToPx(-90))
-                .translationX(Utils.dpToPx(-160)).setInterpolator(new LinearOutSlowInInterpolator()).start();
+        loadNewPostsLoaderLinearLayout.animate().setDuration(300).translationY(tranY)
+                .setInterpolator(new LinearOutSlowInInterpolator()).start();
 
-        optionsCardView.setVisibility(View.VISIBLE);
+        loadNewPostsLoaderLinearLayout.setVisibility(View.VISIBLE);
         loadedPostsRecyclerView.animate().translationY(0).setDuration(300).setInterpolator(new LinearOutSlowInInterpolator())
                 .setListener(new Animator.AnimatorListener() {
                     @Override
@@ -728,14 +747,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                webViewCardView.setLayoutParams(par);
 
                         loadedPostsRecyclerView.setTranslationY(0);
-
-                        optionsCardView.setTranslationY(Utils.dpToPx(-90));
-                        optionsCardView.setTranslationX(Utils.dpToPx(-160));
-
-                        optionsCardView.setScaleX(scale);
-                        optionsCardView.setScaleY(scale);
-
-                        optionsCardView.setVisibility(View.GONE);
+                        loadNewPostsLoaderLinearLayout.setTranslationY(tranY);
+                        loadNewPostsLoaderLinearLayout.setVisibility(View.GONE);
                     }
 
                     @Override
@@ -752,14 +765,60 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     private void showLoadingScreens(){
-        isOptionsExpanded = true;
-        Variables.hasOptionsCardOpen = true;
-        loadedPostsRecyclerView.animate().translationY(Utils.dpToPx(20)).setDuration(300).setInterpolator(new LinearOutSlowInInterpolator()).start();
+        if(isOptionsExpanded){
+            restoreScrollView();
+            isOptionsExpanded = false;
+        }else {
+            isOptionsExpanded = true;
+            Variables.hasOptionsCardOpen = true;
+            loadedPostsRecyclerView.animate().translationY(Utils.dpToPx(100)).setDuration(300).setInterpolator(new LinearOutSlowInInterpolator()).start();
 
-        optionsCardView.setVisibility(View.VISIBLE);
+            loadNewPostsLoaderLinearLayout.setVisibility(View.VISIBLE);
 
-        optionsCardView.animate().setDuration(300).scaleX(1f).scaleY(1f).translationY(0)
-                .translationX(0).setInterpolator(new LinearOutSlowInInterpolator())
+            loadNewPostsLoaderLinearLayout.animate().setDuration(300).translationY(Utils.dpToPx(-100))
+                    .setInterpolator(new LinearOutSlowInInterpolator())
+                    .setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            loadNewPostsLoaderLinearLayout.setTranslationY(Utils.dpToPx(-100));
+                            loadNewPostsLoaderLinearLayout.setVisibility(View.VISIBLE);
+                            loadedPostsRecyclerView.setTranslationY(Utils.dpToPx(100));
+
+//                        RelativeLayout.LayoutParams par = (RelativeLayout.LayoutParams) webViewCardView.getLayoutParams();
+//                        par.topMargin = Utils.dpToPx(210);
+//                        webViewCardView.setLayoutParams(par);
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
+
+                        }
+                    }).start();
+        }
+    }
+
+
+    private BroadcastReceiver mMessageReceiverToViewPost = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            showViewPostPart();
+        }
+    };
+
+    private void showViewPostPart(){
+        isViewPostShowing = true;
+        viewPostRelativeLayout.setVisibility(View.VISIBLE);
+        viewPostRelativeLayout.animate().alpha(1f).translationY(0).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
                 .setListener(new Animator.AnimatorListener() {
                     @Override
                     public void onAnimationStart(Animator animator) {
@@ -768,19 +827,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     @Override
                     public void onAnimationEnd(Animator animator) {
-                        optionsCardView.setTranslationY(0);
-                        optionsCardView.setTranslationX(0);
-
-                        optionsCardView.setScaleX(1f);
-                        optionsCardView.setScaleY(1f);
-
-                        optionsCardView.setVisibility(View.VISIBLE);
-
-                        loadedPostsRecyclerView.setTranslationY(Utils.dpToPx(20));
-
-//                        RelativeLayout.LayoutParams par = (RelativeLayout.LayoutParams) webViewCardView.getLayoutParams();
-//                        par.topMargin = Utils.dpToPx(210);
-//                        webViewCardView.setLayoutParams(par);
+                        viewPostRelativeLayout.setAlpha(1f);
+                        viewPostRelativeLayout.setTranslationY(0);
                     }
 
                     @Override
@@ -792,7 +840,299 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     public void onAnimationRepeat(Animator animator) {
 
                     }
-                }).start();
+                });
+
+        Post mPost = Variables.postToBeViewed;
+        if(mPost.getPostType().equals(Constants.ANNOUNCEMENTS)) {
+            Announcement announcement = mPost.getAnnouncement();
+            postTypeTextView.setText(getString(R.string.announcement));
+            userNameTextView.setText(String.format("By %s to %s", announcement.getUploaderUsername(), announcement.getCounty().getCountyName()));
+            postTitleTextView.setText(announcement.getAnnouncementTitle());
+
+            announcementCardView.setVisibility(View.VISIBLE);
+            petitionUiLinearLayout.setVisibility(View.GONE);
+            pollRelativeLayout.setVisibility(View.GONE);
+            announcementImageView.setImageBitmap(Variables.image);
+            announcementPostImageViewBack.setImageBitmap(Variables.imageBack);
+
+            AnnouncementTitleTextView.setText(announcement.getAnnouncementTitle());
+        }else if(mPost.getPostType().equals(Constants.PETITIONS)) {
+            final Petition petition = mPost.getPetition();
+            postTypeTextView.setText(getString(R.string.petition));
+            userNameTextView.setText(String.format("By %s to %s", petition.getUploaderUsername(), petition.getCounty().getCountyName()));
+            postTitleTextView.setText(petition.getPetitionTitle());
+            PetitionTitleTextView.setText(petition.getPetitionTitle());
+
+            petitionUiLinearLayout.setVisibility(View.VISIBLE);
+            announcementCardView.setVisibility(View.GONE);
+            pollRelativeLayout.setVisibility(View.GONE);
+            petitionImageView.setImageBitmap(Variables.image);
+            petitionImageViewBack.setImageBitmap(Variables.imageBack);
+
+            numberSignedTextView.setText(String.format("%d signed", petition.getSignatures().size()));
+
+            long percentage = (petition.getSignatures().size()/petition.getPetitionSignatureTarget())*100;
+            petitionPercentageView.setProgress((int)percentage);
+
+            if(new SharedPreferenceManager(mContext).hasUserSignedPetition(petition)){
+                signTextView.setAlpha(0.4f);
+            }
+
+            signTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(!new SharedPreferenceManager(mContext).hasUserSignedPetition(petition)) {
+                        updatePetitionDataInSharedPreferencesAndFirebase(petition);
+                        signTextView.setAlpha(0.4f);
+                    }
+                }
+            });
+
+        }else{
+            //its a poll
+            final Poll poll = mPost.getPoll();
+            pollRelativeLayout.setVisibility(View.VISIBLE);
+            announcementCardView.setVisibility(View.GONE);
+            petitionUiLinearLayout.setVisibility(View.GONE);
+            postTypeTextView.setText(getString(R.string.poll));
+            userNameTextView.setText(String.format("By %s to %s", poll.getUploaderUsername(), poll.getCounty().getCountyName()));
+            postTitleTextView.setText(poll.getPollTitle());
+            PollTitleTextView.setText(poll.getPollTitle());
+
+
+            if(new SharedPreferenceManager(this).hasUserVotedInPoll(poll)){
+                PollOption po = new SharedPreferenceManager(this).getWhichPollOptionSelected(poll);
+                isPresetingCheckButons = true;
+                if(poll.getPollOptions().get(0).getOptionId().equals(po.getOptionId())){
+                    pollOption1CheckBox.setChecked(true);
+                    pollOption1CheckBox.setEnabled(false);
+                    option2CheckBox.setEnabled(false);
+                    option3CheckBox.setEnabled(false);
+                    option4CheckBox.setEnabled(false);
+                }else if(poll.getPollOptions().size()>1 && poll.getPollOptions().get(1).getOptionId().equals(po.getOptionId())){
+                    option2CheckBox.setChecked(true);
+                    pollOption1CheckBox.setEnabled(false);
+                    option2CheckBox.setEnabled(false);
+                    option3CheckBox.setEnabled(false);
+                    option4CheckBox.setEnabled(false);
+                }else if(poll.getPollOptions().size()>2 && poll.getPollOptions().get(2).getOptionId().equals(po.getOptionId())){
+                    option3CheckBox.setChecked(true);
+                    pollOption1CheckBox.setEnabled(false);
+                    option2CheckBox.setEnabled(false);
+                    option3CheckBox.setEnabled(false);
+                    option4CheckBox.setEnabled(false);
+                }else if(poll.getPollOptions().size()>3 && poll.getPollOptions().get(3).getOptionId().equals(po.getOptionId())){
+                    option4CheckBox.setChecked(true);
+                    pollOption1CheckBox.setEnabled(false);
+                    option2CheckBox.setEnabled(false);
+                    option3CheckBox.setEnabled(false);
+                    option4CheckBox.setEnabled(false);
+                }
+                isPresetingCheckButons = false;
+            }
+
+            pollOption1CheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    pollOption1CheckBox.setEnabled(false);
+                    option2CheckBox.setEnabled(false);
+                    option3CheckBox.setEnabled(false);
+                    option4CheckBox.setEnabled(false);
+
+                    if(!isPresetingCheckButons) {
+                        poll.getPollOptions().get(0).addVote();
+                        updatePollDataInSharedPrefAndFirebase(poll, poll.getPollOptions().get(0));
+                        setPollData(poll, true);
+                    }
+                }
+            });
+
+            option2CheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    pollOption1CheckBox.setEnabled(false);
+                    option2CheckBox.setEnabled(false);
+                    option3CheckBox.setEnabled(false);
+                    option4CheckBox.setEnabled(false);
+
+                    if(!isPresetingCheckButons) {
+                        poll.getPollOptions().get(1).addVote();
+                        updatePollDataInSharedPrefAndFirebase(poll, poll.getPollOptions().get(1));
+                        setPollData(poll, true);
+                    }
+                }
+            });
+
+            option3CheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    pollOption1CheckBox.setEnabled(false);
+                    option2CheckBox.setEnabled(false);
+                    option3CheckBox.setEnabled(false);
+                    option4CheckBox.setEnabled(false);
+
+                    if(!isPresetingCheckButons) {
+                        poll.getPollOptions().get(2).addVote();
+                        updatePollDataInSharedPrefAndFirebase(poll, poll.getPollOptions().get(2));
+                        setPollData(poll, true);
+                    }
+                }
+            });
+
+            option4CheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    pollOption1CheckBox.setEnabled(false);
+                    option2CheckBox.setEnabled(false);
+                    option3CheckBox.setEnabled(false);
+                    option4CheckBox.setEnabled(false);
+
+                    if(!isPresetingCheckButons) {
+                        poll.getPollOptions().get(3).addVote();
+                        updatePollDataInSharedPrefAndFirebase(poll, poll.getPollOptions().get(3));
+                        setPollData(poll, true);
+                    }
+                }
+            });
+            setPollData(poll,false);
+        }
+        
     }
 
+    private void setPollData(Poll poll, boolean isShowingResult){
+        isShowingResult = new SharedPreferenceManager(mContext).hasUserVotedInPoll(poll);
+
+        int totalVotes = 0;
+        int barWidth = Utils.dpToPx(Constants.POST_CARD_VIEW_WIDTH-20);
+        for(PollOption op:poll.getPollOptions()){
+            totalVotes+=op.getVotes();
+        }
+        option1LinearLayout.setVisibility(View.GONE);
+        option2LinearLayout.setVisibility(View.GONE);
+        option3LinearLayout.setVisibility(View.GONE);
+        option4LinearLayout.setVisibility(View.GONE);
+        //option 1
+        pollOption1CheckBox.setText(poll.getPollOptions().get(0).getOptionText());
+        option1LinearLayout.setVisibility(View.VISIBLE);
+
+        if(totalVotes==0) pollVoteCountTextView.setText(getResources().getString(R.string.zero_votes));
+        else if(totalVotes==1)pollVoteCountTextView.setText(getResources().getString(R.string.one_vote));
+        else pollVoteCountTextView.setText(totalVotes+getResources().getString(R.string.votes));
+
+        int div = totalVotes;
+        if(div==0) div=1;
+        int option1Percentage = (int)((poll.getPollOptions().get(0).getVotes()/(div))*100);
+        if(isShowingResult){
+            option1PercentageTextView.setText(option1Percentage+"%");
+            option1PercentageBarView.setProgress(option1Percentage);
+        }else{
+            option1PercentageTextView.setText("0%");
+            option1PercentageBarView.setProgress(option1Percentage);
+        }
+
+        if(poll.getPollOptions().size()>1) {
+            //option 2
+            option2CheckBox.setText(poll.getPollOptions().get(1).getOptionText());
+            option2LinearLayout.setVisibility(View.VISIBLE);
+            int option2Percentage = (int)(poll.getPollOptions().get(1).getVotes() / div) * 100;
+            if(isShowingResult){
+                option2PercentageTextView.setText(option2Percentage + "%");
+                option2PercentageBar.setProgress(option2Percentage);
+            }else{
+                option2PercentageTextView.setText("0%");
+                option2PercentageBar.setProgress(option2Percentage);
+            }
+
+        }
+
+        if(poll.getPollOptions().size()>2) {
+            //option 3
+            option3CheckBox.setText(poll.getPollOptions().get(2).getOptionText());
+            option3LinearLayout.setVisibility(View.VISIBLE);
+            int option3Percentage = (int)(poll.getPollOptions().get(2).getVotes() / div) * 100;
+            if(isShowingResult){
+                option3PercentageTextView.setText(option3Percentage + "%");
+                option3PercentageView.setProgress(option3Percentage);
+            }else{
+                option3PercentageTextView.setText("0%");
+                option3PercentageView.setProgress(option3Percentage);
+            }
+
+        }
+
+        if(poll.getPollOptions().size()>3) {
+            //option 4
+            option4LinearLayout.setVisibility(View.VISIBLE);
+            option4CheckBox.setText(poll.getPollOptions().get(3).getOptionText());
+            int option4Percentage = (int)(poll.getPollOptions().get(3).getVotes() / div) * 100;
+            if(isShowingResult){
+                option4PercentageTextView.setText(option4Percentage + "%");
+                option4PercentageBarView.setProgress(option4Percentage);
+            }else{
+                option4PercentageTextView.setText("0%");
+                option4PercentageBarView.setProgress(option4Percentage);
+            }
+
+        }
+    }
+
+    private void updatePollDataInSharedPrefAndFirebase(Poll poll, PollOption po){
+        new DatabaseManager(this,"").recordPollVote(poll,po).updatePollOptionData(poll,po);
+        new SharedPreferenceManager(this).recordPollVote(poll.getPollId(),po);
+    }
+
+    private void updatePetitionDataInSharedPreferencesAndFirebase(Petition p){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        String name = new SharedPreferenceManager(this).loadNameInSharedPref();
+        long timestamp = Calendar.getInstance().getTimeInMillis();
+        PetitionSignature signature = new PetitionSignature(uid,name,email,timestamp);
+
+        new DatabaseManager(this,"").recordPetitionSignature(p).updatePetitionSignatureData(p,signature);
+
+        new SharedPreferenceManager(this).recordPetition(p.getPetitionId());
+    }
+
+    private void hideViewPostPart(){
+        isViewPostShowing = false;
+        viewPostRelativeLayout.animate().alpha(0f).translationY(Utils.dpToPx(180)).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        viewPostRelativeLayout.setAlpha(0f);
+                        viewPostRelativeLayout.setTranslationY(Utils.dpToPx(180));
+                        viewPostRelativeLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                });
+    }
+
+    @Override
+    public void onBackPressed(){
+        if(isViewPostShowing){
+            hideViewPostPart();
+        }else{
+            super.onBackPressed();
+        }
+    }
+
+    @Override
+    protected void onDestroy(){
+        LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverToViewPost);
+        super.onDestroy();
+    }
 }
