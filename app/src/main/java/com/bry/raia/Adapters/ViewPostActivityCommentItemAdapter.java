@@ -63,8 +63,8 @@ public class ViewPostActivityCommentItemAdapter extends RecyclerView.Adapter<Vie
 
         if(canAddReplies) {
             viewHolder.replyButtonTextView.setVisibility(View.VISIBLE);
-            viewHolder.addReplyRelativeLayout.setVisibility(View.VISIBLE);
-            viewHolder.loadedRepliesRelativeLayout.setVisibility(View.VISIBLE);
+//            viewHolder.addReplyRelativeLayout.setVisibility(View.VISIBLE);
+//            viewHolder.loadedRepliesRelativeLayout.setVisibility(View.VISIBLE);
 
 
             final ViewPostActivityCommentItemAdapter vpActivityReplyAdapter = new ViewPostActivityCommentItemAdapter( mActivity,comment.getReplies(), false,mPost);
@@ -141,10 +141,10 @@ public class ViewPostActivityCommentItemAdapter extends RecyclerView.Adapter<Vie
         CommentCal.setTimeInMillis(timeInMills);
 
         Calendar nowCal = Calendar.getInstance();
-        if(nowCal.getTimeInMillis()-timeInMills<24*60*60*1000){
+        if((nowCal.getTimeInMillis()-timeInMills)<24*60*60*1000){
             //was posted today
-            double timeInDouble = (double)(nowCal.getTimeInMillis()-timeInMills);
-            double hoursdouble = timeInDouble/1000*60*60;
+            long timeInDouble = (long)(nowCal.getTimeInMillis()-timeInMills);
+            long hoursdouble = timeInDouble/1000*60*60;
             if(hoursdouble<1){
                 //was posted less than an hour ago
                 double minutesdouble = timeInDouble/1000*60;

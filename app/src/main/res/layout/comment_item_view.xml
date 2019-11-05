@@ -6,6 +6,12 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
 
+    <View
+        android:layout_width="match_parent"
+        android:background="@color/greyish"
+        android:layout_marginBottom="3dp"
+        android:layout_height="1dp"/>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
@@ -23,8 +29,7 @@
             android:layout_width="wrap_content"
             android:text="4h."
             android:layout_alignParentEnd="true"
-            android:textColor="@color/titlecolor"
-            android:textSize="13sp"
+            android:textSize="12sp"
             android:layout_height="wrap_content" />
 
     </RelativeLayout>
@@ -33,13 +38,13 @@
     <TextView
         android:id="@+id/commentBodyTextView"
         android:layout_width="wrap_content"
-        android:layout_marginTop="5dp"
         android:text="Comment blah blah blah."
         android:textSize="14sp"
         android:layout_height="wrap_content" />
 
     <RelativeLayout
         android:id="@+id/replyRelativeLayout"
+        android:visibility="gone"
         android:layout_width="match_parent"
         android:layout_height="wrap_content">
 
@@ -69,6 +74,7 @@
         </LinearLayout>
 
     </RelativeLayout>
+
 
     <RelativeLayout
         android:id="@+id/addReplyRelativeLayout"

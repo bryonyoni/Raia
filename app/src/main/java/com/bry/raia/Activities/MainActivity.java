@@ -33,8 +33,10 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bry.raia.Adapters.MainActivityPostItemAdapter;
+import com.bry.raia.Adapters.ViewPostActivityCommentItemAdapter;
 import com.bry.raia.Constants;
 import com.bry.raia.Models.Announcement;
+import com.bry.raia.Models.Comment;
 import com.bry.raia.Models.MyRecyclerView;
 import com.bry.raia.Models.Petition;
 import com.bry.raia.Models.PetitionSignature;
@@ -135,6 +137,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Bind(R.id.pollVoteCountTextView) TextView pollVoteCountTextView;
     @Bind(R.id.PollTitleTextView) TextView PollTitleTextView;
     private boolean isPresetingCheckButons = false;
+
+    @Bind(R.id.addCommentEditText) EditText addCommentEditText;
+    @Bind(R.id.sendCommentImageView) ImageView sendCommentImageView;
+    @Bind(R.id.commentsRecyclerView) RecyclerView commentsRecyclerView;
+    @Bind(R.id.noCommentsTextView) TextView noCommentsTextView;
+    ViewPostActivityCommentItemAdapter vpActivityCommentAdapter;
+    List<Comment> allComments = new ArrayList<>();
+    @Bind(R.id.loadingCommentsContainerLinearLayout) LinearLayout loadingCommentsContainerLinearLayout;
 
 
     @Override
@@ -996,6 +1006,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             });
             setPollData(poll,false);
         }
+
+        sendCommentImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                addComment();
+            }
+        });
+        loadComments();
         
     }
 
@@ -1135,4 +1153,171 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         LocalBroadcastManager.getInstance(mContext).unregisterReceiver(mMessageReceiverToViewPost);
         super.onDestroy();
     }
+
+    private void loadComments() {
+        startCommentLoadingAnimations();
+        showCommentsLoadingAnimations();
+        String postId;
+        Post mPost = Variables.postToBeViewed;
+        if(mPost.getPostType().equals(Constants.ANNOUNCEMENTS)){
+            postId = mPost.getAnnouncement().getAnnouncementId();
+        }else if(mPost.getPostType().equals(Constants.PETITIONS)){
+            postId = mPost.getPetition().getPetitionId();
+        }else {
+            postId = mPost.getPoll().getPollId();
+        }
+
+        DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference(Constants.COMMENTS).child(postId);
+        commentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                List<Comment> allComments = new ArrayList<>();
+                if(dataSnapshot.exists()){
+                    for(DataSnapshot commentSnap:dataSnapshot.getChildren()){
+                        Comment comment = commentSnap.getValue(Comment.class);
+                        if(commentSnap.child(Constants.REPLIES).exists()){
+                            //some replies exist
+                            for(DataSnapshot replySnap:dataSnapshot.child(Constants.REPLIES).getChildren()){
+                                Comment reply = replySnap.getValue(Comment.class);
+                                comment.addReply(reply);
+                            }
+                        }
+                        allComments.add(comment);
+                    }
+                }
+
+                loadCommentsIntoRecyclerView(allComments);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+
+    private void addComment() {
+        String postId;
+        Post mPost = Variables.postToBeViewed;
+        if(mPost.getPostType().equals(Constants.ANNOUNCEMENTS)){
+            postId = mPost.getAnnouncement().getAnnouncementId();
+        }else if(mPost.getPostType().equals(Constants.PETITIONS)){
+            postId = mPost.getPetition().getPetitionId();
+        }else{
+            postId = mPost.getPoll().getPollId();
+        }
+
+        String commentText = addCommentEditText.getText().toString().trim();
+        if(!commentText.equals("")){
+            addCommentEditText.setText("");
+
+            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            Comment comment = new Comment(commentText,uid,new SharedPreferenceManager(mContext).loadNameInSharedPref());
+
+            DatabaseReference replyRef = FirebaseDatabase.getInstance().getReference(Constants.COMMENTS).child(postId);
+            DatabaseReference pushRef = replyRef.push();
+            String commentId = pushRef.getKey();
+            comment.setCommentId(commentId);
+
+            pushRef.setValue(comment);
+            addNewCommentToRecyclerView(comment);
+
+        }else{
+            addCommentEditText.setError(getResources().getString(R.string.say_something));
+        }
+    }
+
+    private void loadCommentsIntoRecyclerView(List<Comment> loadedComments) {
+        Post mPost = Variables.postToBeViewed;
+        if(loadedComments.isEmpty()){
+            noCommentsTextView.setVisibility(View.VISIBLE);
+            commentsRecyclerView.setVisibility(View.GONE);
+        }else{
+            vpActivityCommentAdapter = new ViewPostActivityCommentItemAdapter( MainActivity.this,loadedComments, true,mPost);
+            commentsRecyclerView.setAdapter(vpActivityCommentAdapter);
+            commentsRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+            allComments = loadedComments;
+            noCommentsTextView.setVisibility(View.GONE);
+        }
+        hideCommentsLoadingAnimations();
+    }
+
+    private void addNewCommentToRecyclerView(Comment comment){
+        allComments.add(comment);
+        vpActivityCommentAdapter.addComment(comment);
+        vpActivityCommentAdapter.notifyItemInserted(allComments.size()-1);
+        vpActivityCommentAdapter.notifyDataSetChanged();
+    }
+
+
+    private void startCommentLoadingAnimations(){
+        final float alpha = 0.3f;
+        final int duration = 2000;
+
+        final float alphaR = 1f;
+        final int durationR = 800;
+
+        if(canAnimateLoadingScreens) {
+            loadingCommentsContainerLinearLayout.animate().alpha(alpha).setDuration(duration).setInterpolator(new LinearInterpolator())
+                    .setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            loadingCommentsContainerLinearLayout.animate().alpha(alphaR).setDuration(durationR).setInterpolator(new LinearInterpolator())
+                                    .setListener(new Animator.AnimatorListener() {
+                                        @Override
+                                        public void onAnimationStart(Animator animator) {
+
+                                        }
+
+                                        @Override
+                                        public void onAnimationEnd(Animator animator) {
+                                            startCommentLoadingAnimations();
+                                        }
+
+                                        @Override
+                                        public void onAnimationCancel(Animator animator) {
+
+                                        }
+
+                                        @Override
+                                        public void onAnimationRepeat(Animator animator) {
+
+                                        }
+                                    });
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
+
+                        }
+                    });
+        }
+    }
+
+    private void hideCommentsLoadingAnimations(){
+        canAnimateLoadingScreens = false;
+        loadingContainerLinearLayout.setVisibility(View.GONE);
+        commentsRecyclerView.setVisibility(View.VISIBLE);
+    }
+
+    private void showCommentsLoadingAnimations(){
+        canAnimateLoadingScreens = true;
+        loadingContainerLinearLayout.setVisibility(View.VISIBLE);
+        commentsRecyclerView.setVisibility(View.GONE);
+        startLoadingAnimations();
+    }
+
+
+
 }
