@@ -13,7 +13,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.support.v7.widget.CardView;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
@@ -30,7 +29,6 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.bry.raia.Adapters.MainActivityPostItemAdapter;
 import com.bry.raia.Adapters.ViewPostActivityCommentItemAdapter;
@@ -104,11 +102,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Bind(R.id.userNameTextView) TextView userNameTextView;
     @Bind(R.id.postTitleTextView) TextView postTitleTextView;
     @Bind(R.id.announcementCardView) LinearLayout announcementCardView;
+    @Bind(R.id.countyTextViewAnnouncement) TextView countyTextViewAnnouncement;
     @Bind(R.id.announcementPostImageViewBack) ImageView announcementPostImageViewBack;
     @Bind(R.id.announcementImageView) ImageView announcementImageView;
     @Bind(R.id.AnnouncementTitleTextView) TextView AnnouncementTitleTextView;
 
     @Bind(R.id.petitionUiLinearLayout) LinearLayout petitionUiLinearLayout;
+    @Bind(R.id.countyTextViewPetition) TextView countyTextViewPetition;
     @Bind(R.id.petitionImageViewBack) ImageView petitionImageViewBack;
     @Bind(R.id.petitionImageView) ImageView petitionImageView;
     @Bind(R.id.numberSignedTextView) TextView numberSignedTextView;
@@ -118,6 +118,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Bind(R.id.pollRelativeLayout) RelativeLayout pollRelativeLayout;
     @Bind(R.id.option1LinearLayout) LinearLayout option1LinearLayout;
+    @Bind(R.id.countyTextViewPoll) TextView countyTextViewPoll;
     @Bind(R.id.pollOption1CheckBox)CheckBox pollOption1CheckBox;
     @Bind(R.id.option1PercentageTextView)TextView option1PercentageTextView;
     @Bind(R.id.option1PercentageBarView)ProgressBar option1PercentageBarView;
@@ -140,12 +141,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Bind(R.id.addCommentEditText) EditText addCommentEditText;
     @Bind(R.id.sendCommentImageView) ImageView sendCommentImageView;
-    @Bind(R.id.commentsRecyclerView) RecyclerView commentsRecyclerView;
+    @Bind(R.id.commentsRecyclerViewMain) RecyclerView commentsRecyclerView;
     @Bind(R.id.noCommentsTextView) TextView noCommentsTextView;
     ViewPostActivityCommentItemAdapter vpActivityCommentAdapter;
     List<Comment> allComments = new ArrayList<>();
     @Bind(R.id.loadingCommentsContainerLinearLayout) LinearLayout loadingCommentsContainerLinearLayout;
 
+    @Bind(R.id.viewCommentLinearLayout) LinearLayout viewCommentLinearLayout;
+    private boolean isShowingCommentRepliesPart = false;
+    @Bind(R.id.userNameRepliesTextView) TextView userNameRepliesTextView;
+    @Bind(R.id.commentTimeTextView) TextView commentTimeTextView;
+    @Bind(R.id.commentBodyTextView) TextView commentBodyTextView;
+    @Bind(R.id.addReplyEditText) EditText addReplyEditText;
+    @Bind(R.id.replyButtonTextView) TextView replyButtonTextView;
+    @Bind(R.id.repliesRecyclerView) RecyclerView repliesRecyclerView;
+    @Bind(R.id.noRepliesMessage) TextView noRepliesMessage;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -856,7 +866,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(mPost.getPostType().equals(Constants.ANNOUNCEMENTS)) {
             Announcement announcement = mPost.getAnnouncement();
             postTypeTextView.setText(getString(R.string.announcement));
-            userNameTextView.setText(String.format("By %s to %s", announcement.getUploaderUsername(), announcement.getCounty().getCountyName()));
+            userNameTextView.setText(String.format("By %s", announcement.getUploaderUsername()));
+            countyTextViewAnnouncement.setText(String.format("To %s", announcement.getCounty().getCountyName()));
             postTitleTextView.setText(announcement.getAnnouncementTitle());
 
             announcementCardView.setVisibility(View.VISIBLE);
@@ -869,7 +880,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }else if(mPost.getPostType().equals(Constants.PETITIONS)) {
             final Petition petition = mPost.getPetition();
             postTypeTextView.setText(getString(R.string.petition));
-            userNameTextView.setText(String.format("By %s to %s", petition.getUploaderUsername(), petition.getCounty().getCountyName()));
+            userNameTextView.setText(String.format("By %s", petition.getUploaderUsername()));
+            countyTextViewPetition.setText(String.format("To %s", petition.getCounty().getCountyName()));
             postTitleTextView.setText(petition.getPetitionTitle());
             PetitionTitleTextView.setText(petition.getPetitionTitle());
 
@@ -905,7 +917,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             announcementCardView.setVisibility(View.GONE);
             petitionUiLinearLayout.setVisibility(View.GONE);
             postTypeTextView.setText(getString(R.string.poll));
-            userNameTextView.setText(String.format("By %s to %s", poll.getUploaderUsername(), poll.getCounty().getCountyName()));
+            userNameTextView.setText(String.format("By %s", poll.getUploaderUsername()));
+            countyTextViewPoll.setText(String.format("To %s", poll.getCounty().getCountyName()));
             postTitleTextView.setText(poll.getPollTitle());
             PollTitleTextView.setText(poll.getPollTitle());
 
@@ -1137,15 +1150,22 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     }
                 });
+
+        allComments.clear();
     }
 
     @Override
     public void onBackPressed(){
-        if(isViewPostShowing){
-            hideViewPostPart();
+        if(isShowingCommentRepliesPart){
+            hideCommentReplies();
         }else{
-            super.onBackPressed();
+            if(isViewPostShowing){
+                hideViewPostPart();
+            }else{
+                super.onBackPressed();
+            }
         }
+
     }
 
     @Override
@@ -1175,12 +1195,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if(dataSnapshot.exists()){
                     for(DataSnapshot commentSnap:dataSnapshot.getChildren()){
                         Comment comment = commentSnap.getValue(Comment.class);
-                        if(commentSnap.child(Constants.REPLIES).exists()){
-                            //some replies exist
-                            for(DataSnapshot replySnap:dataSnapshot.child(Constants.REPLIES).getChildren()){
-                                Comment reply = replySnap.getValue(Comment.class);
-                                comment.addReply(reply);
-                            }
+                        for(DataSnapshot replySnap:commentSnap.child(Constants.REPLIES).getChildren()){
+                            Comment reply = replySnap.getValue(Comment.class);
+                            comment.addReply(reply);
                         }
                         allComments.add(comment);
                     }
@@ -1228,7 +1245,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-    private void loadCommentsIntoRecyclerView(List<Comment> loadedComments) {
+    private void loadCommentsIntoRecyclerView(final List<Comment> loadedComments) {
         Post mPost = Variables.postToBeViewed;
         if(loadedComments.isEmpty()){
             noCommentsTextView.setVisibility(View.VISIBLE);
@@ -1239,15 +1256,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             commentsRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
             allComments = loadedComments;
             noCommentsTextView.setVisibility(View.GONE);
+
+            LocalBroadcastManager.getInstance(mContext).registerReceiver(new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    int pos = intent.getIntExtra(Constants.COMMENT_NO,0);
+                    showCommentReplies(allComments.get(pos));
+                }
+            },new IntentFilter(Constants.SHOW_COMMENT_REPLIES));
         }
         hideCommentsLoadingAnimations();
     }
 
     private void addNewCommentToRecyclerView(Comment comment){
         allComments.add(comment);
-        vpActivityCommentAdapter.addComment(comment);
-        vpActivityCommentAdapter.notifyItemInserted(allComments.size()-1);
-        vpActivityCommentAdapter.notifyDataSetChanged();
+//        vpActivityCommentAdapter.addComment(comment);
+////        vpActivityCommentAdapter.notifyItemInserted(allComments.size()-1);
+//        vpActivityCommentAdapter.notifyDataSetChanged();
+
+        loadCommentsIntoRecyclerView(allComments);
     }
 
 
@@ -1316,6 +1343,145 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         loadingContainerLinearLayout.setVisibility(View.VISIBLE);
         commentsRecyclerView.setVisibility(View.GONE);
         startLoadingAnimations();
+    }
+
+
+    private void showCommentReplies(final Comment comment){
+        viewCommentLinearLayout.setVisibility(View.VISIBLE);
+        isShowingCommentRepliesPart = true;
+        final Post mPost = Variables.postToBeViewed;
+        viewCommentLinearLayout.animate().alpha(1f).translationY(0).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        viewCommentLinearLayout.setAlpha(1f);
+                        viewCommentLinearLayout.setTranslationY(0);
+                        viewCommentLinearLayout.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                }).start();
+
+        userNameRepliesTextView.setText("By "+comment.getCommenterName());
+        commentTimeTextView.setText(getTimeInMills(comment.getCommentTime()));
+
+        commentBodyTextView.setText(comment.getCommentText());
+        loadCommentRepliesIntoRecyclerView(mPost,comment);
+        replyButtonTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String reply = addReplyEditText.getText().toString().trim();
+                if(reply.equals("")){
+                    addReplyEditText.setError(getResources().getString(R.string.say_something));
+                }else{
+                    String postId;
+
+                    if(mPost.getPostType().equals(Constants.ANNOUNCEMENTS)){
+                        postId = mPost.getAnnouncement().getAnnouncementId();
+                    }else if(mPost.getPostType().equals(Constants.PETITIONS)){
+                        postId = mPost.getPetition().getPetitionId();
+                    }else {
+                        postId = mPost.getPoll().getPollId();
+                    }
+
+                    addReplyEditText.setText("");
+                    String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                    Comment newreply = new Comment(reply,uid,new SharedPreferenceManager(mContext).loadNameInSharedPref());
+                    newreply.setCommentTime(Calendar.getInstance().getTimeInMillis());
+
+                    DatabaseReference replyRef = FirebaseDatabase.getInstance().getReference(Constants.COMMENTS).child(postId).child(comment.getCommentId())
+                            .child(Constants.REPLIES);
+                    DatabaseReference pushRef = replyRef.push();
+                    String commentId = pushRef.getKey();
+                    newreply.setCommentId(commentId);
+
+                    pushRef.setValue(newreply);
+                    comment.addReply(newreply);
+
+                    loadCommentRepliesIntoRecyclerView(mPost,comment);
+                    loadCommentsIntoRecyclerView(allComments);
+                }
+            }
+        });
+    }
+
+    private void loadCommentRepliesIntoRecyclerView(final Post mPost, Comment comment){
+        if(comment.getReplies().isEmpty()){
+            noRepliesMessage.setVisibility(View.VISIBLE);
+        }else{
+            noRepliesMessage.setVisibility(View.GONE);
+            final ViewPostActivityCommentItemAdapter vpActivityReplyAdapter = new ViewPostActivityCommentItemAdapter(MainActivity.this,
+                    comment.getReplies(), false, mPost);
+            repliesRecyclerView.setAdapter(vpActivityReplyAdapter);
+            repliesRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+        }
+    }
+
+    private String getTimeInMills(long commentTimeMills){
+        long currentTimeInMills = Calendar.getInstance().getTimeInMillis();
+        long howLongAgoInMills = (currentTimeInMills-commentTimeMills);
+
+        if(howLongAgoInMills< (24*60*60*1000)){
+            if(howLongAgoInMills< (60*60*1000)){
+                if(howLongAgoInMills< (60*1000)){
+                    return "Just now.";
+                }else{
+                    //comment is more than one minute old
+                    long minCount = howLongAgoInMills/(60*1000);
+                    return minCount+" min.";
+                }
+            }else{
+                //comment is more than an hour ago
+                long hrsCount = howLongAgoInMills/(60*60*1000);
+                return hrsCount+" hrs.";
+            }
+        }else{
+            //comment is more than a day old
+            long daysCount = howLongAgoInMills/(24*60*60*1000);
+            return (daysCount+" days.");
+        }
+    }
+
+    private void hideCommentReplies(){
+        isShowingCommentRepliesPart = false;
+        viewCommentLinearLayout.animate().alpha(0f).translationY(Utils.dpToPx(170)).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        viewCommentLinearLayout.setAlpha(0f);
+                        viewCommentLinearLayout.setTranslationY(Utils.dpToPx(170));
+                        viewCommentLinearLayout.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                }).start();
+
     }
 
 

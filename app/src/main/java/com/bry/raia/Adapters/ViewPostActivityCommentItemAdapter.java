@@ -2,7 +2,9 @@ package com.bry.raia.Adapters;
 
 import android.app.Activity;
 import android.content.Context;
+import android.content.Intent;
 import android.support.annotation.NonNull;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
@@ -10,6 +12,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -55,11 +58,14 @@ public class ViewPostActivityCommentItemAdapter extends RecyclerView.Adapter<Vie
     }
 
     @Override
-    public void onBindViewHolder(@NonNull final ViewPostActivityCommentItemAdapter.ViewHolder viewHolder, int i) {
+    public void onBindViewHolder(@NonNull final ViewPostActivityCommentItemAdapter.ViewHolder viewHolder, final int i) {
         final Comment comment = mComments.get(i);
         viewHolder.userNameTextView.setText(String.format("By %s", comment.getCommenterName()));
         viewHolder.commentBodyTextView.setText(comment.getCommentText());
-        viewHolder.commentTimeTextView.setText(getTimeString(comment.getCommentTime()));
+        if(comment.getCommentTime()==null)viewHolder.commentTimeTextView.setText("Some Time Ago.");
+        else viewHolder.commentTimeTextView.setText(getTimeString(comment.getCommentTime()));
+        if(comment.getReplies().size()==1)viewHolder.commentNumberTextView.setText("1 Reply.");
+        else viewHolder.commentNumberTextView.setText(comment.getReplies().size()+" Replies");
 
         if(canAddReplies) {
             viewHolder.replyButtonTextView.setVisibility(View.VISIBLE);
@@ -126,10 +132,19 @@ public class ViewPostActivityCommentItemAdapter extends RecyclerView.Adapter<Vie
 
                 }
             });
+            viewHolder.commentViewLinearLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(Constants.SHOW_COMMENT_REPLIES);
+                    intent.putExtra(Constants.COMMENT_NO,i);
+                    LocalBroadcastManager.getInstance(mActivity).sendBroadcast(intent);
+                }
+            });
         }else{
             viewHolder.replyButtonTextView.setVisibility(View.GONE);
             viewHolder.addReplyRelativeLayout.setVisibility(View.GONE);
             viewHolder.loadedRepliesRelativeLayout.setVisibility(View.GONE);
+            viewHolder.commentNumberTextView.setVisibility(View.GONE);
         }
 
 
@@ -137,31 +152,28 @@ public class ViewPostActivityCommentItemAdapter extends RecyclerView.Adapter<Vie
     }
 
     private String getTimeString(long timeInMills){
-        Calendar CommentCal = Calendar.getInstance();
-        CommentCal.setTimeInMillis(timeInMills);
+        long currentTimeInMills = Calendar.getInstance().getTimeInMillis();
+        long howLongAgoInMills = (currentTimeInMills-timeInMills);
 
-        Calendar nowCal = Calendar.getInstance();
-        if((nowCal.getTimeInMillis()-timeInMills)<24*60*60*1000){
-            //was posted today
-            long timeInDouble = (long)(nowCal.getTimeInMillis()-timeInMills);
-            long hoursdouble = timeInDouble/1000*60*60;
-            if(hoursdouble<1){
-                //was posted less than an hour ago
-                double minutesdouble = timeInDouble/1000*60;
-                if(minutesdouble<1){
-                    //was posted less than a minute ago;
-                    return "now";
+        if(howLongAgoInMills< (24*60*60*1000)){
+            if(howLongAgoInMills< (60*60*1000)){
+                if(howLongAgoInMills< (60*1000)){
+                    return "Just now.";
                 }else{
-                    return (Math.floor(minutesdouble)+" min");
+                    //comment is more than one minute old
+                    long minCount = howLongAgoInMills/(60*1000);
+                    return minCount+" min.";
                 }
             }else{
-                return (Math.floor(hoursdouble)+" hr");
+                //comment is more than an hour ago
+                long hrsCount = howLongAgoInMills/(60*60*1000);
+                return hrsCount+" hrs.";
             }
         }else{
-            long daysCount = (nowCal.getTimeInMillis()-timeInMills)/24*60*60*1000;
-            return (daysCount+" days");
+            //comment is more than a day old
+            long daysCount = howLongAgoInMills/(24*60*60*1000);
+            return (daysCount+" days.");
         }
-
     }
 
 
@@ -175,6 +187,7 @@ public class ViewPostActivityCommentItemAdapter extends RecyclerView.Adapter<Vie
         TextView commentTimeTextView;
         TextView commentBodyTextView;
         TextView replyButtonTextView;
+        TextView commentNumberTextView;
 
         RelativeLayout replyRelativeLayout;
 
@@ -184,12 +197,15 @@ public class ViewPostActivityCommentItemAdapter extends RecyclerView.Adapter<Vie
 
         RelativeLayout loadedRepliesRelativeLayout;
         RecyclerView repliesRecyclerView;
+        LinearLayout commentViewLinearLayout;
 
         public ViewHolder(@NonNull View itemView) {
             super(itemView);
+            commentViewLinearLayout = itemView.findViewById(R.id.commentViewLinearLayout);
             userNameTextView = itemView.findViewById(R.id.userNameTextView);
             commentTimeTextView = itemView.findViewById(R.id.commentTimeTextView);
             commentBodyTextView = itemView.findViewById(R.id.commentBodyTextView);
+            commentNumberTextView = itemView.findViewById(R.id.commentNumberTextView);
             replyButtonTextView = itemView.findViewById(R.id.replyButtonTextView);
             addReplyRelativeLayout = itemView.findViewById(R.id.addReplyRelativeLayout);
             addReplyEditText = itemView.findViewById(R.id.addReplyEditText);

@@ -67,4 +67,6 @@
     <string name="zero_votes">0 Votes</string>
     <string name="one_vote">1 Vote</string>
     <string name="votes">Votes</string>
+    <string name="empty">Empty</string>
+    <string name="add_a_reply">Add a reply</string>
 </resources>
