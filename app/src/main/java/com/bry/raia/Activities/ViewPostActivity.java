@@ -160,7 +160,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
             Announcement announcement = mPost.getAnnouncement();
             postTypeTextView.setText(getString(R.string.announcement));
             announcementCardView.setVisibility(View.VISIBLE);
-            userNameTextView.setText(String.format("By %s to %s", announcement.getUploaderUsername(), announcement.getCounty().getCountyName()));
+            userNameTextView.setText(String.format("By %s to %s", announcement.getUploaderUsername(), announcement.getCounty().getName()));
             postTitleTextView.setText(announcement.getAnnouncementTitle());
 
             announcementImageView.setImageBitmap(Variables.image);
@@ -170,7 +170,7 @@ public class ViewPostActivity extends AppCompatActivity implements View.OnClickL
             final Petition petition = mPost.getPetition();
             petitionUiLinearLayout.setVisibility(View.VISIBLE);
             postTypeTextView.setText(getString(R.string.petition));
-            userNameTextView.setText(String.format("By %s to %s", petition.getUploaderUsername(), petition.getCounty().getCountyName()));
+            userNameTextView.setText(String.format("By %s to %s", petition.getUploaderUsername(), petition.getCounty().getName()));
             postTitleTextView.setText(petition.getPetitionTitle());
 
             petitionImageView.setImageBitmap(Variables.image);

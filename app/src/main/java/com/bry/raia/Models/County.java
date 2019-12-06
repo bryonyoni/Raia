@@ -1,17 +1,22 @@
 package com.bry.raia.Models;
 
+import com.google.gson.annotations.Expose;
+import com.google.gson.annotations.SerializedName;
+
 public class County {
-    private String countyName; //set to nairobi, the country's capital by default
+    @SerializedName("name")
+    @Expose
+    private String name; //set to nairobi, the country's capital by default
 
     public County(){}
 
-    public String getCountyName() {
-        if(countyName == null) return "Nairobi";
-        return countyName;
+    public String getName() {
+        if(name == null) return "Nairobi";
+        return name;
     }
 
-    public void setCountyName(String countyName) {
-        this.countyName = countyName;
+    public void setName(String name) {
+        this.name = name;
     }
 
 }

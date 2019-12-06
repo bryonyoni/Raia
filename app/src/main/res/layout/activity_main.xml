@@ -301,97 +301,6 @@
 
         </RelativeLayout>
 
-        <!--Search part-->
-        <LinearLayout
-            android:id="@+id/searchLinearLayout"
-            android:layout_width="match_parent"
-            android:orientation="vertical"
-            android:visibility="gone"
-            android:layout_height="wrap_content">
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:orientation="vertical"
-                android:background="@drawable/dialog_bg"
-                android:layout_margin="10dp"
-                android:paddingTop="10dp"
-                android:paddingBottom="10dp"
-                android:paddingStart="5dp"
-                android:paddingEnd="10dp"
-                android:layout_height="wrap_content">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:orientation="horizontal"
-                    android:layout_height="wrap_content">
-
-                    <ImageView
-                        android:id="@+id/backImageView"
-                        android:layout_width="35dp"
-                        android:layout_gravity="center_vertical"
-                        android:src="@drawable/ic_action_activity_back"
-                        android:layout_height="35dp" />
-
-                    <EditText
-                        android:id="@+id/searchCountyEditText"
-                        android:layout_width="match_parent"
-                        android:layout_gravity="center_vertical"
-                        android:background="@color/white"
-                        android:hint="@string/search_a_county"
-                        android:padding="10dp"
-                        android:textSize="12sp"
-                        android:layout_height="wrap_content" />
-
-                </LinearLayout>
-
-                <!--List of selected Counties-->
-                <android.support.v7.widget.RecyclerView
-                    android:id="@+id/selectedCountiesRecyclerView"
-                    android:layout_width="match_parent"
-                    android:layout_marginTop="5dp"
-                    android:layout_marginLeft="20dp"
-                    android:layout_marginRight="20dp"
-                    android:layout_height="wrap_content"/>
-
-            </LinearLayout>
-
-            <RelativeLayout
-                android:layout_width="match_parent"
-                android:layout_marginLeft="10dp"
-                android:layout_marginRight="10dp"
-                android:layout_marginTop="5dp"
-                android:background="@drawable/dialog_bg"
-                android:layout_height="wrap_content">
-                
-                <!--Layout for all counties counties-->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_marginLeft="15dp"
-                    android:layout_marginRight="15dp"
-                    android:layout_marginTop="10dp"
-                    android:layout_marginBottom="10dp"
-                    android:orientation="vertical"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:layout_width="wrap_content"
-                        android:text="All Counties."
-                        android:textColor="@color/colorPrimaryDark"
-                        android:layout_height="wrap_content" />
-
-                    <android.support.v7.widget.RecyclerView
-                        android:id="@+id/allCountiesRecyclerView"
-                        android:layout_width="match_parent"
-                        android:layout_marginTop="5dp"
-                        android:layout_height="wrap_content"/>
-                    
-                </LinearLayout>
-
-
-            </RelativeLayout>
-
-        </LinearLayout>
-
         <!--Bottom dock bar part-->
         <RelativeLayout
             android:layout_width="match_parent"
@@ -484,6 +393,186 @@
                 </LinearLayout>
 
             </LinearLayout>
+
+        </RelativeLayout>
+
+        <!-- Filter posts Part-->
+        <RelativeLayout
+            android:id="@+id/filterPostsRelativeLayout"
+            android:alpha="0"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:background="@color/greyish"
+            android:layout_height="match_parent">
+
+            <ScrollView
+                android:layout_width="match_parent"
+                android:scrollbars="none"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:id="@+id/filterContentLinearLayout"
+                    android:layout_width="match_parent"
+                    android:orientation="vertical"
+                    android:translationY="200dp"
+                    android:paddingLeft="20dp"
+                    android:paddingRight="20dp"
+                    android:paddingTop="20dp"
+                    android:layout_height="match_parent">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:text="Filter Posts."
+                        android:textStyle="bold"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:textSize="30sp"
+                        android:layout_height="wrap_content"/>
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:text="@string/filter_the_posts_you_see_based_on_the_county_you_reside_in"
+                        android:textSize="13sp"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"
+                        android:layout_marginBottom="5dp"
+                        android:layout_height="wrap_content"/>
+
+                    <!--search county part-->
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_marginTop="10dp"
+                        android:layout_height="wrap_content">
+
+                        <android.support.v7.widget.CardView
+                            android:layout_width="match_parent"
+                            app:cardElevation="0dp"
+                            app:cardCornerRadius="14dp"
+                            app:cardBackgroundColor="@color/white"
+                            android:layout_alignParentStart="true"
+                            android:layout_centerVertical="true"
+                            android:layout_marginEnd="50dp"
+                            android:layout_height="wrap_content">
+
+                            <RelativeLayout
+                                android:layout_width="match_parent"
+                                android:layout_height="wrap_content">
+
+                                <EditText
+                                    android:id="@+id/searchCountyEditText"
+                                    android:layout_width="match_parent"
+                                    android:background="@color/white"
+                                    android:hint="Search A County."
+                                    android:padding="10dp"
+                                    android:textSize="12sp"
+                                    android:layout_height="wrap_content" />
+
+                                <ImageButton
+                                    android:id="@+id/clearEditText"
+                                    android:layout_width="15dp"
+                                    android:layout_centerVertical="true"
+                                    android:layout_marginRight="10dp"
+                                    android:layout_alignParentRight="true"
+                                    android:background="@drawable/ic_action_clear"
+                                    android:layout_height="15dp"/>
+
+                            </RelativeLayout>
+
+                        </android.support.v7.widget.CardView>
+
+                        <TextView
+                            android:id="@+id/doneFilteringTextView"
+                            android:layout_width="wrap_content"
+                            android:layout_centerVertical="true"
+                            android:layout_alignParentRight="true"
+                            android:text="Done."
+                            android:textColor="@color/colorPrimary"
+                            android:layout_height="wrap_content"/>
+
+
+                    </RelativeLayout>
+
+                    <!--Selected filters part-->
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:background="@drawable/dialog_bg"
+                        android:layout_marginTop="20dp"
+                        android:paddingTop="10dp"
+                        android:paddingBottom="10dp"
+                        android:paddingStart="5dp"
+                        android:layout_height="250dp">
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:text="Your Selected Counties."
+                            android:layout_marginLeft="15dp"
+                            android:textColor="@color/colorPrimaryDark"
+                            android:layout_height="wrap_content" />
+
+                        <!--List of selected Counties-->
+                        <android.support.v7.widget.RecyclerView
+                            android:id="@+id/selectedCountiesRecyclerView"
+                            android:layout_width="match_parent"
+                            android:layout_marginTop="15dp"
+                            android:layout_marginLeft="10dp"
+                            android:layout_marginRight="10dp"
+                            android:layout_height="wrap_content"/>
+
+                        <TextView
+                            android:id="@+id/emptyMessageTextView"
+                            android:layout_width="match_parent"
+                            android:text="Empty."
+                            android:gravity="center"
+                            android:layout_centerInParent="true"
+                            android:layout_height="70dp"/>
+
+                    </RelativeLayout>
+
+                    <!--all counties part-->
+                    <RelativeLayout
+                        android:layout_width="match_parent"
+                        android:layout_marginTop="20dp"
+                        android:layout_marginBottom="10dp"
+                        android:background="@drawable/dialog_bg"
+                        android:layout_height="550dp">
+
+                        <TextView
+                            android:id="@+id/noSearchedCountyTextView"
+                            android:layout_width="match_parent"
+                            android:text="Empty."
+                            android:gravity="center"
+                            android:layout_centerInParent="true"
+                            android:layout_marginTop="20dp"
+                            android:layout_height="70dp"/>
+
+                        <!--Layout for all counties counties-->
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:layout_marginLeft="15dp"
+                            android:layout_marginRight="15dp"
+                            android:layout_marginTop="10dp"
+                            android:layout_marginBottom="10dp"
+                            android:orientation="vertical"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:text="All Counties."
+                                android:textColor="@color/colorPrimaryDark"
+                                android:layout_height="wrap_content" />
+
+                            <android.support.v7.widget.RecyclerView
+                                android:id="@+id/allCountiesRecyclerView"
+                                android:layout_width="match_parent"
+                                android:layout_marginTop="5dp"
+                                android:layout_height="wrap_content"/>
+
+                        </LinearLayout>
+
+                    </RelativeLayout>
+
+            </LinearLayout>
+
+            </ScrollView>
 
         </RelativeLayout>
 

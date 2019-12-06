@@ -9,14 +9,12 @@ import android.content.IntentFilter;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.media.Image;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,13 +25,8 @@ import android.widget.CompoundButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ProgressBar;
-import android.widget.RelativeLayout;
-import android.widget.TextClock;
 import android.widget.TextView;
-import android.widget.Toast;
 
-import com.bry.raia.Activities.MainActivity;
-import com.bry.raia.Activities.ViewPostActivity;
 import com.bry.raia.Constants;
 import com.bry.raia.Models.Announcement;
 import com.bry.raia.Models.Petition;
@@ -46,7 +39,6 @@ import com.bry.raia.Services.DatabaseManager;
 import com.bry.raia.Services.SharedPreferenceManager;
 import com.bry.raia.Services.Utils;
 import com.bry.raia.Variables;
-import com.bumptech.glide.Glide;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -104,7 +96,7 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
             viewHolder.announcementCardView.setVisibility(View.VISIBLE);
             viewHolder.announcementUploaderNameTextView.setText(announcement.getUploaderUsername());
             if(announcement.getCounty()!=null) {
-                viewHolder.announcementCountyNameTextView.setText(announcement.getCounty().getCountyName());
+                viewHolder.announcementCountyNameTextView.setText(announcement.getCounty().getName());
                 viewHolder.announcementDetailsTextView.setText(announcement.getAnnouncementTitle());
             }
 
@@ -141,7 +133,7 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
             Log.e("PostItemAdapter","Post is a petition: "+petition.getPetitionTitle());
             viewHolder.petitionCardView.setVisibility(View.VISIBLE);
             viewHolder.petitionUploaderNameTextView.setText(petition.getUploaderUsername());
-            viewHolder.petitionCountyTextView.setText(petition.getCounty().getCountyName());
+            viewHolder.petitionCountyTextView.setText(petition.getCounty().getName());
             viewHolder.petitionDetailsTextView.setText(petition.getPetitionTitle());
 
 //            viewHolder.petitionImageView.setImageBitmap(petition.getPetitionBitmap());
@@ -202,7 +194,7 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
             Log.e("PostItemAdapter","Post is a poll: "+poll.getPollTitle()+ " type: "+post.getPostType());
             viewHolder.pollCardView.setVisibility(View.VISIBLE);
             viewHolder.pollUploaderNameTextView.setText(poll.getUploaderUsername());
-            viewHolder.pollCountyNameTextView.setText(poll.getCounty().getCountyName());
+            viewHolder.pollCountyNameTextView.setText(poll.getCounty().getName());
             viewHolder.pollDetailsTextView.setText(poll.getPollTitle());
 
             if(new SharedPreferenceManager(mActivity).hasUserVotedInPoll(poll)){

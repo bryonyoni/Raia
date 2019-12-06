@@ -1,13 +1,26 @@
 package com.bry.raia.Services;
 
 import android.content.Context;
+import android.content.res.AssetManager;
 import android.content.res.Resources;
 import android.graphics.Point;
 import android.os.Build;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.Display;
 import android.view.WindowManager;
+
+import com.bry.raia.Models.County;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
+
+import org.json.JSONArray;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.ArrayList;
+import java.util.List;
 
 public class Utils {
     private static final String TAG = "Utils";
@@ -22,6 +35,42 @@ public class Utils {
             e.printStackTrace();
             return new Point(0, 0);
         }
+    }
+
+    public static List<County> loadCounties(Context context){
+        try{
+            GsonBuilder builder = new GsonBuilder();
+            Gson gson = builder.create();
+            JSONArray array = new JSONArray(loadJSONFromAsset(context, "counties.json"));
+            List<County> adList = new ArrayList<>();
+            for(int i=0;i<array.length();i++){
+                County profile = gson.fromJson(array.getString(i), County.class);
+                adList.add(profile);
+            }
+            return adList;
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    private static String loadJSONFromAsset(Context context, String jsonFileName) {
+        String json = null;
+        InputStream is=null;
+        try {
+            AssetManager manager = context.getAssets();
+            Log.d(TAG,"path "+jsonFileName);
+            is = manager.open(jsonFileName);
+            int size = is.available();
+            byte[] buffer = new byte[size];
+            is.read(buffer);
+            is.close();
+            json = new String(buffer, "UTF-8");
+        } catch (IOException ex) {
+            ex.printStackTrace();
+            return null;
+        }
+        return json;
     }
 
     public static int dpToPx(int dp) {

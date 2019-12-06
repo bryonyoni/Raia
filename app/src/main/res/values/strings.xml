@@ -69,4 +69,15 @@
     <string name="votes">Votes</string>
     <string name="empty">Empty</string>
     <string name="add_a_reply">Add a reply</string>
+    <string name="filter_the_posts_you_see_based_on_the_county_you_reside_in">Filter the posts you see based on the county you reside in.</string>
+    <string name="set_the_county_you_preside_in">Set the County you Preside in.</string>
+    <string name="preferred_county">Preferred County.</string>
+    <string name="set_the_language_you_prefer">Set the language you prefer.</string>
+    <string name="preferred_language">Preferred Language.</string>
+    <string name="your_profile_photo">Your Profile Photo.</string>
+    <string name="set_your_image_avatar">Set your image avatar.</string>
+    <string name="check_out_what_you_have_posted_here">Check out what you have posted here.</string>
+    <string name="your_posts">Your Posts.</string>
+    <string name="app_version">App Version.</string>
+    <string name="copyright_2019_color_corporation">© Copyright 2019, Color Corporation.</string>
 </resources>

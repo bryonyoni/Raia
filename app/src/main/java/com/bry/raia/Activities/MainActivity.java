@@ -15,9 +15,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Base64;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.KeyEvent;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
@@ -29,12 +32,15 @@ import android.widget.LinearLayout;
 import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.bry.raia.Adapters.MainActivityFilterCountyItemAdapter;
 import com.bry.raia.Adapters.MainActivityPostItemAdapter;
 import com.bry.raia.Adapters.ViewPostActivityCommentItemAdapter;
 import com.bry.raia.Constants;
 import com.bry.raia.Models.Announcement;
 import com.bry.raia.Models.Comment;
+import com.bry.raia.Models.County;
 import com.bry.raia.Models.MyRecyclerView;
 import com.bry.raia.Models.Petition;
 import com.bry.raia.Models.PetitionSignature;
@@ -70,12 +76,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Bind(R.id.filterImageView) ImageView filterImageView;
     @Bind(R.id.feedbackImageView) ImageView feedbackImageView;
 
-    @Bind(R.id.searchLinearLayout) LinearLayout searchLinearLayout;
-    @Bind(R.id.backImageView) ImageView backImageView;
-    @Bind(R.id.searchCountyEditText) EditText searchCountyEditText;
-    @Bind(R.id.selectedCountiesRecyclerView) RecyclerView selectedCountiesRecyclerView;
     @Bind(R.id.loadNewPostsLoaderLinearLayout) LinearLayout loadNewPostsLoaderLinearLayout;
-    @Bind(R.id.allCountiesRecyclerView) RecyclerView allCountiesRecyclerView;
 
     @Bind(R.id.accountImageView) ImageView accountImageView;
     @Bind(R.id.uploadPostImageView) ImageView uploadPostImageView;
@@ -157,6 +158,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Bind(R.id.repliesRecyclerView) RecyclerView repliesRecyclerView;
     @Bind(R.id.noRepliesMessage) TextView noRepliesMessage;
 
+    @Bind(R.id.filterPostsRelativeLayout) RelativeLayout filterPostsRelativeLayout;
+    private boolean isFilterPartShowing = false;
+    @Bind(R.id.filterContentLinearLayout) LinearLayout filterContentLinearLayout;
+    @Bind(R.id.searchCountyEditText) EditText searchCountyEditText;
+    @Bind(R.id.selectedCountiesRecyclerView) RecyclerView selectedCountiesRecyclerView;
+    @Bind(R.id.allCountiesRecyclerView) RecyclerView allCountiesRecyclerView;
+    private MainActivityFilterCountyItemAdapter mainActivityFilterCounty;
+    private MainActivityFilterCountyItemAdapter mainActivitySelectedCounties;
+    private List<County> allCounties;
+    private List<County> selectedCounties = new ArrayList<>();
+    private List<County> qualifiedCounties;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -187,7 +201,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }else if(v.equals(messagesImageView)){
 
         }else if(v.equals(filterImageView)){
-
+            showFilterPart();
         }else if(v.equals(feedbackImageView)){
 
         }else if(v.equals(accountImageView)){
@@ -198,7 +212,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void loadPosts() {
         showLoadingAnimations();
-
+        allLoadedPosts.clear();
+        allLoadedAnnouncements.clear();
+        allLoadedPetitions.clear();
+        allLoadedPolls.clear();
         DatabaseReference announcementRef = FirebaseDatabase.getInstance().getReference(Constants.ANNOUNCEMENTS);
         announcementRef.limitToFirst(Constants.POST_LOADING_LIMIT).addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
@@ -209,8 +226,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Post p = new Post();
                         p.setAnnouncement(announcement);
 
-                        allLoadedPosts.add(p);
-                        allLoadedAnnouncements.add(announcement);
+                        if(!selectedCounties.isEmpty()) {
+                            for (County c : selectedCounties) {
+                                if (c.getName().equals(announcement.getCounty().getName())){
+                                    allLoadedPosts.add(p);
+                                    allLoadedAnnouncements.add(announcement);
+                                }
+                            }
+                        }else{
+                            allLoadedPosts.add(p);
+                            allLoadedAnnouncements.add(announcement);
+                        }
+
                     }
                 }
                 hasAnnouncementsLoaded = true;
@@ -243,8 +270,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Post p = new Post();
                         p.setPetition(petition);
 
-                        allLoadedPosts.add(p);
-                        allLoadedPetitions.add(petition);
+                        if(!selectedCounties.isEmpty()) {
+                            for (County c : selectedCounties) {
+                                if (c.getName().equals(petition.getCounty().getName())){
+                                    allLoadedPosts.add(p);
+                                    allLoadedPetitions.add(petition);
+                                }
+                            }
+                        }else{
+                            allLoadedPosts.add(p);
+                            allLoadedPetitions.add(petition);
+                        }
                     }
                 }
                 hasPetitionsLoaded = true;
@@ -275,8 +311,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Post p = new Post();
                         p.setPoll(poll);
 
-                        allLoadedPosts.add(p);
-                        allLoadedPolls.add(poll);
+                        if(!selectedCounties.isEmpty()) {
+                            for (County c : selectedCounties) {
+                                if (c.getName().equals(poll.getCounty().getName())){
+                                    allLoadedPosts.add(p);
+                                    allLoadedPolls.add(poll);
+                                }
+                            }
+                        }else{
+                            allLoadedPosts.add(p);
+                            allLoadedPolls.add(poll);
+                        }
                     }
                 }
                 hasPollsLoaded = true;
@@ -867,7 +912,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Announcement announcement = mPost.getAnnouncement();
             postTypeTextView.setText(getString(R.string.announcement));
             userNameTextView.setText(String.format("By %s", announcement.getUploaderUsername()));
-            countyTextViewAnnouncement.setText(String.format("To %s", announcement.getCounty().getCountyName()));
+            countyTextViewAnnouncement.setText(String.format("To %s", announcement.getCounty().getName()));
             postTitleTextView.setText(announcement.getAnnouncementTitle());
 
             announcementCardView.setVisibility(View.VISIBLE);
@@ -881,7 +926,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             final Petition petition = mPost.getPetition();
             postTypeTextView.setText(getString(R.string.petition));
             userNameTextView.setText(String.format("By %s", petition.getUploaderUsername()));
-            countyTextViewPetition.setText(String.format("To %s", petition.getCounty().getCountyName()));
+            countyTextViewPetition.setText(String.format("To %s", petition.getCounty().getName()));
             postTitleTextView.setText(petition.getPetitionTitle());
             PetitionTitleTextView.setText(petition.getPetitionTitle());
 
@@ -918,7 +963,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             petitionUiLinearLayout.setVisibility(View.GONE);
             postTypeTextView.setText(getString(R.string.poll));
             userNameTextView.setText(String.format("By %s", poll.getUploaderUsername()));
-            countyTextViewPoll.setText(String.format("To %s", poll.getCounty().getCountyName()));
+            countyTextViewPoll.setText(String.format("To %s", poll.getCounty().getName()));
             postTitleTextView.setText(poll.getPollTitle());
             PollTitleTextView.setText(poll.getPollTitle());
 
@@ -1162,7 +1207,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if(isViewPostShowing){
                 hideViewPostPart();
             }else{
-                super.onBackPressed();
+                if(isFilterPartShowing){
+                    hideFilterPart();
+                }else{
+                    super.onBackPressed();
+                }
             }
         }
 
@@ -1482,6 +1531,169 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 }).start();
 
+    }
+
+
+    private void showFilterPart(){
+        isFilterPartShowing = true;
+        filterPostsRelativeLayout.setVisibility(View.VISIBLE);
+
+        filterContentLinearLayout.animate().translationY(0).setDuration(mAnimationTime)
+                .setInterpolator(new LinearOutSlowInInterpolator()).start();
+
+        filterPostsRelativeLayout.animate().alpha(1f).setDuration(mAnimationTime)
+                .setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                filterPostsRelativeLayout.setVisibility(View.VISIBLE);
+                filterContentLinearLayout.setTranslationY(0);
+                filterPostsRelativeLayout.setAlpha(1f);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        }).start();
+
+        allCounties = Utils.loadCounties(mContext);
+        loadAllCounties(allCounties);
+        loadSelectedCounties(selectedCounties);
+
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String countyName = intent.getExtras().getString("county");
+                if(getSelectedCountyPostition(selectedCounties, countyName) != -1){
+                    int pos = getSelectedCountyPostition(selectedCounties, countyName);
+                    County county = selectedCounties.get(pos);
+                    selectedCounties.remove(pos);
+                    allCounties.add(county);
+
+                    loadAllCounties(allCounties);
+                    loadSelectedCounties(selectedCounties);
+                }else{
+                    int pos = getSelectedCountyPostition(allCounties, countyName);
+                    County county = allCounties.get(pos);
+                    allCounties.remove(pos);
+                    selectedCounties.add(county);
+
+                    loadAllCounties(allCounties);
+                    loadSelectedCounties(selectedCounties);
+                }
+            }
+        },new IntentFilter(Constants.SELECTED_COUNTY));
+
+        searchCountyEditText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                String changedWords = charSequence.subSequence(i, charSequence.length()).toString();
+                qualifiedCounties = new ArrayList<>();
+
+                for(County c: allCounties){
+                    if(c.getName().toLowerCase().contains(changedWords.toLowerCase())){
+                        qualifiedCounties.add(c);
+                    }
+                }
+                loadAllCounties(qualifiedCounties);
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+        findViewById(R.id.clearEditText).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                searchCountyEditText.setText("");
+            }
+        });
+
+        findViewById(R.id.doneFilteringTextView).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                hideFilterPart();
+                loadPosts();
+            }
+        });
+    }
+
+    private int getSelectedCountyPostition(List<County> counties, String countyName){
+        for(int i=0; i<counties.size(); i++){
+            County c = counties.get(i);
+            if(c.getName().equals(countyName)){
+                return i;
+            }
+        }
+        return -1;
+    }
+
+    private void loadAllCounties(List<County> selectedCounties){
+        if(selectedCounties.isEmpty()){
+            findViewById(R.id.noSearchedCountyTextView).setVisibility(View.VISIBLE);
+        }else{
+            findViewById(R.id.noSearchedCountyTextView).setVisibility(View.GONE);
+        }
+        mainActivityFilterCounty = new MainActivityFilterCountyItemAdapter(selectedCounties,MainActivity.this);
+        allCountiesRecyclerView.setAdapter(mainActivityFilterCounty);
+        allCountiesRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+    }
+
+    private void loadSelectedCounties(List<County> selectedCounties){
+        if(selectedCounties.isEmpty()){
+            findViewById(R.id.emptyMessageTextView).setVisibility(View.VISIBLE);
+        }else{
+            findViewById(R.id.emptyMessageTextView).setVisibility(View.GONE);
+        }
+        mainActivitySelectedCounties = new MainActivityFilterCountyItemAdapter(selectedCounties,MainActivity.this);
+        selectedCountiesRecyclerView.setAdapter(mainActivitySelectedCounties);
+        selectedCountiesRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+    }
+
+    private void hideFilterPart(){
+        isFilterPartShowing = false;
+
+        filterContentLinearLayout.animate().translationY(Utils.dpToPx(200)).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator()).start();
+
+        filterPostsRelativeLayout.animate().alpha(0f).setDuration(mAnimationTime).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                filterPostsRelativeLayout.setVisibility(View.GONE);
+                filterContentLinearLayout.setTranslationY(Utils.dpToPx(200));
+                filterPostsRelativeLayout.setAlpha(0f);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        }).start();
     }
 
 

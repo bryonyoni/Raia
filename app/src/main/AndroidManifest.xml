@@ -28,7 +28,8 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:ignore="GoogleAppIndexingWarning">
-        <activity android:name=".Activities.ViewPostActivity"></activity>
+        <activity android:name=".Activities.UserSettingsActivity"></activity>
+        <activity android:name=".Activities.ViewPostActivity" />
         <activity android:name=".Activities.PetitionsActivity" />
         <activity android:name=".Activities.AnnouncementsActivity" />
         <activity android:name=".Activities.PollsActivity" />
