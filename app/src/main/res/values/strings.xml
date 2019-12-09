@@ -80,4 +80,18 @@
     <string name="your_posts">Your Posts.</string>
     <string name="app_version">App Version.</string>
     <string name="copyright_2019_color_corporation">© Copyright 2019, Color Corporation.</string>
+    <string name="change_your_profile_photo">Change Your Profile Photo.</string>
+    <string name="you_can_choose_to_use_your_camera_take_from_your_saved_photos_or_delete_your_current_one">You can choose to use your camera, take from your saved photos or delete your current one.</string>
+    <string name="use_camera">Use Camera.</string>
+    <string name="choose_photo">Choose Photo</string>
+    <string name="remove_photo">Remove Photo.</string>
+    <string name="acc_created_on">Account Created On: %d %s %d</string>
+    <string name="you_may_set_your_preferred_language_to_have_in_the_app">You may set your preferred Language to have in the app.</string>
+    <string name="set">Set.</string>
+    <string name="language_set">%s set.</string>
+    <string name="you_can_set_your_preferred_county_of_residense">You can set your preferred County of residense.</string>
+    <string name="are_you_sure_you_want_to_sign_out">Are you sure you want to sign out?</string>
+    <string name="sign_out_of_your_account">Sign Out of your Account.</string>
+    <string name="yes">Yes.</string>
+    <string name="logout">Logout.</string>
 </resources>

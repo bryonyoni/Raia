@@ -36,6 +36,9 @@ public class Constants {
     public static final String SHOW_VIEW_POST = "SHOW_VIEW_POST";
     public static final String SHOW_COMMENT_REPLIES = "SHOW_COMMENT_REPLIES";
     public static final String COMMENT_NO = "COMMENT_NO";
-    public static final String SELECTED_COUNTY = "SELECTED_COUNTY";
+    public static final String SELECTED_COUNTY = "County";
+
+    public static final String IMAGE_AVATAR = "Avatars";
+    public static final String SELECTED_LANGUAGE = "Language";
 
 }

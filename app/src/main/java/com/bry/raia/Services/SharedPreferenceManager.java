@@ -3,6 +3,8 @@ package com.bry.raia.Services;
 import android.content.Context;
 import android.content.SharedPreferences;
 
+import com.bry.raia.Models.County;
+import com.bry.raia.Models.Language;
 import com.bry.raia.Models.Petition;
 import com.bry.raia.Models.Poll;
 import com.bry.raia.Models.PollOption;
@@ -19,6 +21,8 @@ public class SharedPreferenceManager {
     private final String Name = "NAME";
     private final String Email = "EMAIL";
     private final String Phone = "PHONE_NO";
+    private final String Language = "LANGUAGE";
+    private final String County = "COUNTY";
     private final String SignupDate = "SIGN_UP_DATE";
     private final String FirstTimeLaunch = "IS_FIRST_TIME_LAUNCH";
 
@@ -60,6 +64,32 @@ public class SharedPreferenceManager {
         return prefs.getString(Email, "");
     }
 
+    public void setLanguageInSharedPref(Language lang){
+        SharedPreferences pref = mContext.getSharedPreferences(Language, MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.clear().putString(Language, lang.getName()).apply();
+
+    }
+
+    public Language loadLanguageInSharedPref(){
+        SharedPreferences prefs = mContext.getSharedPreferences(Language, MODE_PRIVATE);
+        return new Language(prefs.getString(Email, "English"));
+    }
+
+    public void setCountyInSharedPref(County lang){
+        SharedPreferences pref = mContext.getSharedPreferences(County, MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.clear().putString(County, lang.getName()).apply();
+
+    }
+
+    public County loadCountyInSharedPref(){
+        SharedPreferences prefs = mContext.getSharedPreferences(County, MODE_PRIVATE);
+        County c = new County();
+        c.setName(prefs.getString(County, "Nairobi"));
+        return c;
+    }
+
     public void setPhoneInSharedPref(String phoneNo){
         SharedPreferences pref = mContext.getSharedPreferences(Phone, MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();
@@ -71,19 +101,19 @@ public class SharedPreferenceManager {
         return prefs.getString(Phone, "");
     }
 
-//    public MyTime loadSignUpDateInSharedPref(){
-//        SharedPreferences prefs = mContext.getSharedPreferences(SignupDate, MODE_PRIVATE);
-//        Calendar c = Calendar.getInstance();
-//        c.setTimeInMillis(Long.parseLong(prefs.getString(SignupDate, "0")));
-//        return new MyTime(c);
-//    }
+    public Long loadSignUpDateInSharedPref(){
+        SharedPreferences prefs = mContext.getSharedPreferences(SignupDate, MODE_PRIVATE);
+        return Long.parseLong(prefs.getString(SignupDate, "0"));
+    }
 
-//    public void setSignUpDateInSharedPref(MyTime time){
-//        String c = Long.toString(time.getC().getTimeInMillis());
-//        SharedPreferences pref = mContext.getSharedPreferences(SignupDate, MODE_PRIVATE);
-//        SharedPreferences.Editor editor = pref.edit();
-//        editor.clear().putString(SignupDate,c).apply();
-//    }
+    public void setSignUpDateInSharedPref(Long time){
+        String c = Long.toString(time);
+        SharedPreferences pref = mContext.getSharedPreferences(SignupDate, MODE_PRIVATE);
+        SharedPreferences.Editor editor = pref.edit();
+        editor.clear().putString(SignupDate,c).apply();
+    }
+
+
 
     public void setIsFirstTimeLaunch(Boolean b){
         SharedPreferences pref = mContext.getSharedPreferences(FirstTimeLaunch, MODE_PRIVATE);

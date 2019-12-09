@@ -4,9 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
+import android.widget.Toast;
 
 import com.bry.raia.Constants;
 import com.bry.raia.Models.Announcement;
+import com.bry.raia.Models.County;
+import com.bry.raia.Models.Language;
 import com.bry.raia.Models.Petition;
 import com.bry.raia.Models.PetitionSignature;
 import com.bry.raia.Models.Poll;
@@ -53,9 +56,11 @@ public class DatabaseManager {
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 String name = dataSnapshot.child(Constants.USERNAME).getValue(String.class);
                 String email = dataSnapshot.child(Constants.EMAIL).getValue(String.class);
+                String signUpTime = dataSnapshot.child(Constants.TIME_OF_SIGNUP).getValue(String.class);
 
                 new SharedPreferenceManager(mContext).setEmailInSharedPref(email);
                 new SharedPreferenceManager(mContext).setNameInSharedPref(name);
+                new SharedPreferenceManager(mContext).setSignUpDateInSharedPref(Long.parseLong(signUpTime));
 
                 List<String> usersSignedPetitionsIds = new ArrayList<>();
                 for(DataSnapshot petitionIdSnaps:dataSnapshot.child(Constants.MY_SIGNED_PETITIONS).getChildren()){
@@ -211,4 +216,32 @@ public class DatabaseManager {
 
         return this;
     }
+
+
+    public DatabaseManager updateImageAvatar(String image){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference avatarRef = FirebaseDatabase.getInstance().getReference(Constants.IMAGE_AVATAR).child(uid);
+        avatarRef.setValue(image);
+
+        return this;
+    }
+
+    public DatabaseManager updatePreferredLanguage(Language language){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference languageRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_USERS).child(uid)
+                .child(Constants.SELECTED_LANGUAGE);
+        languageRef.setValue(language);
+
+        return this;
+    }
+
+    public DatabaseManager updatePreferredCounty(County County){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference languageRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_USERS).child(uid)
+                .child(Constants.SELECTED_COUNTY);
+        languageRef.setValue(County);
+
+        return this;
+    }
+
 }

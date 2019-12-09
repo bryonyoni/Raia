@@ -180,6 +180,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         setClickListeners();
         loadPosts();
+        new DatabaseManager(mContext,"").loadUserDataFromFirebase();
 
         LocalBroadcastManager.getInstance(mContext).registerReceiver(mMessageReceiverToViewPost,
                 new IntentFilter(Constants.SHOW_VIEW_POST));
@@ -205,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }else if(v.equals(feedbackImageView)){
 
         }else if(v.equals(accountImageView)){
-
+            startActivity(new Intent(MainActivity.this, UserSettingsActivity.class));
         }
     }
 

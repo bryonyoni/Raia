@@ -12,6 +12,8 @@ import android.view.Display;
 import android.view.WindowManager;
 
 import com.bry.raia.Models.County;
+import com.bry.raia.Models.Language;
+import com.bry.raia.Models.Petition;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
@@ -19,7 +21,10 @@ import org.json.JSONArray;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.reflect.Array;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class Utils {
@@ -43,9 +48,40 @@ public class Utils {
             Gson gson = builder.create();
             JSONArray array = new JSONArray(loadJSONFromAsset(context, "counties.json"));
             List<County> adList = new ArrayList<>();
+            List<String> countyNames = new ArrayList<>();
             for(int i=0;i<array.length();i++){
                 County profile = gson.fromJson(array.getString(i), County.class);
-                adList.add(profile);
+                countyNames.add(profile.getName());
+//                adList.add(profile);
+            }
+
+            Collections.sort(countyNames);
+            for(String s:countyNames){
+                County c = new County();
+                c.setName(s);
+                adList.add(c);
+            }
+            return adList;
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+    public static List<Language> loadLanguages(Context context){
+        try{
+            GsonBuilder builder = new GsonBuilder();
+            Gson gson = builder.create();
+            JSONArray array = new JSONArray(loadJSONFromAsset(context, "languages.json"));
+            List<Language> adList = new ArrayList<>();
+            List<String> languageNames = new ArrayList<>();
+            for(int i=0;i<array.length();i++){
+                Language profile = gson.fromJson(array.getString(i), Language.class);
+                languageNames.add(profile.getName());
+            }
+            Collections.sort(languageNames);
+            for(String s:languageNames){
+                adList.add(new Language(s));
             }
             return adList;
         }catch (Exception e){

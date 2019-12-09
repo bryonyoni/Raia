@@ -48,7 +48,7 @@
                             android:layout_height="wrap_content">
 
                             <TextView
-                                android:id="@+id/postTypeTextView"
+                                android:id="@+id/userNameTextView"
                                 android:layout_width="wrap_content"
                                 android:text="UserName."
                                 android:textColor="@color/titlecolor"
@@ -56,7 +56,7 @@
                                 android:layout_height="wrap_content" />
 
                             <TextView
-                                android:id="@+id/userNameTextView"
+                                android:id="@+id/userEmailTextView"
                                 android:layout_width="wrap_content"
                                 android:text="Email@mail.com."
                                 android:textSize="13sp"
@@ -90,6 +90,7 @@
                     android:layout_height="wrap_content">
 
                     <RelativeLayout
+                        android:id="@+id/setCountryRelativeLayout"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content">
 
@@ -114,6 +115,7 @@
                                 android:layout_height="wrap_content" />
 
                             <TextView
+                                android:id="@+id/setCountyTextView"
                                 android:layout_width="wrap_content"
                                 android:text="Nairobi set."
                                 android:layout_marginLeft="10dp"
@@ -141,6 +143,7 @@
                     </RelativeLayout>
 
                     <RelativeLayout
+                        android:id="@+id/setLanguageRelativeLayout"
                         android:layout_width="match_parent"
                         android:layout_marginTop="10dp"
                         android:layout_height="wrap_content">
@@ -166,6 +169,7 @@
                                 android:layout_height="wrap_content" />
 
                             <TextView
+                                android:id="@+id/setLanguageTextView"
                                 android:layout_width="wrap_content"
                                 android:text="English set."
                                 android:layout_marginLeft="10dp"
@@ -193,6 +197,7 @@
                     </RelativeLayout>
 
                     <RelativeLayout
+                        android:id="@+id/setProfilePhotoRelativeLayout"
                         android:layout_width="match_parent"
                         android:layout_marginTop="10dp"
                         android:layout_height="wrap_content">
@@ -237,6 +242,7 @@
                     </RelativeLayout>
 
                     <RelativeLayout
+                        android:id="@+id/viewPostsRelativeLayout"
                         android:layout_width="match_parent"
                         android:layout_marginTop="10dp"
                         android:layout_height="wrap_content">
@@ -273,6 +279,44 @@
 
                         <ImageView
                             android:layout_width="30dp"
+                            android:layout_alignParentRight="true"
+                            android:layout_centerVertical="true"
+                            android:src="@drawable/ic_action_forward"
+                            android:layout_height="30dp" />
+
+                    </RelativeLayout>
+
+                    <RelativeLayout
+                        android:id="@+id/logoutButtonRelativeLayout"
+                        android:layout_width="match_parent"
+                        android:layout_marginTop="10dp"
+                        android:layout_height="wrap_content">
+
+                        <LinearLayout
+                            android:layout_width="match_parent"
+                            android:orientation="vertical"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:text="@string/logout"
+                                android:textColor="@color/titlecolor"
+                                android:layout_marginLeft="10dp"
+                                android:textSize="15sp"
+                                android:layout_height="wrap_content" />
+
+                            <TextView
+                                android:layout_width="wrap_content"
+                                android:text="@string/sign_out_of_your_account"
+                                android:layout_marginLeft="10dp"
+                                android:textSize="13sp"
+                                android:layout_height="wrap_content" />
+
+                        </LinearLayout>
+
+                        <ImageView
+                            android:layout_width="30dp"
+                            android:visibility="invisible"
                             android:layout_alignParentRight="true"
                             android:layout_centerVertical="true"
                             android:src="@drawable/ic_action_forward"
@@ -374,6 +418,367 @@
             </RelativeLayout>
 
         </LinearLayout>
+
+        <!--Opens Select new profile Image bottomsheet-->
+
+        <RelativeLayout
+            android:id="@+id/backBlackRelativeLayout"
+            android:visibility="gone"
+            android:layout_width="match_parent"
+            android:background="@color/black"
+            android:alpha="0"
+            android:layout_height="match_parent"/>
+
+        <RelativeLayout
+            android:id="@+id/ChangePhotoRelativeLayout"
+            android:translationY="200dp"
+            android:visibility="gone"
+            android:alpha="0.7"
+            android:layout_width="match_parent"
+            android:background="@drawable/dialog_bg"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="10dp"
+            android:padding="10dp"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:text="@string/change_your_profile_photo"
+                    android:textSize="20sp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginBottom="5dp"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:text="@string/you_can_choose_to_use_your_camera_take_from_your_saved_photos_or_delete_your_current_one"
+                    android:textSize="13sp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_height="wrap_content"/>
+
+                <View
+                    android:layout_width="match_parent"
+                    android:background="@color/greyish"
+                    android:layout_marginBottom="10dp"
+                    android:layout_marginTop="15dp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_height="1dp"/>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:orientation="horizontal"
+                    android:gravity="center"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_marginRight="15dp"
+                        android:layout_marginLeft="15dp"
+                        android:orientation="vertical"
+                        android:layout_height="wrap_content">
+
+                        <ImageView
+                            android:id="@+id/openCameraImageView"
+                            android:layout_width="40dp"
+                            android:layout_gravity="center_horizontal"
+                            android:background="@drawable/ic_action_camera"
+                            android:layout_height="40dp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:text="@string/use_camera"
+                            android:textSize="12sp"
+                            android:layout_height="wrap_content"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_marginRight="15dp"
+                        android:layout_marginLeft="15dp"
+                        android:orientation="vertical"
+                        android:layout_height="wrap_content">
+
+                        <ImageView
+                            android:id="@+id/openFilesImageView"
+                            android:layout_width="40dp"
+                            android:layout_gravity="center_horizontal"
+                            android:background="@drawable/ic_action_folder"
+                            android:layout_height="40dp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:text="@string/choose_photo"
+                            android:textSize="12sp"
+                            android:layout_height="wrap_content"/>
+
+                    </LinearLayout>
+
+                    <LinearLayout
+                        android:layout_width="wrap_content"
+                        android:layout_marginRight="15dp"
+                        android:layout_marginLeft="15dp"
+                        android:orientation="vertical"
+                        android:layout_height="wrap_content">
+
+                        <ImageView
+                            android:id="@+id/deletePhotoImageView"
+                            android:layout_width="40dp"
+                            android:layout_gravity="center_horizontal"
+                            android:background="@drawable/ic_action_remove"
+                            android:layout_height="40dp"/>
+
+                        <TextView
+                            android:layout_width="wrap_content"
+                            android:text="@string/remove_photo"
+                            android:textSize="12sp"
+                            android:layout_height="wrap_content"/>
+
+                    </LinearLayout>
+
+                </LinearLayout>
+
+            </LinearLayout>
+
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/ChangeLanguageRelativeLayout"
+            android:translationY="350dp"
+            android:visibility="gone"
+            android:alpha="0"
+            android:layout_width="match_parent"
+            android:background="@drawable/dialog_bg"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="10dp"
+            android:padding="10dp"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:text="Set Your Preferred Language."
+                    android:textSize="20sp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginBottom="5dp"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:text="@string/you_may_set_your_preferred_language_to_have_in_the_app"
+                    android:textSize="13sp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:id="@+id/newLanguageTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:text="English."
+                    android:textStyle="bold"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_height="wrap_content"/>
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/languagesListRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_height="200dp"/>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <Button
+                        android:id="@+id/setLanguageButton"
+                        android:layout_width="wrap_content"
+                        android:text="@string/set"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:background="@null"
+                        android:layout_alignParentEnd="true"
+                        android:layout_height="wrap_content"/>
+
+                    <Button
+                        android:id="@+id/cancelSetLanguageButton"
+                        android:layout_width="wrap_content"
+                        android:text="@string/cancel"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:background="@null"
+                        android:layout_alignParentStart="true"
+                        android:layout_height="wrap_content"/>
+
+                </RelativeLayout>
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/ChangeCountyRelativeLayout"
+            android:translationY="350dp"
+            android:visibility="gone"
+            android:alpha="0"
+            android:layout_width="match_parent"
+            android:background="@drawable/dialog_bg"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="10dp"
+            android:padding="10dp"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:text="Set Your Preferred County."
+                    android:textSize="20sp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginBottom="5dp"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:text="@string/you_can_set_your_preferred_county_of_residense"
+                    android:textSize="13sp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:id="@+id/newCountyTextView"
+                    android:layout_width="wrap_content"
+                    android:layout_marginTop="5dp"
+                    android:text="Nairobi."
+                    android:textStyle="bold"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_height="wrap_content"/>
+
+                <android.support.v7.widget.RecyclerView
+                    android:id="@+id/countyListRecyclerView"
+                    android:layout_width="match_parent"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginTop="10dp"
+                    android:layout_height="200dp"/>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <Button
+                        android:id="@+id/setCountyButton"
+                        android:layout_width="wrap_content"
+                        android:text="@string/set"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:background="@null"
+                        android:layout_alignParentEnd="true"
+                        android:layout_height="wrap_content"/>
+
+                    <Button
+                        android:id="@+id/cancelSetCountyButton"
+                        android:layout_width="wrap_content"
+                        android:text="@string/cancel"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:background="@null"
+                        android:layout_alignParentStart="true"
+                        android:layout_height="wrap_content"/>
+
+                </RelativeLayout>
+
+            </LinearLayout>
+
+        </RelativeLayout>
+
+        <RelativeLayout
+            android:id="@+id/LogoutRelativeLayout"
+            android:translationY="150dp"
+            android:visibility="gone"
+            android:alpha="0"
+            android:layout_width="match_parent"
+            android:background="@drawable/dialog_bg"
+            android:layout_alignParentBottom="true"
+            android:layout_margin="10dp"
+            android:padding="10dp"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:orientation="vertical"
+                android:layout_height="wrap_content">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:text="@string/sign_out_of_your_account"
+                    android:textSize="20sp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_marginBottom="5dp"
+                    android:textColor="@color/colorPrimaryDark"
+                    android:layout_height="wrap_content"/>
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:text="@string/are_you_sure_you_want_to_sign_out"
+                    android:textSize="13sp"
+                    android:layout_marginLeft="20dp"
+                    android:layout_marginRight="20dp"
+                    android:layout_height="wrap_content"/>
+
+                <RelativeLayout
+                    android:layout_width="match_parent"
+                    android:layout_marginLeft="7dp"
+                    android:layout_marginRight="7dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_height="wrap_content">
+
+                    <Button
+                        android:id="@+id/logoutButton"
+                        android:layout_width="wrap_content"
+                        android:text="@string/yes"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:background="@null"
+                        android:layout_alignParentEnd="true"
+                        android:layout_height="wrap_content"/>
+
+                    <Button
+                        android:id="@+id/cancelLogoutButton"
+                        android:layout_width="wrap_content"
+                        android:text="@string/cancel"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:background="@null"
+                        android:layout_alignParentStart="true"
+                        android:layout_height="wrap_content"/>
+
+                </RelativeLayout>
+
+            </LinearLayout>
+
+        </RelativeLayout>
 
     </RelativeLayout>
 
