@@ -19,23 +19,40 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.bry.raia.Adapters.UserSettingsActivityCountyItemAdapter;
 import com.bry.raia.Adapters.UserSettingsActivityLanguageItemAdapter;
+import com.bry.raia.Adapters.UserSettingsPostItemAdapter;
+import com.bry.raia.Adapters.ViewPostActivityCommentItemAdapter;
 import com.bry.raia.Constants;
+import com.bry.raia.Models.Announcement;
+import com.bry.raia.Models.Comment;
 import com.bry.raia.Models.County;
 import com.bry.raia.Models.Language;
+import com.bry.raia.Models.MyRecyclerView;
+import com.bry.raia.Models.Petition;
+import com.bry.raia.Models.PetitionSignature;
+import com.bry.raia.Models.Poll;
+import com.bry.raia.Models.PollOption;
+import com.bry.raia.Models.Post;
 import com.bry.raia.R;
 import com.bry.raia.Services.DatabaseManager;
 import com.bry.raia.Services.SharedPreferenceManager;
 import com.bry.raia.Services.Utils;
+import com.bry.raia.Variables;
 import com.bumptech.glide.Glide;
 import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.google.firebase.auth.FirebaseAuth;
@@ -47,7 +64,12 @@ import com.google.firebase.database.ValueEventListener;
 
 import java.io.ByteArrayOutputStream;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.List;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -55,8 +77,8 @@ import butterknife.ButterKnife;
 public class UserSettingsActivity extends AppCompatActivity implements View.OnClickListener{
     private Context mContext;
     private int mAnimationTime = 300;
-    @Bind(R.id.userImageView) ImageView userImageView;
-    @Bind(R.id.userNameTextView) TextView userNameTextView;
+    @Bind(R.id.userImageView) ImageView userProfileImageView;
+    @Bind(R.id.userNameTextView) TextView userProfileNameTextView;
     @Bind(R.id.userEmailTextView) TextView userEmailTextView;
     @Bind(R.id.signUpTimeTextView) TextView signUpTimeTextView;
 
@@ -106,6 +128,81 @@ public class UserSettingsActivity extends AppCompatActivity implements View.OnCl
     @Bind(R.id.logoutButton) Button logoutButton;
     @Bind(R.id.cancelLogoutButton) Button cancelLogoutButton;
 
+    @Bind(R.id.loadedPostsRecyclerView) MyRecyclerView loadedPostsRecyclerView;
+    private UserSettingsPostItemAdapter UserSettingsPostItemAdapter;
+    @Bind(R.id.loadingContainerLinearLayout) LinearLayout loadingContainerLinearLayout;
+    private boolean canAnimateLoadingScreens = false;
+
+    @Bind(R.id.myPostsRelativelayout) RelativeLayout myPostsRelativelayout;
+    private boolean isMyPostsPartOpen = false;
+    private List<String> announcements = new ArrayList<>();
+    private List<String> petitions = new ArrayList<>();
+    private List<String> polls = new ArrayList<>();
+
+    @Bind(R.id.viewPostRelativeLayout) RelativeLayout viewPostRelativeLayout;
+    private boolean isViewPostShowing = false;
+    @Bind(R.id.postTypeTextView) TextView postTypeTextView;
+    @Bind(R.id.vpuserNameTextView) TextView userNameTextView;
+    @Bind(R.id.postTitleTextView) TextView postTitleTextView;
+
+    @Bind(R.id.announcementCardView) LinearLayout announcementCardView;
+    @Bind(R.id.countyTextViewAnnouncement) TextView countyTextViewAnnouncement;
+    @Bind(R.id.announcementPostImageViewBack) ImageView announcementPostImageViewBack;
+    @Bind(R.id.announcementImageView) ImageView announcementImageView;
+    @Bind(R.id.AnnouncementTitleTextView) TextView AnnouncementTitleTextView;
+
+    @Bind(R.id.petitionUiLinearLayout) LinearLayout petitionUiLinearLayout;
+    @Bind(R.id.countyTextViewPetition) TextView countyTextViewPetition;
+    @Bind(R.id.petitionImageViewBack) ImageView petitionImageViewBack;
+    @Bind(R.id.petitionImageView) ImageView petitionImageView;
+    @Bind(R.id.numberSignedTextView) TextView numberSignedTextView;
+    @Bind(R.id.petitionPercentageView)
+    ProgressBar petitionPercentageView;
+    @Bind(R.id.signTextView) TextView signTextView;
+    @Bind(R.id.PetitionTitleTextView) TextView PetitionTitleTextView;
+
+    @Bind(R.id.pollRelativeLayout) RelativeLayout pollRelativeLayout;
+    @Bind(R.id.option1LinearLayout) LinearLayout option1LinearLayout;
+    @Bind(R.id.countyTextViewPoll) TextView countyTextViewPoll;
+    @Bind(R.id.pollOption1CheckBox) CheckBox pollOption1CheckBox;
+    @Bind(R.id.option1PercentageTextView)TextView option1PercentageTextView;
+    @Bind(R.id.option1PercentageBarView)ProgressBar option1PercentageBarView;
+    @Bind(R.id.option2LinearLayout)LinearLayout option2LinearLayout;
+    @Bind(R.id.option2CheckBox)CheckBox option2CheckBox;
+    @Bind(R.id.option2PercentageTextView)TextView option2PercentageTextView;
+    @Bind(R.id.option2PercentageBarView)ProgressBar option2PercentageBar;
+    @Bind(R.id.option3LinearLayout)LinearLayout option3LinearLayout;
+    @Bind(R.id.option3CheckBox)CheckBox option3CheckBox;
+    @Bind(R.id.option3PercentageTextView)TextView option3PercentageTextView;
+    @Bind(R.id.option3PercentageBarView)ProgressBar option3PercentageView;
+    @Bind(R.id.option4LinearLayout)LinearLayout option4LinearLayout;
+    @Bind(R.id.option4CheckBox)CheckBox option4CheckBox;
+    @Bind(R.id.option4PercentageTextView)TextView option4PercentageTextView;
+    @Bind(R.id.option4PercentageBarView)ProgressBar option4PercentageBarView;
+
+    @Bind(R.id.pollVoteCountTextView) TextView pollVoteCountTextView;
+    @Bind(R.id.PollTitleTextView) TextView PollTitleTextView;
+    private boolean isPresetingCheckButons = false;
+
+    @Bind(R.id.addCommentEditText)
+    EditText addCommentEditText;
+    @Bind(R.id.sendCommentImageView) ImageView sendCommentImageView;
+    @Bind(R.id.commentsRecyclerViewMain) RecyclerView commentsRecyclerView;
+    @Bind(R.id.noCommentsTextView) TextView noCommentsTextView;
+    ViewPostActivityCommentItemAdapter vpActivityCommentAdapter;
+    List<Comment> allComments = new ArrayList<>();
+    @Bind(R.id.loadingCommentsContainerLinearLayout) LinearLayout loadingCommentsContainerLinearLayout;
+
+    @Bind(R.id.viewCommentLinearLayout) LinearLayout viewCommentLinearLayout;
+    private boolean isShowingCommentRepliesPart = false;
+    @Bind(R.id.userNameRepliesTextView) TextView userNameRepliesTextView;
+    @Bind(R.id.commentTimeTextView) TextView commentTimeTextView;
+    @Bind(R.id.commentBodyTextView) TextView commentBodyTextView;
+    @Bind(R.id.addReplyEditText) EditText addReplyEditText;
+    @Bind(R.id.replyButtonTextView) TextView replyButtonTextView;
+    @Bind(R.id.repliesRecyclerView) RecyclerView repliesRecyclerView;
+    @Bind(R.id.noRepliesMessage) TextView noRepliesMessage;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -125,7 +222,7 @@ public class UserSettingsActivity extends AppCompatActivity implements View.OnCl
             byte[] decodedByteArray = android.util.Base64.decode(uiString, Base64.DEFAULT);
             userImageBitmap = BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
 
-            Glide.with(mContext).load(bitmapToByte(userImageBitmap)).asBitmap().centerCrop().into(new BitmapImageViewTarget(userImageView) {
+            Glide.with(mContext).load(bitmapToByte(userImageBitmap)).asBitmap().centerCrop().into(new BitmapImageViewTarget(userProfileImageView) {
                 @Override
                 protected void setResource(Bitmap resource) {
                     try{
@@ -133,7 +230,7 @@ public class UserSettingsActivity extends AppCompatActivity implements View.OnCl
                                 RoundedBitmapDrawableFactory.create(mContext.getResources(),resource);
 //                                Bitmap.createScaledBitmap(resource,100,100,false));
                         circularBitmapDrawable.setCircular(true);
-                        userImageView.setImageDrawable(circularBitmapDrawable);
+                        userProfileImageView.setImageDrawable(circularBitmapDrawable);
                         new SharedPreferenceManager(mContext).setAvatar(encodeBitmapForFirebaseStorage(userImageBitmap));
                     }catch (Exception e){
                         e.printStackTrace();
@@ -153,7 +250,7 @@ public class UserSettingsActivity extends AppCompatActivity implements View.OnCl
                         byte[] decodedByteArray = android.util.Base64.decode(uiString, Base64.DEFAULT);
                         userImageBitmap = BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
 
-                        Glide.with(mContext).load(bitmapToByte(userImageBitmap)).asBitmap().centerCrop().into(new BitmapImageViewTarget(userImageView) {
+                        Glide.with(mContext).load(bitmapToByte(userImageBitmap)).asBitmap().centerCrop().into(new BitmapImageViewTarget(userProfileImageView) {
                             @Override
                             protected void setResource(Bitmap resource) {
                                 try{
@@ -161,7 +258,7 @@ public class UserSettingsActivity extends AppCompatActivity implements View.OnCl
                                             RoundedBitmapDrawableFactory.create(mContext.getResources(),resource);
 //                                Bitmap.createScaledBitmap(resource,100,100,false));
                                     circularBitmapDrawable.setCircular(true);
-                                    userImageView.setImageDrawable(circularBitmapDrawable);
+                                    userProfileImageView.setImageDrawable(circularBitmapDrawable);
                                     new SharedPreferenceManager(mContext).setAvatar(encodeBitmapForFirebaseStorage(userImageBitmap));
                                     hideLoadingAnimationForAvatar();
                                 }catch (Exception e){
@@ -179,7 +276,7 @@ public class UserSettingsActivity extends AppCompatActivity implements View.OnCl
             });
         }
 
-        userNameTextView.setText(new SharedPreferenceManager(mContext).loadNameInSharedPref());
+        userProfileNameTextView.setText(new SharedPreferenceManager(mContext).loadNameInSharedPref());
         userEmailTextView.setText(new SharedPreferenceManager(mContext).loadEmailInSharedPref());
 
         Calendar cal = Calendar.getInstance();
@@ -207,6 +304,7 @@ public class UserSettingsActivity extends AppCompatActivity implements View.OnCl
         setCountryRelativeLayout.setOnClickListener(this);
         setLanguageRelativeLayout.setOnClickListener(this);
         logoutButtonRelativeLayout.setOnClickListener(this);
+        viewPostsRelativeLayout.setOnClickListener(this);
     }
 
     private void openChangePhotoOption(){
@@ -270,7 +368,7 @@ public class UserSettingsActivity extends AppCompatActivity implements View.OnCl
     }
 
     private void DeletePhoto() {
-        userImageView.setImageDrawable(getDrawable(R.drawable.grey_back));
+        userProfileImageView.setImageDrawable(getDrawable(R.drawable.grey_back));
         new SharedPreferenceManager(mContext).setAvatar("");
         new DatabaseManager(mContext,"").updateImageAvatar("");
     }
@@ -298,7 +396,7 @@ public class UserSettingsActivity extends AppCompatActivity implements View.OnCl
                 try {
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), mFilepath);
                     userImageBitmap = getResizedBitmap(bitmap,1000);
-                    Glide.with(mContext).load(bitmapToByte(userImageBitmap)).asBitmap().centerCrop().into(new BitmapImageViewTarget(userImageView) {
+                    Glide.with(mContext).load(bitmapToByte(userImageBitmap)).asBitmap().centerCrop().into(new BitmapImageViewTarget(userProfileImageView) {
                         @Override
                         protected void setResource(Bitmap resource) {
                             try{
@@ -306,7 +404,7 @@ public class UserSettingsActivity extends AppCompatActivity implements View.OnCl
                                         RoundedBitmapDrawableFactory.create(mContext.getResources(),resource);
 //                                Bitmap.createScaledBitmap(resource,100,100,false));
                                 circularBitmapDrawable.setCircular(true);
-                                userImageView.setImageDrawable(circularBitmapDrawable);
+                                userProfileImageView.setImageDrawable(circularBitmapDrawable);
                                 String image = encodeBitmapForFirebaseStorage(userImageBitmap);
                                 new SharedPreferenceManager(mContext).setAvatar(image);
                                 new DatabaseManager(mContext,"").updateImageAvatar(image);
@@ -328,7 +426,7 @@ public class UserSettingsActivity extends AppCompatActivity implements View.OnCl
                 Bitmap bitmap = (Bitmap) extras.get("data");
                 userImageBitmap = getResizedBitmap(bitmap,1000);
 
-                Glide.with(mContext).load(bitmapToByte(userImageBitmap)).asBitmap().centerCrop().into(new BitmapImageViewTarget(userImageView) {
+                Glide.with(mContext).load(bitmapToByte(userImageBitmap)).asBitmap().centerCrop().into(new BitmapImageViewTarget(userProfileImageView) {
                     @Override
                     protected void setResource(Bitmap resource) {
                         try{
@@ -336,7 +434,7 @@ public class UserSettingsActivity extends AppCompatActivity implements View.OnCl
                                     RoundedBitmapDrawableFactory.create(mContext.getResources(),resource);
 //                                Bitmap.createScaledBitmap(resource,100,100,false));
                             circularBitmapDrawable.setCircular(true);
-                            userImageView.setImageDrawable(circularBitmapDrawable);
+                            userProfileImageView.setImageDrawable(circularBitmapDrawable);
 
                             String image = encodeBitmapForFirebaseStorage(userImageBitmap);
                             new SharedPreferenceManager(mContext).setAvatar(image);
@@ -434,6 +532,9 @@ public class UserSettingsActivity extends AppCompatActivity implements View.OnCl
             else if(v.equals(logoutButtonRelativeLayout)){
                 openLogoutPart();
             }
+            else if(v.equals(viewPostsRelativeLayout)){
+                openViewMyPosts();
+            }
         }
     }
 
@@ -441,14 +542,25 @@ public class UserSettingsActivity extends AppCompatActivity implements View.OnCl
     public void onBackPressed(){
         if(isChangePhotoOptionOpen){
             closeChangePhotoOption();
-        }else if(isSetLanguagePartOpen){
+        }
+        else if(isSetLanguagePartOpen){
             closeSelectedLanguagePart();
-        }else if(isSetCountyPartOpen){
+        }
+        else if(isSetCountyPartOpen){
             closeSelectCountyPart();
-        }else if(isLogoutPartOpen){
+        }
+        else if(isLogoutPartOpen){
             closeLogoutPart();
         }
-        else{
+        else if(isShowingCommentRepliesPart){
+            hideCommentReplies();
+        }
+        else if(isViewPostShowing){
+            hideViewPostPart();
+        }
+        else if(isMyPostsPartOpen){
+            closeViewMyPosts();
+        }else{
             super.onBackPressed();
         }
     }
@@ -461,7 +573,7 @@ public class UserSettingsActivity extends AppCompatActivity implements View.OnCl
         final int durationR = 600;
 
         if(canAnimateImageLoadingScreens) {
-            userImageView.animate().alpha(alpha).setDuration(duration).setInterpolator(new LinearInterpolator())
+            userProfileImageView.animate().alpha(alpha).setDuration(duration).setInterpolator(new LinearInterpolator())
                     .setListener(new Animator.AnimatorListener() {
                         @Override
                         public void onAnimationStart(Animator animator) {
@@ -470,7 +582,7 @@ public class UserSettingsActivity extends AppCompatActivity implements View.OnCl
 
                         @Override
                         public void onAnimationEnd(Animator animator) {
-                            userImageView.animate().alpha(alphaR).setDuration(durationR)
+                            userProfileImageView.animate().alpha(alphaR).setDuration(durationR)
                                     .setInterpolator(new LinearInterpolator()).setListener(new Animator.AnimatorListener() {
                                         @Override
                                         public void onAnimationStart(Animator animator) {
@@ -505,8 +617,8 @@ public class UserSettingsActivity extends AppCompatActivity implements View.OnCl
                         }
                     }).start();
         }else{
-            userImageView.clearAnimation();
-            userImageView.setAlpha(1f);
+            userProfileImageView.clearAnimation();
+            userProfileImageView.setAlpha(1f);
         }
     }
 
@@ -819,5 +931,975 @@ public class UserSettingsActivity extends AppCompatActivity implements View.OnCl
 
             }
         }).start();
+    }
+
+
+    private void openViewMyPosts(){
+        isMyPostsPartOpen = true;
+        myPostsRelativelayout.setVisibility(View.VISIBLE);
+        myPostsRelativelayout.animate().alpha(1f).translationY(0).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        myPostsRelativelayout.setVisibility(View.VISIBLE);
+                        myPostsRelativelayout.setAlpha(1f);
+                        myPostsRelativelayout.setTranslationY(0);
+
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                }).start();
+        loadMyPosts();
+    }
+
+    private void closeViewMyPosts(){
+        isMyPostsPartOpen = false;
+        myPostsRelativelayout.animate().alpha(0f).translationY(Utils.dpToPx(300)).setDuration(mAnimationTime)
+                .setInterpolator(new LinearOutSlowInInterpolator()).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                myPostsRelativelayout.setVisibility(View.GONE);
+                myPostsRelativelayout.setAlpha(0f);
+                myPostsRelativelayout.setTranslationY(Utils.dpToPx(300));
+
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        }).start();
+    }
+
+    private void loadMyPosts(){
+        showLoadingAnimations();
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference myUploadRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_USERS).child(uid);
+        myUploadRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+
+                if(dataSnapshot.child(Constants.UPLOADED_ANNOUNCEMENTS).exists()){
+                    DataSnapshot ann_snaps = dataSnapshot.child(Constants.UPLOADED_ANNOUNCEMENTS);
+                    for(DataSnapshot snap_id: ann_snaps.getChildren()){
+                        announcements.add(snap_id.getValue(String.class));
+                    }
+                }
+                if(dataSnapshot.child(Constants.UPLOADED_PETITIONS).exists()){
+                    DataSnapshot pet_snaps = dataSnapshot.child(Constants.UPLOADED_PETITIONS);
+                    for(DataSnapshot snap_id: pet_snaps.getChildren()){
+                        petitions.add(snap_id.getValue(String.class));
+                    }
+                }
+                if(dataSnapshot.child(Constants.UPLOADED_POLLS).exists()){
+                    DataSnapshot pol_snaps = dataSnapshot.child(Constants.UPLOADED_POLLS);
+                    for(DataSnapshot snap_id: pol_snaps.getChildren()){
+                        polls.add(snap_id.getValue(String.class));
+                    }
+                }
+
+                loadPosts();
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+    private List<Post> allLoadedPosts = new ArrayList<>();
+    private List<Announcement> allLoadedAnnouncements = new ArrayList<>();
+    private boolean hasAnnouncementsLoaded = false;
+    private List<Petition> allLoadedPetitions = new ArrayList<>();
+    private boolean hasPetitionsLoaded = false;
+    private List<Poll> allLoadedPolls = new ArrayList<>();
+    private boolean hasPollsLoaded = false;
+    private void loadPosts() {
+        showLoadingAnimations();
+        allLoadedPosts.clear();
+        allLoadedAnnouncements.clear();
+        allLoadedPetitions.clear();
+        allLoadedPolls.clear();
+        DatabaseReference announcementRef = FirebaseDatabase.getInstance().getReference(Constants.ANNOUNCEMENTS);
+        announcementRef.limitToFirst(Constants.POST_LOADING_LIMIT).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+                    for (DataSnapshot snap: dataSnapshot.getChildren()) {
+                        Announcement announcement = snap.getValue(Announcement.class);
+                        Post p = new Post();
+                        p.setAnnouncement(announcement);
+
+                        if(announcements.contains(announcement.getAnnouncementId())) {
+                            allLoadedPosts.add(p);
+                            allLoadedAnnouncements.add(announcement);
+                        }
+                    }
+                }
+                hasAnnouncementsLoaded = true;
+
+                if(hasAnnouncementsLoaded && hasPetitionsLoaded && hasPollsLoaded){
+                    sortPosts();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        final DatabaseReference petitionsRef = FirebaseDatabase.getInstance().getReference(Constants.PETITIONS);
+        petitionsRef.limitToFirst(Constants.POST_LOADING_LIMIT).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+                    for(DataSnapshot snap: dataSnapshot.getChildren()){
+                        Petition petition = snap.getValue(Petition.class);
+                        petition.getSignatures().clear();
+
+                        for(DataSnapshot signatureSnap:dataSnapshot.child(Constants.PETITION_SIGNATURES).getChildren()){
+                            PetitionSignature s = signatureSnap.getValue(PetitionSignature.class);
+                            petition.addSignature(s);
+                        }
+
+                        Post p = new Post();
+                        p.setPetition(petition);
+
+                        if(petitions.contains(petition.getPetitionId())) {
+                            allLoadedPosts.add(p);
+                            allLoadedPetitions.add(petition);
+                        }
+                    }
+                }
+                hasPetitionsLoaded = true;
+
+                if(hasAnnouncementsLoaded && hasPetitionsLoaded && hasPollsLoaded){
+                    sortPosts();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+        final DatabaseReference pollsRef = FirebaseDatabase.getInstance().getReference(Constants.POLLS);
+        pollsRef.limitToFirst(Constants.POST_LOADING_LIMIT).addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()){
+                    for(DataSnapshot snap: dataSnapshot.getChildren()){
+                        Poll poll = snap.getValue(Poll.class);
+                        poll.getPollOptions().clear();
+                        for(DataSnapshot pollVoteSnap: snap.child(Constants.POLL_VOTES).getChildren()){
+                            PollOption option = pollVoteSnap.getValue(PollOption.class);
+                            poll.getPollOptions().add(option);
+                        }
+                        Post p = new Post();
+                        p.setPoll(poll);
+
+                        if(polls.contains(poll.getPollId())) {
+                            allLoadedPosts.add(p);
+                            allLoadedPolls.add(poll);
+                        }
+                    }
+                }
+                hasPollsLoaded = true;
+
+                if(hasAnnouncementsLoaded && hasPetitionsLoaded && hasPollsLoaded){
+                    sortPosts();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+    private void sortPosts() {
+        hasPollsLoaded = false;
+        hasPetitionsLoaded = false;
+        hasAnnouncementsLoaded = false;
+
+        HashMap<Long,Post> postsHashMap = new LinkedHashMap<>();
+        for(Post p: allLoadedPosts){
+            if(p.getPostType().equals(Constants.ANNOUNCEMENTS)){
+                //its a announcement
+                Long time = p.getAnnouncement().getAnnouncementCreationTime();
+                postsHashMap.put(time,p);
+
+            }else if(p.getPostType().equals(Constants.PETITIONS)){
+                //its a petition
+                Long time = p.getPetition().getPetitionCreationTime();
+                postsHashMap.put(time,p);
+
+            }else{
+                //its a poll
+                Long time = p.getPoll().getPollCreationTime();
+                postsHashMap.put(time,p);
+            }
+
+        }
+
+        List<Long> timesToSort = new ArrayList<>(postsHashMap.keySet());
+        Collections.sort(timesToSort);
+
+        allLoadedPosts.clear();
+        for(Long time:timesToSort) {
+            allLoadedPosts.add(postsHashMap.get(time));
+        }
+
+        loadPostsIntoRecyclerView();
+    }
+
+    private void loadPostsIntoRecyclerView() {
+        Log.e("MainActivity","Number of items: "+allLoadedPosts.size());
+        UserSettingsPostItemAdapter = new UserSettingsPostItemAdapter(allLoadedPosts, UserSettingsActivity.this);
+        loadedPostsRecyclerView.setAdapter(UserSettingsPostItemAdapter);
+        loadedPostsRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+
+        UserSettingsPostItemAdapter.setOnBottomReachedListener(new com.bry.raia.Adapters.UserSettingsPostItemAdapter.OnBottomReachedListener() {
+            @Override
+            public void onBottomReached(int position) {
+                //when user has scrolled to bottom of list
+//                loadMorePostItems();
+            }
+        });
+
+        hideLoadingAnimations();
+
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                showViewPostPart();
+            }
+        },new IntentFilter(Constants.SHOW_MY_VIEW_POST));
+
+    }
+
+    private void showViewPostPart(){
+        isViewPostShowing = true;
+        viewPostRelativeLayout.setVisibility(View.VISIBLE);
+        viewPostRelativeLayout.animate().alpha(1f).translationY(0).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        viewPostRelativeLayout.setAlpha(1f);
+                        viewPostRelativeLayout.setTranslationY(0);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                });
+
+        Post mPost = Variables.postToBeViewed;
+        if(mPost.getPostType().equals(Constants.ANNOUNCEMENTS)) {
+            Announcement announcement = mPost.getAnnouncement();
+            postTypeTextView.setText(getString(R.string.announcement));
+            userNameTextView.setText(String.format("By %s", announcement.getUploaderUsername()));
+            countyTextViewAnnouncement.setText(String.format("To %s", announcement.getCounty().getName()));
+            postTitleTextView.setText(announcement.getAnnouncementTitle());
+
+            announcementCardView.setVisibility(View.VISIBLE);
+            petitionUiLinearLayout.setVisibility(View.GONE);
+            pollRelativeLayout.setVisibility(View.GONE);
+            announcementImageView.setImageBitmap(Variables.image);
+            announcementPostImageViewBack.setImageBitmap(Variables.imageBack);
+
+            AnnouncementTitleTextView.setText(announcement.getAnnouncementTitle());
+        }else if(mPost.getPostType().equals(Constants.PETITIONS)) {
+            final Petition petition = mPost.getPetition();
+            postTypeTextView.setText(getString(R.string.petition));
+            userNameTextView.setText(String.format("By %s", petition.getUploaderUsername()));
+            countyTextViewPetition.setText(String.format("To %s", petition.getCounty().getName()));
+            postTitleTextView.setText(petition.getPetitionTitle());
+            PetitionTitleTextView.setText(petition.getPetitionTitle());
+
+            petitionUiLinearLayout.setVisibility(View.VISIBLE);
+            announcementCardView.setVisibility(View.GONE);
+            pollRelativeLayout.setVisibility(View.GONE);
+            petitionImageView.setImageBitmap(Variables.image);
+            petitionImageViewBack.setImageBitmap(Variables.imageBack);
+
+            numberSignedTextView.setText(String.format("%d signed", petition.getSignatures().size()));
+
+            long percentage = (petition.getSignatures().size()/petition.getPetitionSignatureTarget())*100;
+            petitionPercentageView.setProgress((int)percentage);
+
+            if(new SharedPreferenceManager(mContext).hasUserSignedPetition(petition)){
+                signTextView.setAlpha(0.4f);
+            }
+
+            signTextView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(!new SharedPreferenceManager(mContext).hasUserSignedPetition(petition)) {
+                        updatePetitionDataInSharedPreferencesAndFirebase(petition);
+                        signTextView.setAlpha(0.4f);
+                    }
+                }
+            });
+
+        }else{
+            //its a poll
+            final Poll poll = mPost.getPoll();
+            pollRelativeLayout.setVisibility(View.VISIBLE);
+            announcementCardView.setVisibility(View.GONE);
+            petitionUiLinearLayout.setVisibility(View.GONE);
+            postTypeTextView.setText(getString(R.string.poll));
+            userNameTextView.setText(String.format("By %s", poll.getUploaderUsername()));
+            countyTextViewPoll.setText(String.format("To %s", poll.getCounty().getName()));
+            postTitleTextView.setText(poll.getPollTitle());
+            PollTitleTextView.setText(poll.getPollTitle());
+
+
+            if(new SharedPreferenceManager(this).hasUserVotedInPoll(poll)){
+                PollOption po = new SharedPreferenceManager(this).getWhichPollOptionSelected(poll);
+                isPresetingCheckButons = true;
+                if(poll.getPollOptions().get(0).getOptionId().equals(po.getOptionId())){
+                    pollOption1CheckBox.setChecked(true);
+                    pollOption1CheckBox.setEnabled(false);
+                    option2CheckBox.setEnabled(false);
+                    option3CheckBox.setEnabled(false);
+                    option4CheckBox.setEnabled(false);
+                }else if(poll.getPollOptions().size()>1 && poll.getPollOptions().get(1).getOptionId().equals(po.getOptionId())){
+                    option2CheckBox.setChecked(true);
+                    pollOption1CheckBox.setEnabled(false);
+                    option2CheckBox.setEnabled(false);
+                    option3CheckBox.setEnabled(false);
+                    option4CheckBox.setEnabled(false);
+                }else if(poll.getPollOptions().size()>2 && poll.getPollOptions().get(2).getOptionId().equals(po.getOptionId())){
+                    option3CheckBox.setChecked(true);
+                    pollOption1CheckBox.setEnabled(false);
+                    option2CheckBox.setEnabled(false);
+                    option3CheckBox.setEnabled(false);
+                    option4CheckBox.setEnabled(false);
+                }else if(poll.getPollOptions().size()>3 && poll.getPollOptions().get(3).getOptionId().equals(po.getOptionId())){
+                    option4CheckBox.setChecked(true);
+                    pollOption1CheckBox.setEnabled(false);
+                    option2CheckBox.setEnabled(false);
+                    option3CheckBox.setEnabled(false);
+                    option4CheckBox.setEnabled(false);
+                }
+                isPresetingCheckButons = false;
+            }
+
+            pollOption1CheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    pollOption1CheckBox.setEnabled(false);
+                    option2CheckBox.setEnabled(false);
+                    option3CheckBox.setEnabled(false);
+                    option4CheckBox.setEnabled(false);
+
+                    if(!isPresetingCheckButons) {
+                        poll.getPollOptions().get(0).addVote();
+                        updatePollDataInSharedPrefAndFirebase(poll, poll.getPollOptions().get(0));
+                        setPollData(poll, true);
+                    }
+                }
+            });
+
+            option2CheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    pollOption1CheckBox.setEnabled(false);
+                    option2CheckBox.setEnabled(false);
+                    option3CheckBox.setEnabled(false);
+                    option4CheckBox.setEnabled(false);
+
+                    if(!isPresetingCheckButons) {
+                        poll.getPollOptions().get(1).addVote();
+                        updatePollDataInSharedPrefAndFirebase(poll, poll.getPollOptions().get(1));
+                        setPollData(poll, true);
+                    }
+                }
+            });
+
+            option3CheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    pollOption1CheckBox.setEnabled(false);
+                    option2CheckBox.setEnabled(false);
+                    option3CheckBox.setEnabled(false);
+                    option4CheckBox.setEnabled(false);
+
+                    if(!isPresetingCheckButons) {
+                        poll.getPollOptions().get(2).addVote();
+                        updatePollDataInSharedPrefAndFirebase(poll, poll.getPollOptions().get(2));
+                        setPollData(poll, true);
+                    }
+                }
+            });
+
+            option4CheckBox.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+                @Override
+                public void onCheckedChanged(CompoundButton compoundButton, boolean b) {
+                    pollOption1CheckBox.setEnabled(false);
+                    option2CheckBox.setEnabled(false);
+                    option3CheckBox.setEnabled(false);
+                    option4CheckBox.setEnabled(false);
+
+                    if(!isPresetingCheckButons) {
+                        poll.getPollOptions().get(3).addVote();
+                        updatePollDataInSharedPrefAndFirebase(poll, poll.getPollOptions().get(3));
+                        setPollData(poll, true);
+                    }
+                }
+            });
+            setPollData(poll,false);
+        }
+
+        sendCommentImageView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                addComment();
+            }
+        });
+        loadComments();
+
+    }
+
+    private void loadComments() {
+        startCommentLoadingAnimations();
+        showCommentsLoadingAnimations();
+        String postId;
+        Post mPost = Variables.postToBeViewed;
+        if(mPost.getPostType().equals(Constants.ANNOUNCEMENTS)){
+            postId = mPost.getAnnouncement().getAnnouncementId();
+        }else if(mPost.getPostType().equals(Constants.PETITIONS)){
+            postId = mPost.getPetition().getPetitionId();
+        }else {
+            postId = mPost.getPoll().getPollId();
+        }
+
+        DatabaseReference commentsRef = FirebaseDatabase.getInstance().getReference(Constants.COMMENTS).child(postId);
+        commentsRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                List<Comment> allComments = new ArrayList<>();
+                if(dataSnapshot.exists()){
+                    for(DataSnapshot commentSnap:dataSnapshot.getChildren()){
+                        Comment comment = commentSnap.getValue(Comment.class);
+                        for(DataSnapshot replySnap:commentSnap.child(Constants.REPLIES).getChildren()){
+                            Comment reply = replySnap.getValue(Comment.class);
+                            comment.addReply(reply);
+                        }
+                        allComments.add(comment);
+                    }
+                }
+
+                loadCommentsIntoRecyclerView(allComments);
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+    }
+
+
+    private void addComment() {
+        String postId;
+        Post mPost = Variables.postToBeViewed;
+        if(mPost.getPostType().equals(Constants.ANNOUNCEMENTS)){
+            postId = mPost.getAnnouncement().getAnnouncementId();
+        }else if(mPost.getPostType().equals(Constants.PETITIONS)){
+            postId = mPost.getPetition().getPetitionId();
+        }else{
+            postId = mPost.getPoll().getPollId();
+        }
+
+        String commentText = addCommentEditText.getText().toString().trim();
+        if(!commentText.equals("")){
+            addCommentEditText.setText("");
+
+            String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+            Comment comment = new Comment(commentText,uid,new SharedPreferenceManager(mContext).loadNameInSharedPref());
+
+            DatabaseReference replyRef = FirebaseDatabase.getInstance().getReference(Constants.COMMENTS).child(postId);
+            DatabaseReference pushRef = replyRef.push();
+            String commentId = pushRef.getKey();
+            comment.setCommentId(commentId);
+
+            pushRef.setValue(comment);
+            addNewCommentToRecyclerView(comment);
+
+        }else{
+            addCommentEditText.setError(getResources().getString(R.string.say_something));
+        }
+    }
+
+    private void loadCommentsIntoRecyclerView(final List<Comment> loadedComments) {
+        Post mPost = Variables.postToBeViewed;
+        if(loadedComments.isEmpty()){
+            noCommentsTextView.setVisibility(View.VISIBLE);
+            commentsRecyclerView.setVisibility(View.GONE);
+        }else{
+            vpActivityCommentAdapter = new ViewPostActivityCommentItemAdapter( UserSettingsActivity.this,loadedComments, true,mPost);
+            commentsRecyclerView.setAdapter(vpActivityCommentAdapter);
+            commentsRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+            allComments = loadedComments;
+            noCommentsTextView.setVisibility(View.GONE);
+
+            LocalBroadcastManager.getInstance(mContext).registerReceiver(new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    int pos = intent.getIntExtra(Constants.COMMENT_NO,0);
+                    showCommentReplies(allComments.get(pos));
+                }
+            },new IntentFilter(Constants.SHOW_COMMENT_REPLIES));
+        }
+        hideCommentsLoadingAnimations();
+    }
+
+    private void addNewCommentToRecyclerView(Comment comment){
+        allComments.add(comment);
+//        vpActivityCommentAdapter.addComment(comment);
+////        vpActivityCommentAdapter.notifyItemInserted(allComments.size()-1);
+//        vpActivityCommentAdapter.notifyDataSetChanged();
+
+        loadCommentsIntoRecyclerView(allComments);
+    }
+
+
+    private void startCommentLoadingAnimations(){
+        final float alpha = 0.3f;
+        final int duration = 2000;
+
+        final float alphaR = 1f;
+        final int durationR = 800;
+
+        if(canAnimateLoadingScreens) {
+            loadingCommentsContainerLinearLayout.animate().alpha(alpha).setDuration(duration).setInterpolator(new LinearInterpolator())
+                    .setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            loadingCommentsContainerLinearLayout.animate().alpha(alphaR).setDuration(durationR).setInterpolator(new LinearInterpolator())
+                                    .setListener(new Animator.AnimatorListener() {
+                                        @Override
+                                        public void onAnimationStart(Animator animator) {
+
+                                        }
+
+                                        @Override
+                                        public void onAnimationEnd(Animator animator) {
+                                            startCommentLoadingAnimations();
+                                        }
+
+                                        @Override
+                                        public void onAnimationCancel(Animator animator) {
+
+                                        }
+
+                                        @Override
+                                        public void onAnimationRepeat(Animator animator) {
+
+                                        }
+                                    });
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
+
+                        }
+                    });
+        }
+    }
+
+    private void hideCommentsLoadingAnimations(){
+        canAnimateLoadingScreens = false;
+        loadingContainerLinearLayout.setVisibility(View.GONE);
+        commentsRecyclerView.setVisibility(View.VISIBLE);
+    }
+
+    private void showCommentsLoadingAnimations(){
+        canAnimateLoadingScreens = true;
+        loadingContainerLinearLayout.setVisibility(View.VISIBLE);
+        commentsRecyclerView.setVisibility(View.GONE);
+        startLoadingAnimations();
+    }
+
+
+    private void showCommentReplies(final Comment comment){
+        viewCommentLinearLayout.setVisibility(View.VISIBLE);
+        isShowingCommentRepliesPart = true;
+        final Post mPost = Variables.postToBeViewed;
+        viewCommentLinearLayout.animate().alpha(1f).translationY(0).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        viewCommentLinearLayout.setAlpha(1f);
+                        viewCommentLinearLayout.setTranslationY(0);
+                        viewCommentLinearLayout.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                }).start();
+
+        userNameRepliesTextView.setText("By "+comment.getCommenterName());
+        commentTimeTextView.setText(getTimeInMills(comment.getCommentTime()));
+
+        commentBodyTextView.setText(comment.getCommentText());
+        loadCommentRepliesIntoRecyclerView(mPost,comment);
+        replyButtonTextView.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                String reply = addReplyEditText.getText().toString().trim();
+                if(reply.equals("")){
+                    addReplyEditText.setError(getResources().getString(R.string.say_something));
+                }else{
+                    String postId;
+
+                    if(mPost.getPostType().equals(Constants.ANNOUNCEMENTS)){
+                        postId = mPost.getAnnouncement().getAnnouncementId();
+                    }else if(mPost.getPostType().equals(Constants.PETITIONS)){
+                        postId = mPost.getPetition().getPetitionId();
+                    }else {
+                        postId = mPost.getPoll().getPollId();
+                    }
+
+                    addReplyEditText.setText("");
+                    String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+                    Comment newreply = new Comment(reply,uid,new SharedPreferenceManager(mContext).loadNameInSharedPref());
+                    newreply.setCommentTime(Calendar.getInstance().getTimeInMillis());
+
+                    DatabaseReference replyRef = FirebaseDatabase.getInstance().getReference(Constants.COMMENTS).child(postId).child(comment.getCommentId())
+                            .child(Constants.REPLIES);
+                    DatabaseReference pushRef = replyRef.push();
+                    String commentId = pushRef.getKey();
+                    newreply.setCommentId(commentId);
+
+                    pushRef.setValue(newreply);
+                    comment.addReply(newreply);
+
+                    loadCommentRepliesIntoRecyclerView(mPost,comment);
+                    loadCommentsIntoRecyclerView(allComments);
+                }
+            }
+        });
+    }
+
+    private void loadCommentRepliesIntoRecyclerView(final Post mPost, Comment comment){
+        if(comment.getReplies().isEmpty()){
+            noRepliesMessage.setVisibility(View.VISIBLE);
+        }else{
+            noRepliesMessage.setVisibility(View.GONE);
+            final ViewPostActivityCommentItemAdapter vpActivityReplyAdapter = new ViewPostActivityCommentItemAdapter(UserSettingsActivity.this,
+                    comment.getReplies(), false, mPost);
+            repliesRecyclerView.setAdapter(vpActivityReplyAdapter);
+            repliesRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+        }
+    }
+
+    private String getTimeInMills(long commentTimeMills){
+        long currentTimeInMills = Calendar.getInstance().getTimeInMillis();
+        long howLongAgoInMills = (currentTimeInMills-commentTimeMills);
+
+        if(howLongAgoInMills< (24*60*60*1000)){
+            if(howLongAgoInMills< (60*60*1000)){
+                if(howLongAgoInMills< (60*1000)){
+                    return "Just now.";
+                }else{
+                    //comment is more than one minute old
+                    long minCount = howLongAgoInMills/(60*1000);
+                    return minCount+" min.";
+                }
+            }else{
+                //comment is more than an hour ago
+                long hrsCount = howLongAgoInMills/(60*60*1000);
+                return hrsCount+" hrs.";
+            }
+        }else{
+            //comment is more than a day old
+            long daysCount = howLongAgoInMills/(24*60*60*1000);
+            return (daysCount+" days.");
+        }
+    }
+
+    private void hideCommentReplies(){
+        isShowingCommentRepliesPart = false;
+        viewCommentLinearLayout.animate().alpha(0f).translationY(Utils.dpToPx(170)).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        viewCommentLinearLayout.setAlpha(0f);
+                        viewCommentLinearLayout.setTranslationY(Utils.dpToPx(170));
+                        viewCommentLinearLayout.setVisibility(View.VISIBLE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                }).start();
+
+    }
+
+    private void setPollData(Poll poll, boolean isShowingResult){
+        isShowingResult = new SharedPreferenceManager(mContext).hasUserVotedInPoll(poll);
+
+        int totalVotes = 0;
+        int barWidth = Utils.dpToPx(Constants.POST_CARD_VIEW_WIDTH-20);
+        for(PollOption op:poll.getPollOptions()){
+            totalVotes+=op.getVotes();
+        }
+        option1LinearLayout.setVisibility(View.GONE);
+        option2LinearLayout.setVisibility(View.GONE);
+        option3LinearLayout.setVisibility(View.GONE);
+        option4LinearLayout.setVisibility(View.GONE);
+        //option 1
+        pollOption1CheckBox.setText(poll.getPollOptions().get(0).getOptionText());
+        option1LinearLayout.setVisibility(View.VISIBLE);
+
+        if(totalVotes==0) pollVoteCountTextView.setText(getResources().getString(R.string.zero_votes));
+        else if(totalVotes==1)pollVoteCountTextView.setText(getResources().getString(R.string.one_vote));
+        else pollVoteCountTextView.setText(totalVotes+getResources().getString(R.string.votes));
+
+        int div = totalVotes;
+        if(div==0) div=1;
+        int option1Percentage = (int)((poll.getPollOptions().get(0).getVotes()/(div))*100);
+        if(isShowingResult){
+            option1PercentageTextView.setText(option1Percentage+"%");
+            option1PercentageBarView.setProgress(option1Percentage);
+        }else{
+            option1PercentageTextView.setText("0%");
+            option1PercentageBarView.setProgress(option1Percentage);
+        }
+
+        if(poll.getPollOptions().size()>1) {
+            //option 2
+            option2CheckBox.setText(poll.getPollOptions().get(1).getOptionText());
+            option2LinearLayout.setVisibility(View.VISIBLE);
+            int option2Percentage = (int)(poll.getPollOptions().get(1).getVotes() / div) * 100;
+            if(isShowingResult){
+                option2PercentageTextView.setText(option2Percentage + "%");
+                option2PercentageBar.setProgress(option2Percentage);
+            }else{
+                option2PercentageTextView.setText("0%");
+                option2PercentageBar.setProgress(option2Percentage);
+            }
+
+        }
+
+        if(poll.getPollOptions().size()>2) {
+            //option 3
+            option3CheckBox.setText(poll.getPollOptions().get(2).getOptionText());
+            option3LinearLayout.setVisibility(View.VISIBLE);
+            int option3Percentage = (int)(poll.getPollOptions().get(2).getVotes() / div) * 100;
+            if(isShowingResult){
+                option3PercentageTextView.setText(option3Percentage + "%");
+                option3PercentageView.setProgress(option3Percentage);
+            }else{
+                option3PercentageTextView.setText("0%");
+                option3PercentageView.setProgress(option3Percentage);
+            }
+
+        }
+
+        if(poll.getPollOptions().size()>3) {
+            //option 4
+            option4LinearLayout.setVisibility(View.VISIBLE);
+            option4CheckBox.setText(poll.getPollOptions().get(3).getOptionText());
+            int option4Percentage = (int)(poll.getPollOptions().get(3).getVotes() / div) * 100;
+            if(isShowingResult){
+                option4PercentageTextView.setText(option4Percentage + "%");
+                option4PercentageBarView.setProgress(option4Percentage);
+            }else{
+                option4PercentageTextView.setText("0%");
+                option4PercentageBarView.setProgress(option4Percentage);
+            }
+
+        }
+    }
+
+    private void updatePollDataInSharedPrefAndFirebase(Poll poll, PollOption po){
+        new DatabaseManager(this,"").recordPollVote(poll,po).updatePollOptionData(poll,po);
+        new SharedPreferenceManager(this).recordPollVote(poll.getPollId(),po);
+    }
+
+    private void updatePetitionDataInSharedPreferencesAndFirebase(Petition p){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        String email = FirebaseAuth.getInstance().getCurrentUser().getEmail();
+        String name = new SharedPreferenceManager(this).loadNameInSharedPref();
+        long timestamp = Calendar.getInstance().getTimeInMillis();
+        PetitionSignature signature = new PetitionSignature(uid,name,email,timestamp);
+
+        new DatabaseManager(this,"").recordPetitionSignature(p).updatePetitionSignatureData(p,signature);
+
+        new SharedPreferenceManager(this).recordPetition(p.getPetitionId());
+    }
+
+    private void hideViewPostPart(){
+        isViewPostShowing = false;
+        viewPostRelativeLayout.animate().alpha(0f).translationY(Utils.dpToPx(180)).setDuration(mAnimationTime).setInterpolator(new LinearOutSlowInInterpolator())
+                .setListener(new Animator.AnimatorListener() {
+                    @Override
+                    public void onAnimationStart(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animator animator) {
+                        viewPostRelativeLayout.setAlpha(0f);
+                        viewPostRelativeLayout.setTranslationY(Utils.dpToPx(180));
+                        viewPostRelativeLayout.setVisibility(View.GONE);
+                    }
+
+                    @Override
+                    public void onAnimationCancel(Animator animator) {
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animator animator) {
+
+                    }
+                });
+
+        allComments.clear();
+    }
+
+
+    private void startLoadingAnimations(){
+        final float alpha = 0.3f;
+        final int duration = 800;
+
+        final float alphaR = 1f;
+        final int durationR = 800;
+
+        if(canAnimateLoadingScreens) {
+            loadingContainerLinearLayout.animate().alpha(alpha).setDuration(duration).setInterpolator(new LinearInterpolator())
+                    .setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            loadingContainerLinearLayout.animate().alpha(alphaR).setDuration(durationR).setInterpolator(new LinearInterpolator())
+                                    .setListener(new Animator.AnimatorListener() {
+                                        @Override
+                                        public void onAnimationStart(Animator animator) {
+
+                                        }
+
+                                        @Override
+                                        public void onAnimationEnd(Animator animator) {
+                                            startLoadingAnimations();
+                                        }
+
+                                        @Override
+                                        public void onAnimationCancel(Animator animator) {
+
+                                        }
+
+                                        @Override
+                                        public void onAnimationRepeat(Animator animator) {
+
+                                        }
+                                    });
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
+
+                        }
+                    });
+        }
+    }
+
+    private void hideLoadingAnimations(){
+        canAnimateLoadingScreens = false;
+        loadingContainerLinearLayout.setVisibility(View.GONE);
+        loadedPostsRecyclerView.setVisibility(View.VISIBLE);
+    }
+
+    private void showLoadingAnimations(){
+        canAnimateLoadingScreens = true;
+        loadingContainerLinearLayout.setVisibility(View.VISIBLE);
+        loadedPostsRecyclerView.setVisibility(View.GONE);
+        startLoadingAnimations();
     }
 }

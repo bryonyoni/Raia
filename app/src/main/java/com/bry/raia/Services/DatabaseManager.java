@@ -105,7 +105,8 @@ public class DatabaseManager {
         DatabaseReference imageRef = FirebaseDatabase.getInstance().getReference(Constants.UPLOAD_IMAGES).child(pushRef);
         imageRef.setValue(announcement.getEncodedAnnouncementImage());
 
-        DatabaseReference myuploadRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_USERS).child(uid).child(Constants.UPLOADED_ANNOUNCEMENTS);
+        DatabaseReference myuploadRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_USERS).child(uid)
+                .child(Constants.UPLOADED_ANNOUNCEMENTS);
         DatabaseReference mydbRef = myuploadRef.push();
         mydbRef.setValue(pushRef);
 
