@@ -19,4 +19,5 @@ public class Variables {
 
     public static Bitmap image;
     public static Bitmap imageBack;
+    public static Bitmap uploaderImage;
 }

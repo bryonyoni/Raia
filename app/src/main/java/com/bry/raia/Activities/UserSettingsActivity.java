@@ -33,6 +33,7 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bry.raia.Adapters.MainActivityPostItemAdapter;
 import com.bry.raia.Adapters.UserSettingsActivityCountyItemAdapter;
 import com.bry.raia.Adapters.UserSettingsActivityLanguageItemAdapter;
 import com.bry.raia.Adapters.UserSettingsPostItemAdapter;
@@ -141,6 +142,8 @@ public class UserSettingsActivity extends AppCompatActivity implements View.OnCl
 
     @Bind(R.id.viewPostRelativeLayout) RelativeLayout viewPostRelativeLayout;
     private boolean isViewPostShowing = false;
+    private boolean canShowUploaderImage = false;
+    @Bind(R.id.vpuserImageView) ImageView vpuserImageView;
     @Bind(R.id.postTypeTextView) TextView postTypeTextView;
     @Bind(R.id.vpuserNameTextView) TextView userNameTextView;
     @Bind(R.id.postTitleTextView) TextView postTitleTextView;
@@ -156,8 +159,7 @@ public class UserSettingsActivity extends AppCompatActivity implements View.OnCl
     @Bind(R.id.petitionImageViewBack) ImageView petitionImageViewBack;
     @Bind(R.id.petitionImageView) ImageView petitionImageView;
     @Bind(R.id.numberSignedTextView) TextView numberSignedTextView;
-    @Bind(R.id.petitionPercentageView)
-    ProgressBar petitionPercentageView;
+    @Bind(R.id.petitionPercentageView) ProgressBar petitionPercentageView;
     @Bind(R.id.signTextView) TextView signTextView;
     @Bind(R.id.PetitionTitleTextView) TextView PetitionTitleTextView;
 
@@ -426,7 +428,8 @@ public class UserSettingsActivity extends AppCompatActivity implements View.OnCl
                 Bitmap bitmap = (Bitmap) extras.get("data");
                 userImageBitmap = getResizedBitmap(bitmap,1000);
 
-                Glide.with(mContext).load(bitmapToByte(userImageBitmap)).asBitmap().centerCrop().into(new BitmapImageViewTarget(userProfileImageView) {
+                Glide.with(mContext).load(bitmapToByte(userImageBitmap)).asBitmap().centerCrop()
+                        .into(new BitmapImageViewTarget(userProfileImageView) {
                     @Override
                     protected void setResource(Bitmap resource) {
                         try{
@@ -1399,6 +1402,122 @@ public class UserSettingsActivity extends AppCompatActivity implements View.OnCl
         });
         loadComments();
 
+        loadUploaderImage();
+
+    }
+
+    private void loadUploaderImage(){
+        vpuserImageView.setImageDrawable(getDrawable(R.drawable.grey_back));
+        canShowUploaderImage = true;
+        startUploaderImageLoadingAnimations();
+        Post mPost = Variables.postToBeViewed;
+        String uId;
+        if(mPost.getPostType().equals(Constants.ANNOUNCEMENTS)){
+            uId = mPost.getAnnouncement().getUploaderId();
+        }else if(mPost.getPostType().equals(Constants.PETITIONS)){
+            uId = mPost.getPetition().getUploaderId();
+        }else{
+            //its a poll
+            uId = mPost.getPoll().getUploaderId();
+        }
+
+        DatabaseReference avatarRef = FirebaseDatabase.getInstance().getReference(Constants.IMAGE_AVATAR).child(uId);
+        avatarRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()) {
+                    String image = dataSnapshot.getValue(String.class);
+                    byte[] decodedByteArray = android.util.Base64.decode(image, Base64.DEFAULT);
+                    Bitmap backImage = BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
+
+                    Glide.with(mContext).load(bitmapToByte(backImage)).asBitmap().centerCrop()
+                            .into(new BitmapImageViewTarget(vpuserImageView) {
+                                @Override
+                                protected void setResource(Bitmap resource) {
+                                    try {
+                                        RoundedBitmapDrawable circularBitmapDrawable =
+                                                RoundedBitmapDrawableFactory.create(mContext.getResources(), resource);
+//                                Bitmap.createScaledBitmap(resource,100,100,false));
+                                        circularBitmapDrawable.setCircular(true);
+                                        vpuserImageView.setImageDrawable(circularBitmapDrawable);
+                                        stopImageLoadingAnimations();
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
+                }else{
+                    stopImageLoadingAnimations();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+    private void startUploaderImageLoadingAnimations(){
+        final float alpha = 0f;
+        final int duration = 600;
+
+        final float alphaR = 1f;
+        final int durationR = 600;
+
+        if(canShowUploaderImage) {
+            vpuserImageView.setVisibility(View.VISIBLE);
+
+            vpuserImageView.animate().alpha(alpha).setDuration(duration).setInterpolator(new LinearInterpolator())
+                    .setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            vpuserImageView.animate().alpha(alphaR).setDuration(durationR).setInterpolator(new LinearInterpolator())
+                                    .setListener(new Animator.AnimatorListener() {
+                                        @Override
+                                        public void onAnimationStart(Animator animator) {
+
+                                        }
+
+                                        @Override
+                                        public void onAnimationEnd(Animator animator) {
+                                            startUploaderImageLoadingAnimations();
+                                        }
+
+                                        @Override
+                                        public void onAnimationCancel(Animator animator) {
+
+                                        }
+
+                                        @Override
+                                        public void onAnimationRepeat(Animator animator) {
+
+                                        }
+                                    });
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
+
+                        }
+                    }).start();
+        }
+
+    }
+
+    private void stopImageLoadingAnimations(){
+        canShowUploaderImage = false;
     }
 
     private void loadComments() {
@@ -1902,4 +2021,5 @@ public class UserSettingsActivity extends AppCompatActivity implements View.OnCl
         loadedPostsRecyclerView.setVisibility(View.GONE);
         startLoadingAnimations();
     }
+
 }

@@ -12,6 +12,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.AsyncTask;
 import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawable;
+import android.support.v4.graphics.drawable.RoundedBitmapDrawableFactory;
 import android.support.v7.widget.CardView;
 import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
@@ -39,6 +41,8 @@ import com.bry.raia.Services.DatabaseManager;
 import com.bry.raia.Services.SharedPreferenceManager;
 import com.bry.raia.Services.Utils;
 import com.bry.raia.Variables;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -46,6 +50,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 
+import java.io.ByteArrayOutputStream;
 import java.util.Calendar;
 import java.util.List;
 
@@ -53,7 +58,7 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
     private List<Post> mPosts;
     private Activity mActivity;
     OnBottomReachedListener onBottomReachedListener;
-    private boolean canAnimateLoadingScreens,canAnimateImageLoadingScreens;
+    private boolean canAnimateLoadingScreens,canAnimateImageLoadingScreens,canShowUploaderImage;
     private Bitmap postImage;
     private Bitmap postImageBack;
 
@@ -87,7 +92,7 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
     @Override
     public void onBindViewHolder(@NonNull final MainActivityPostItemAdapter.ViewHolder viewHolder, int i) {
         final Post post = mPosts.get(i);
-
+        loadUploaderImage(viewHolder, post);
         canAnimateLoadingScreens = true;
         if(post.getPostType().equals(Constants.ANNOUNCEMENTS)){
             //its a announcement
@@ -117,7 +122,8 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
                     Bitmap bitmapBack = bitmapDrawableBack.getBitmap();
                     Variables.imageBack = bitmapBack;
                     Variables.postToBeViewedImageBackground = Variables.blurredBacks.get(post.getAnnouncement().getAnnouncementId());
-
+//                    BitmapDrawable bitmapDrawableUploader = ((BitmapDrawable) viewHolder.userImageView.getDrawable());
+//                    Variables.uploaderImage = bitmapDrawableUploader.getBitmap();
 //                    Intent i = new Intent(mActivity, ViewPostActivity.class);
 //                    mActivity.startActivity(i);
 
@@ -178,7 +184,8 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
                     Bitmap bitmapBack = bitmapDrawableBack.getBitmap();
                     Variables.imageBack = bitmapBack;
                     Variables.postToBeViewedImageBackground = Variables.blurredBacks.get(post.getPetition().getPetitionId());
-
+                    BitmapDrawable bitmapDrawableUploader = ((BitmapDrawable) viewHolder.userImageView.getDrawable());
+                    Variables.uploaderImage = bitmapDrawableUploader.getBitmap();
 //                    Intent i = new Intent(mActivity, ViewPostActivity.class);
 //                    mActivity.startActivity(i);
 
@@ -927,6 +934,7 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
             super(itemView);
 
            loadingContainerLinearLayout = itemView.findViewById(R.id.loadingContainerLinearLayout);
+           userImageView = itemView.findViewById(R.id.userImageView);
 
             //announcement ui
             announcementCardView = itemView.findViewById(R.id.announcementCardView);
@@ -999,5 +1007,126 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
         new DatabaseManager(mActivity,"").recordPetitionSignature(p).updatePetitionSignatureData(p,signature);
 
         new SharedPreferenceManager(mActivity).recordPetition(p.getPetitionId());
+    }
+
+
+    private void loadUploaderImage(final ViewHolder viewHolder, Post mPost){
+        viewHolder.userImageView.setImageDrawable(mActivity.getDrawable(R.drawable.grey_back));
+        canShowUploaderImage = true;
+        startUploaderImageLoadingAnimations(viewHolder);
+        String uId;
+        if(mPost.getPostType().equals(Constants.ANNOUNCEMENTS)){
+            uId = mPost.getAnnouncement().getUploaderId();
+        }else if(mPost.getPostType().equals(Constants.PETITIONS)){
+            uId = mPost.getPetition().getUploaderId();
+        }else{
+            //its a poll
+            uId = mPost.getPoll().getUploaderId();
+        }
+
+        DatabaseReference avatarRef = FirebaseDatabase.getInstance().getReference(Constants.IMAGE_AVATAR).child(uId);
+        avatarRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
+                if(dataSnapshot.exists()) {
+                    String image = dataSnapshot.getValue(String.class);
+                    byte[] decodedByteArray = android.util.Base64.decode(image, Base64.DEFAULT);
+                    Bitmap backImage = BitmapFactory.decodeByteArray(decodedByteArray, 0, decodedByteArray.length);
+
+                    Glide.with(mActivity).load(bitmapToByte(backImage)).asBitmap().centerCrop()
+                            .into(new BitmapImageViewTarget(viewHolder.userImageView) {
+                                @Override
+                                protected void setResource(Bitmap resource) {
+                                    try {
+                                        RoundedBitmapDrawable circularBitmapDrawable =
+                                                RoundedBitmapDrawableFactory.create(mActivity.getResources(), resource);
+//                                Bitmap.createScaledBitmap(resource,100,100,false));
+                                        circularBitmapDrawable.setCircular(true);
+                                        viewHolder.userImageView.setImageDrawable(circularBitmapDrawable);
+                                        stopImageLoadingAnimations();
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                }
+                            });
+                }else{
+                    stopImageLoadingAnimations();
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError databaseError) {
+
+            }
+        });
+
+    }
+
+    private byte[] bitmapToByte(Bitmap bitmap){
+        ByteArrayOutputStream baos = new ByteArrayOutputStream();
+        bitmap.compress(Bitmap.CompressFormat.JPEG,100,baos);
+        byte[] byteArray = baos.toByteArray();
+        return byteArray;
+    }
+
+    private void startUploaderImageLoadingAnimations(final ViewHolder viewHolder){
+        final float alpha = 0f;
+        final int duration = 600;
+
+        final float alphaR = 1f;
+        final int durationR = 600;
+
+        if(canShowUploaderImage) {
+            viewHolder.userImageView.setVisibility(View.VISIBLE);
+
+            viewHolder.userImageView.animate().alpha(alpha).setDuration(duration).setInterpolator(new LinearInterpolator())
+                    .setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            viewHolder.userImageView.animate().alpha(alphaR).setDuration(durationR).setInterpolator(new LinearInterpolator())
+                                    .setListener(new Animator.AnimatorListener() {
+                                        @Override
+                                        public void onAnimationStart(Animator animator) {
+
+                                        }
+
+                                        @Override
+                                        public void onAnimationEnd(Animator animator) {
+                                            startUploaderImageLoadingAnimations(viewHolder);
+                                        }
+
+                                        @Override
+                                        public void onAnimationCancel(Animator animator) {
+
+                                        }
+
+                                        @Override
+                                        public void onAnimationRepeat(Animator animator) {
+
+                                        }
+                                    });
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
+
+                        }
+                    }).start();
+        }
+
+    }
+
+    private void stopImageLoadingAnimations(){
+        canShowUploaderImage = false;
     }
 }
