@@ -41,5 +41,6 @@ public class Constants {
 
     public static final String IMAGE_AVATAR = "Avatars";
     public static final String SELECTED_LANGUAGE = "Language";
+    public static final String SELECTED_PERSON = "SELECTED_PERSON";
 
 }

@@ -365,6 +365,7 @@ public class Authenticator extends AppCompatActivity {
         isShowingLoginPasswordView = true;
         if(!mEnteredLoginPasswordString.equals("")) LoginPasswordEditText.setText(mEnteredLoginPasswordString);
         LoginPasswordLinearLayout.setVisibility(View.VISIBLE);
+
         LoginPasswordLinearLayout.animate().translationX(0).alpha(1f).setInterpolator(new LinearOutSlowInInterpolator())
                 .setDuration(mAnimationDuration).setListener(new Animator.AnimatorListener() {
             @Override
@@ -742,7 +743,7 @@ public class Authenticator extends AppCompatActivity {
 
                }
            }).start();
-           setUpPasswordInputView();
+           setUpSignUpPasswordInputView();
        }
     }
 

@@ -80,7 +80,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     @Bind(R.id.filterImageView) ImageView filterImageView;
     @Bind(R.id.feedbackImageView) ImageView feedbackImageView;
-
     @Bind(R.id.loadNewPostsLoaderLinearLayout) LinearLayout loadNewPostsLoaderLinearLayout;
 
     @Bind(R.id.accountImageView) ImageView accountImageView;
@@ -207,7 +206,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if(v.equals(uploadPostImageView)){
             startActivity(new Intent(MainActivity.this, UploadPostActivity.class));
         }else if(v.equals(messagesImageView)){
-
+            startActivity(new Intent(MainActivity.this,ChatActivity.class));
         }else if(v.equals(filterImageView)){
             showFilterPart();
         }else if(v.equals(feedbackImageView)){
@@ -1747,6 +1746,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             }
         });
+
         findViewById(R.id.clearEditText).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {

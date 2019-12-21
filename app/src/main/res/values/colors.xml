@@ -13,5 +13,7 @@
     <color name="black">#000000</color>
     <color name="greyish">#EEEEEE</color>
     <color name="background">#EEF7F7F7</color>
+
+    <color name="sentColor">#38716b</color>
 </resources>
 

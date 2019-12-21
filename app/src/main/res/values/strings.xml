@@ -95,4 +95,8 @@
     <string name="yes">Yes.</string>
     <string name="logout">Logout.</string>
     <string name="all_your_posts">All Your Posts.</string>
+    <string name="find_someone">Find someone.</string>
+    <string name="no_results">No results.</string>
+    <string name="results_found">%d results found</string>
+    <string name="chats">Chats.</string>
 </resources>

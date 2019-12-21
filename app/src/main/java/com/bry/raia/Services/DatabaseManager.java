@@ -227,6 +227,15 @@ public class DatabaseManager {
         return this;
     }
 
+    public DatabaseManager updateMiniImageAvatar(String image){
+        String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        DatabaseReference avatarRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_USERS)
+                .child(uid).child(Constants.IMAGE_AVATAR);
+        avatarRef.setValue(image);
+
+        return this;
+    }
+
     public DatabaseManager updatePreferredLanguage(Language language){
         String uid = FirebaseAuth.getInstance().getCurrentUser().getUid();
         DatabaseReference languageRef = FirebaseDatabase.getInstance().getReference(Constants.FIREBASE_USERS).child(uid)

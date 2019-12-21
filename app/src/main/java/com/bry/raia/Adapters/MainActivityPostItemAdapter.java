@@ -184,8 +184,8 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
                     Bitmap bitmapBack = bitmapDrawableBack.getBitmap();
                     Variables.imageBack = bitmapBack;
                     Variables.postToBeViewedImageBackground = Variables.blurredBacks.get(post.getPetition().getPetitionId());
-                    BitmapDrawable bitmapDrawableUploader = ((BitmapDrawable) viewHolder.userImageView.getDrawable());
-                    Variables.uploaderImage = bitmapDrawableUploader.getBitmap();
+//                    BitmapDrawable bitmapDrawableUploader = ((BitmapDrawable) viewHolder.userImageView.getDrawable());
+//                    Variables.uploaderImage = bitmapDrawableUploader.getBitmap();
 //                    Intent i = new Intent(mActivity, ViewPostActivity.class);
 //                    mActivity.startActivity(i);
 

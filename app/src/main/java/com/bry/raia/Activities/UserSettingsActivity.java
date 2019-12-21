@@ -398,18 +398,19 @@ public class UserSettingsActivity extends AppCompatActivity implements View.OnCl
                 try {
                     Bitmap bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), mFilepath);
                     userImageBitmap = getResizedBitmap(bitmap,1000);
-                    Glide.with(mContext).load(bitmapToByte(userImageBitmap)).asBitmap().centerCrop().into(new BitmapImageViewTarget(userProfileImageView) {
+                    Glide.with(mContext).load(bitmapToByte(userImageBitmap)).asBitmap().centerCrop()
+                            .into(new BitmapImageViewTarget(userProfileImageView) {
                         @Override
                         protected void setResource(Bitmap resource) {
                             try{
                                 RoundedBitmapDrawable circularBitmapDrawable =
                                         RoundedBitmapDrawableFactory.create(mContext.getResources(),resource);
-//                                Bitmap.createScaledBitmap(resource,100,100,false));
                                 circularBitmapDrawable.setCircular(true);
                                 userProfileImageView.setImageDrawable(circularBitmapDrawable);
                                 String image = encodeBitmapForFirebaseStorage(userImageBitmap);
                                 new SharedPreferenceManager(mContext).setAvatar(image);
-                                new DatabaseManager(mContext,"").updateImageAvatar(image);
+                                new DatabaseManager(mContext,"").updateImageAvatar(image)
+                                        .updateMiniImageAvatar(encodeBitmapForFirebaseStorage(getResizedBitmap(userImageBitmap,200)));
                             }catch (Exception e){
                                 e.printStackTrace();
                             }
@@ -435,13 +436,12 @@ public class UserSettingsActivity extends AppCompatActivity implements View.OnCl
                         try{
                             RoundedBitmapDrawable circularBitmapDrawable =
                                     RoundedBitmapDrawableFactory.create(mContext.getResources(),resource);
-//                                Bitmap.createScaledBitmap(resource,100,100,false));
                             circularBitmapDrawable.setCircular(true);
                             userProfileImageView.setImageDrawable(circularBitmapDrawable);
-
                             String image = encodeBitmapForFirebaseStorage(userImageBitmap);
                             new SharedPreferenceManager(mContext).setAvatar(image);
-                            new DatabaseManager(mContext,"").updateImageAvatar(image);
+                            new DatabaseManager(mContext,"").updateImageAvatar(image)
+                                    .updateMiniImageAvatar(encodeBitmapForFirebaseStorage(getResizedBitmap(userImageBitmap,200)));
                         }catch (Exception e){
                             e.printStackTrace();
                         }
