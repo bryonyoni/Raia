@@ -66,7 +66,7 @@
     <string name="feedback">Feedback.</string>
     <string name="zero_votes">0 Votes</string>
     <string name="one_vote">1 Vote</string>
-    <string name="votes"> Votes</string>
+    <string name="votes">" Votes"</string>
     <string name="empty">Empty</string>
     <string name="add_a_reply">Add a reply</string>
     <string name="filter_the_posts_you_see_based_on_the_county_you_reside_in">Filter the posts you see based on the county you reside in.</string>
