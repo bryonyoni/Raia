@@ -12,8 +12,7 @@
 
         <android.support.v7.widget.CardView
             android:id="@+id/SentMessageCard"
-            android:layout_alignParentRight="true"
-            app:cardBackgroundColor="@color/sentColor"
+            app:cardBackgroundColor="@color/colorPrimaryDark"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="70dp"
@@ -50,7 +49,7 @@
 
                 <ImageView
                     android:id="@+id/mSentImage"
-                    android:visibility="visible"
+                    android:visibility="invisible"
                     android:layout_width="10dp"
                     android:layout_marginRight="5dp"
                     android:layout_marginBottom="2dp"

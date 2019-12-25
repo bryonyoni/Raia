@@ -2,6 +2,7 @@ package com.bry.raia;
 
 import android.graphics.Bitmap;
 
+import com.bry.raia.Models.Chat;
 import com.bry.raia.Models.Post;
 
 import java.util.HashMap;
@@ -20,4 +21,7 @@ public class Variables {
     public static Bitmap image;
     public static Bitmap imageBack;
     public static Bitmap uploaderImage;
+
+    public static Chat chat;
+    public static Chat chatToOpen;
 }

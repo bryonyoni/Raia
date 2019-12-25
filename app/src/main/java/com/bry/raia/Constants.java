@@ -43,4 +43,15 @@ public class Constants {
     public static final String SELECTED_LANGUAGE = "Language";
     public static final String SELECTED_PERSON = "SELECTED_PERSON";
 
+    public static final String SENDING = "SENDING";
+    public static final String SENT = "SENT";
+    public static final String CHATS = "Chats";
+    public static final String FIREBASE_MESSAGES = "Messages";
+
+    public static final String NEW_CHAT_CREATED = "NEW_CHAT_CREATED";
+    public static final String CHAT_EVENTS = "CHAT_EVENTS";
+    public static final String NEW_MESSAGE_EVENT = "NEW_MESSAGE_EVENT";
+
+    public static final String OPEN_CHAT = "OPEN_CHAT";
+
 }

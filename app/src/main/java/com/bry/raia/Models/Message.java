@@ -2,6 +2,7 @@ package com.bry.raia.Models;
 
 public class Message {
     private String messageId;
+    private String chatId;
     private String messageText;
     private long time;
     private String senderId;
@@ -44,5 +45,13 @@ public class Message {
 
     public void setSenderId(String senderId) {
         this.senderId = senderId;
+    }
+
+    public String getChatId() {
+        return chatId;
+    }
+
+    public void setChatId(String chatId) {
+        this.chatId = chatId;
     }
 }
