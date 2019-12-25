@@ -150,7 +150,7 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
             loadImageFromFirebase(viewHolder,post);
 //            bp.setFields(post,viewHolder.announcementPostImageViewBack,viewHolder.announcementImageView);
 
-            viewHolder.numberSignedTextView.setText(String.format("%d signed", petition.getSignatures().size()));
+            viewHolder.numberSignedTextView.setText(String.format(mActivity.getResources().getString(R.string.signed), petition.getSignatures().size()));
 
             long percentage = (petition.getSignatures().size()/petition.getPetitionSignatureTarget())*100;
             Log.e("PostItemAdapter","percentage: "+(int)percentage);
@@ -168,6 +168,7 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
                     if(!new SharedPreferenceManager(mActivity).hasUserSignedPetition(petition)) {
                         updatePetitionDataInSharedPreferencesAndFirebase(petition);
                         viewHolder.signTextView.setAlpha(0.4f);
+                        viewHolder.numberSignedTextView.setText(String.format(mActivity.getResources().getString(R.string.signed), petition.getSignatures().size()));
                     }
                 }
             });
@@ -1007,6 +1008,8 @@ public class MainActivityPostItemAdapter extends RecyclerView.Adapter<MainActivi
         new DatabaseManager(mActivity,"").recordPetitionSignature(p).updatePetitionSignatureData(p,signature);
 
         new SharedPreferenceManager(mActivity).recordPetition(p.getPetitionId());
+
+        p.addSignature(signature);
     }
 
 

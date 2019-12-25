@@ -6,6 +6,7 @@ public class Post {
     private Announcement announcement;
     private Petition petition;
     private Poll poll;
+    private String mPostType;
 
     public Post(){}
 
@@ -38,7 +39,7 @@ public class Post {
         this.poll = poll;
     }
 
-    public String getPostType(){
+    public String getPostType2(){
         String type;
         if(announcement!=null){
             type= Constants.ANNOUNCEMENTS;
@@ -51,4 +52,11 @@ public class Post {
     }
 
 
+    public String getPostType() {
+        return mPostType;
+    }
+
+    public void setPostType(String mPostType) {
+        this.mPostType = mPostType;
+    }
 }

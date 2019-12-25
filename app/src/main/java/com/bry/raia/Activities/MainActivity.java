@@ -225,13 +225,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         allLoadedPetitions.clear();
         allLoadedPolls.clear();
         DatabaseReference announcementRef = FirebaseDatabase.getInstance().getReference(Constants.ANNOUNCEMENTS);
-        announcementRef.limitToFirst(Constants.POST_LOADING_LIMIT).addListenerForSingleValueEvent(new ValueEventListener() {
+        announcementRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){
                     for (DataSnapshot snap: dataSnapshot.getChildren()) {
                         Announcement announcement = snap.getValue(Announcement.class);
                         Post p = new Post();
+                        p.setPostType(Constants.ANNOUNCEMENTS);
                         p.setAnnouncement(announcement);
 
                         if(!selectedCounties.isEmpty()) {
@@ -262,7 +263,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
 
         final DatabaseReference petitionsRef = FirebaseDatabase.getInstance().getReference(Constants.PETITIONS);
-        petitionsRef.limitToFirst(Constants.POST_LOADING_LIMIT).addListenerForSingleValueEvent(new ValueEventListener() {
+        petitionsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){
@@ -270,12 +271,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Petition petition = snap.getValue(Petition.class);
                         petition.getSignatures().clear();
 
-                        for(DataSnapshot signatureSnap:dataSnapshot.child(Constants.PETITION_SIGNATURES).getChildren()){
+                        for(DataSnapshot signatureSnap: dataSnapshot.child(petition.getPetitionId()).child(Constants.PETITION_SIGNATURES).getChildren()){
                             PetitionSignature s = signatureSnap.getValue(PetitionSignature.class);
                             petition.addSignature(s);
                         }
 
                         Post p = new Post();
+                        p.setPostType(Constants.PETITIONS);
                         p.setPetition(petition);
 
                         if(!selectedCounties.isEmpty()) {
@@ -305,7 +307,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
 
         final DatabaseReference pollsRef = FirebaseDatabase.getInstance().getReference(Constants.POLLS);
-        pollsRef.limitToFirst(Constants.POST_LOADING_LIMIT).addListenerForSingleValueEvent(new ValueEventListener() {
+        pollsRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
                 if(dataSnapshot.exists()){
@@ -317,6 +319,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             poll.getPollOptions().add(option);
                         }
                         Post p = new Post();
+                        p.setPostType(Constants.POLLS);
                         p.setPoll(poll);
 
                         if(!selectedCounties.isEmpty()) {
@@ -324,11 +327,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                                 if (c.getName().equals(poll.getCounty().getName())){
                                     allLoadedPosts.add(p);
                                     allLoadedPolls.add(poll);
+
                                 }
                             }
                         }else{
                             allLoadedPosts.add(p);
                             allLoadedPolls.add(poll);
+
                         }
                     }
                 }
@@ -351,33 +356,42 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         hasPollsLoaded = false;
         hasPetitionsLoaded = false;
         hasAnnouncementsLoaded = false;
-
-        HashMap<Long,Post> postsHashMap = new LinkedHashMap<>();
+        Log.e(TAG, "sorting posts");
+        HashMap<String,Post> postsHashMap = new LinkedHashMap<>();
+        Log.e(TAG,allLoadedPosts.size()+" posts to sort");
         for(Post p: allLoadedPosts){
             if(p.getPostType().equals(Constants.ANNOUNCEMENTS)){
                 //its a announcement
-                Long time = p.getAnnouncement().getAnnouncementCreationTime();
-                postsHashMap.put(time,p);
-
+                Log.e(TAG,"Loading announcement into postsHashmapThing");
+                long time = p.getAnnouncement().getAnnouncementCreationTime();
+                postsHashMap.put(Long.toString(time),p);
+                Log.e(TAG,"time: "+time);
             }else if(p.getPostType().equals(Constants.PETITIONS)){
                 //its a petition
-                Long time = p.getPetition().getPetitionCreationTime();
-                postsHashMap.put(time,p);
-
-            }else{
+                Log.e(TAG,"Loading petition into postsHashmapThing");
+                long time = p.getPetition().getPetitionCreationTime();
+                postsHashMap.put(Long.toString(time),p);
+                Log.e(TAG,"time: "+time);
+            }else if(p.getPostType().equals(Constants.POLLS)){
                 //its a poll
-                Long time = p.getPoll().getPollCreationTime();
-                postsHashMap.put(time,p);
+                Log.e(TAG,"Loading poll into postsHashmapThing");
+                long time = p.getPoll().getPollCreationTime();
+                postsHashMap.put(Long.toString(time),p);
+                Log.e(TAG,"time: "+time);
             }
 
         }
-
-        List<Long> timesToSort = new ArrayList<>(postsHashMap.keySet());
+        Log.e(TAG,postsHashMap.size()+" items to sort in postsHashMap");
+        List<Long> timesToSort = new ArrayList<>();
+        for(String s:postsHashMap.keySet()){
+            timesToSort.add(Long.parseLong(s));
+        }
+        Log.e(TAG,timesToSort.size()+" times to sort");
         Collections.sort(timesToSort);
 
         allLoadedPosts.clear();
         for(Long time:timesToSort) {
-            allLoadedPosts.add(postsHashMap.get(time));
+            allLoadedPosts.add(postsHashMap.get(time.toString()));
         }
 
         generateBitmapsFromPostTask gbfpt = new generateBitmapsFromPostTask();
@@ -944,7 +958,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             petitionImageView.setImageBitmap(Variables.image);
             petitionImageViewBack.setImageBitmap(Variables.imageBack);
 
-            numberSignedTextView.setText(String.format("%d signed", petition.getSignatures().size()));
+            numberSignedTextView.setText(String.format(getString(R.string.signed), petition.getSignatures().size()));
 
             long percentage = (petition.getSignatures().size()/petition.getPetitionSignatureTarget())*100;
             petitionPercentageView.setProgress((int)percentage);
@@ -959,6 +973,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     if(!new SharedPreferenceManager(mContext).hasUserSignedPetition(petition)) {
                         updatePetitionDataInSharedPreferencesAndFirebase(petition);
                         signTextView.setAlpha(0.4f);
+                        numberSignedTextView.setText(String.format(getString(R.string.signed), petition.getSignatures().size()));
                     }
                 }
             });
@@ -1296,6 +1311,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         new DatabaseManager(this,"").recordPetitionSignature(p).updatePetitionSignatureData(p,signature);
 
         new SharedPreferenceManager(this).recordPetition(p.getPetitionId());
+
+        p.addSignature(signature);
     }
 
     private void hideViewPostPart(){

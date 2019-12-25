@@ -631,7 +631,7 @@ public class UploadPostActivity extends AppCompatActivity implements View.OnClic
                 else if(pollOptions.size()<2){
                     Snackbar.make(uploadActivityCoordinatorLayout, getResources().getString(R.string.youll_need_to_add_an_option), Snackbar.LENGTH_LONG).show();
                 }else{
-                    Poll poll = new Poll(pollQueryText,pollOptions);
+                    Poll poll = new Poll(pollQueryText,pollOptions,Calendar.getInstance().getTimeInMillis());
                     String SUCCESSFUL_INTENT = "SUCCESSFUL_INTENT";
                     new DatabaseManager(mContext,SUCCESSFUL_INTENT).uploadPoll(poll);
                     LocalBroadcastManager.getInstance(mContext).registerReceiver(new BroadcastReceiver() {

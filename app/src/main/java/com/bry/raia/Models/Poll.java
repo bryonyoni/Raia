@@ -15,9 +15,10 @@ public class Poll {
 
     public Poll(){}
 
-    public Poll(String title, List<PollOption>options){
+    public Poll(String title, List<PollOption>options, long creationTime){
         this.pollTitle = title;
         this.pollOptions = options;
+        this.pollCreationTime = creationTime;
     }
 
 
