@@ -1572,7 +1572,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         userNameRepliesTextView.setText("By "+comment.getCommenterName());
         commentTimeTextView.setText(getTimeInMills(comment.getCommentTime()));
-
+        addReplyEditText.setFocusableInTouchMode(true);
         commentBodyTextView.setText(comment.getCommentText());
         loadCommentRepliesIntoRecyclerView(mPost,comment);
         replyButtonTextView.setOnClickListener(new View.OnClickListener() {
@@ -1663,7 +1663,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     public void onAnimationEnd(Animator animator) {
                         viewCommentLinearLayout.setAlpha(0f);
                         viewCommentLinearLayout.setTranslationY(Utils.dpToPx(170));
-                        viewCommentLinearLayout.setVisibility(View.VISIBLE);
+                        viewCommentLinearLayout.setVisibility(View.GONE);
                     }
 
                     @Override
@@ -1676,7 +1676,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                     }
                 }).start();
-
+        addReplyEditText.setFocusable(false);
     }
 
 
