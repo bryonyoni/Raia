@@ -175,6 +175,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private List<County> allCounties;
     private List<County> selectedCounties = new ArrayList<>();
     private List<County> qualifiedCounties;
+    @Bind(R.id.searchedCountyRecyclerView) RecyclerView searchedCountyRecyclerView;
 
 
     @Override
@@ -1707,6 +1708,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     County county = selectedCounties.get(pos);
                     selectedCounties.remove(pos);
                     allCounties.add(county);
+                    searchCountyEditText.setText("");
 
                     loadAllCounties(allCounties);
                     loadSelectedCounties(selectedCounties);
@@ -1715,6 +1717,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     County county = allCounties.get(pos);
                     allCounties.remove(pos);
                     selectedCounties.add(county);
+                    searchCountyEditText.setText("");
 
                     loadAllCounties(allCounties);
                     loadSelectedCounties(selectedCounties);
@@ -1739,6 +1742,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     }
                 }
                 loadAllCounties(qualifiedCounties);
+
             }
 
             @Override
@@ -1782,6 +1786,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mainActivityFilterCounty = new MainActivityFilterCountyItemAdapter(selectedCounties,MainActivity.this);
         allCountiesRecyclerView.setAdapter(mainActivityFilterCounty);
         allCountiesRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+
+        searchedCountyRecyclerView.setAdapter(mainActivityFilterCounty);
+        searchedCountyRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+
+        if(!searchCountyEditText.getText().toString().trim().equals("")){
+            searchedCountyRecyclerView.setVisibility(View.VISIBLE);
+        }else{
+            searchedCountyRecyclerView.setVisibility(View.GONE);
+        }
     }
 
     private void loadSelectedCounties(List<County> selectedCounties){

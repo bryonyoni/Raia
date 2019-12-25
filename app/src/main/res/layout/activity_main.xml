@@ -56,7 +56,6 @@
                 android:id="@+id/loadedPostsRecyclerView"
                 android:layout_width="match_parent"
                 android:layout_marginTop="55dp"
-                android:overScrollMode="never"
                 android:layout_marginBottom="62dp"
                 android:layout_height="match_parent"/>
 
@@ -71,7 +70,7 @@
             <LinearLayout
                 android:id="@+id/loadingContainerLinearLayout"
                 android:layout_width="match_parent"
-                android:layout_marginTop="45dp"
+                android:layout_marginTop="70dp"
                 android:visibility="gone"
                 android:layout_marginBottom="55dp"
                 android:orientation="vertical"
@@ -83,91 +82,30 @@
                     android:layout_width="match_parent"
                     android:orientation="horizontal"
                     android:paddingStart="20dp"
+                    android:paddingEnd="20dp"
                     android:layout_height="wrap_content">
 
                     <ImageView
-                        android:id="@+id/loaderUserImageView"
-                        android:layout_width="30dp"
+                        android:layout_width="40dp"
                         android:layout_marginTop="10dp"
                         android:background="@drawable/grey_back"
-                        android:layout_height="30dp" />
+                        android:layout_height="40dp" />
 
                     <android.support.v7.widget.CardView
-                        android:id="@+id/loaderCardView"
-                        android:layout_width="200dp"
-                        android:visibility="visible"
-                        app:cardElevation="0dp"
-                        app:cardCornerRadius="14dp"
-                        android:layout_marginLeft="15dp"
-                        android:layout_marginRight="15dp"
-                        android:layout_height="170dp">
-
-                        <ImageView
-                            android:id="@+id/back"
-                            android:layout_width="match_parent"
-                            android:background="@drawable/b"
-                            android:layout_height="match_parent" />
-
-                    </android.support.v7.widget.CardView>
-
-                </LinearLayout>
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:orientation="horizontal"
-                    android:paddingStart="20dp"
-                    android:layout_marginTop="20dp"
-                    android:layout_height="wrap_content">
-
-                    <ImageView
-                        android:id="@+id/loaderUserImageView2"
-                        android:layout_width="30dp"
-                        android:layout_marginTop="10dp"
-                        android:background="@drawable/grey_back"
-                        android:layout_height="30dp" />
-
-                    <LinearLayout
                         android:layout_width="match_parent"
-                        android:orientation="vertical"
-                        android:layout_height="wrap_content">
+                        android:visibility="visible"
+                        app:cardElevation="0dp"
+                        app:cardCornerRadius="14dp"
+                        android:layout_marginLeft="15dp"
+                        android:layout_marginRight="15dp"
+                        android:layout_height="250dp">
 
-                        <android.support.v7.widget.CardView
-                            android:id="@+id/loaderCardView2"
-                            android:layout_width="200dp"
-                            android:visibility="visible"
-                            app:cardElevation="0dp"
-                            app:cardCornerRadius="14dp"
-                            android:layout_marginLeft="15dp"
-                            android:layout_marginRight="15dp"
-                            android:layout_height="170dp">
+                        <ImageView
+                            android:layout_width="match_parent"
+                            android:background="@drawable/b"
+                            android:layout_height="match_parent" />
 
-                            <ImageView
-                                android:id="@+id/back2"
-                                android:layout_width="match_parent"
-                                android:background="@drawable/b"
-                                android:layout_height="match_parent" />
-
-                        </android.support.v7.widget.CardView>
-
-                        <android.support.v7.widget.CardView
-                            android:layout_width="180dp"
-                            android:layout_marginLeft="20dp"
-                            android:layout_marginRight="15dp"
-                            android:layout_marginTop="10dp"
-                            app:cardCornerRadius="5dp"
-                            app:cardElevation="0dp"
-                            android:layout_height="10dp">
-
-                            <ImageView
-                                android:id="@+id/back6"
-                                android:layout_width="match_parent"
-                                android:background="@drawable/b"
-                                android:layout_height="match_parent" />
-
-
-                        </android.support.v7.widget.CardView>
-
-                    </LinearLayout>
+                    </android.support.v7.widget.CardView>
 
                 </LinearLayout>
 
@@ -175,17 +113,18 @@
                     android:layout_width="match_parent"
                     android:orientation="horizontal"
                     android:paddingStart="20dp"
+                    android:paddingEnd="20dp"
                     android:layout_marginTop="20dp"
                     android:layout_height="wrap_content">
 
                     <ImageView
-                        android:layout_width="30dp"
+                        android:layout_width="40dp"
                         android:layout_marginTop="10dp"
                         android:background="@drawable/grey_back"
-                        android:layout_height="30dp" />
+                        android:layout_height="40dp" />
 
                     <android.support.v7.widget.CardView
-                        android:layout_width="200dp"
+                        android:layout_width="match_parent"
                         android:visibility="visible"
                         app:cardElevation="0dp"
                         app:cardCornerRadius="14dp"
@@ -201,6 +140,7 @@
                     </android.support.v7.widget.CardView>
 
                 </LinearLayout>
+
 
             </LinearLayout>
 
@@ -453,38 +393,53 @@
                             android:layout_marginEnd="50dp"
                             android:layout_height="wrap_content">
 
-                            <RelativeLayout
+                            <LinearLayout
                                 android:layout_width="match_parent"
+                                android:orientation="vertical"
                                 android:layout_height="wrap_content">
 
-                                <EditText
-                                    android:id="@+id/searchCountyEditText"
+                                <RelativeLayout
                                     android:layout_width="match_parent"
-                                    android:background="@color/white"
-                                    android:hint="Search A County."
-                                    android:padding="10dp"
-                                    android:textSize="12sp"
-                                    android:layout_height="wrap_content" />
+                                    android:layout_height="wrap_content">
 
-                                <ImageButton
-                                    android:id="@+id/clearEditText"
-                                    android:layout_width="15dp"
-                                    android:layout_centerVertical="true"
-                                    android:layout_marginRight="10dp"
-                                    android:layout_alignParentRight="true"
-                                    android:background="@drawable/ic_action_clear"
-                                    android:layout_height="15dp"/>
+                                    <EditText
+                                        android:id="@+id/searchCountyEditText"
+                                        android:layout_width="match_parent"
+                                        android:background="@color/white"
+                                        android:hint="Search A County."
+                                        android:padding="10dp"
+                                        android:textSize="12sp"
+                                        android:layout_height="wrap_content" />
 
-                            </RelativeLayout>
+                                    <ImageButton
+                                        android:id="@+id/clearEditText"
+                                        android:layout_width="15dp"
+                                        android:layout_centerVertical="true"
+                                        android:layout_marginRight="10dp"
+                                        android:layout_alignParentRight="true"
+                                        android:background="@drawable/ic_action_clear"
+                                        android:layout_height="15dp"/>
+
+                                </RelativeLayout>
+
+                                <android.support.v7.widget.RecyclerView
+                                    android:id="@+id/searchedCountyRecyclerView"
+                                    android:layout_width="match_parent"
+                                    android:layout_marginTop="5dp"
+                                    android:visibility="gone"
+                                    android:layout_marginBottom="5dp"
+                                    android:layout_height="wrap_content"/>
+
+                            </LinearLayout>
 
                         </android.support.v7.widget.CardView>
 
                         <TextView
                             android:id="@+id/doneFilteringTextView"
                             android:layout_width="wrap_content"
-                            android:layout_centerVertical="true"
                             android:layout_alignParentRight="true"
-                            android:text="Done."
+                            android:layout_marginTop="8dp"
+                            android:text="@string/done"
                             android:textColor="@color/colorPrimary"
                             android:layout_height="wrap_content"/>
 

@@ -42,7 +42,8 @@
 
         <View
             android:layout_width="match_parent"
-            android:background="@color/greyish"
+            android:visibility="invisible"
+            android:background="@color/whiteish"
             android:layout_marginBottom="5dp"
             android:layout_marginTop="5dp"
             android:layout_marginLeft="10dp"

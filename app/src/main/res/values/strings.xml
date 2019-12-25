@@ -66,7 +66,7 @@
     <string name="feedback">Feedback.</string>
     <string name="zero_votes">0 Votes</string>
     <string name="one_vote">1 Vote</string>
-    <string name="votes">Votes</string>
+    <string name="votes"> Votes</string>
     <string name="empty">Empty</string>
     <string name="add_a_reply">Add a reply</string>
     <string name="filter_the_posts_you_see_based_on_the_county_you_reside_in">Filter the posts you see based on the county you reside in.</string>
@@ -83,7 +83,7 @@
     <string name="change_your_profile_photo">Change Your Profile Photo.</string>
     <string name="you_can_choose_to_use_your_camera_take_from_your_saved_photos_or_delete_your_current_one">You can choose to use your camera, take from your saved photos or delete your current one.</string>
     <string name="use_camera">Use Camera.</string>
-    <string name="choose_photo">Choose Photo</string>
+    <string name="choose_photo">Choose Photo.</string>
     <string name="remove_photo">Remove Photo.</string>
     <string name="acc_created_on">Account Created On: %d %s %d</string>
     <string name="you_may_set_your_preferred_language_to_have_in_the_app">You may set your preferred Language to have in the app.</string>
@@ -99,4 +99,5 @@
     <string name="no_results">No results.</string>
     <string name="results_found">%d results found</string>
     <string name="chats">Chats.</string>
+    <string name="done">Done.</string>
 </resources>
