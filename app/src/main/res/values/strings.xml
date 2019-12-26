@@ -101,4 +101,9 @@
     <string name="chats">Chats.</string>
     <string name="done">Done.</string>
     <string name="signed">%d signed</string>
+    <string name="post_will_be_loaded_to_your_preferred_county">Post will be uploaded to %s, your preferred County.</string>
+    <string name="please_pick_the_county_you_reside_in">Please pick the county you reside in.</string>
+    <string name="pick_your_preferred_county">Pick Your Preferred County.</string>
+    <string name="language">Language.</string>
+    <string name="please_pick_a_language_you_prefer_to_use">Please pick a language you prefer to use.</string>
 </resources>

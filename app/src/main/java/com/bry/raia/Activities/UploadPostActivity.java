@@ -32,11 +32,13 @@ import android.widget.TextView;
 
 import com.bry.raia.Constants;
 import com.bry.raia.Models.Announcement;
+import com.bry.raia.Models.County;
 import com.bry.raia.Models.Petition;
 import com.bry.raia.Models.Poll;
 import com.bry.raia.Models.PollOption;
 import com.bry.raia.R;
 import com.bry.raia.Services.DatabaseManager;
+import com.bry.raia.Services.SharedPreferenceManager;
 import com.bry.raia.Services.Utils;
 
 import java.io.ByteArrayOutputStream;
@@ -54,6 +56,7 @@ public class UploadPostActivity extends AppCompatActivity implements View.OnClic
     @Bind(R.id.newPostLinearLayout) LinearLayout newPostLinearLayout;
     @Bind(R.id.uploadActivityCoordinatorLayout) CoordinatorLayout uploadActivityCoordinatorLayout;
     @Bind(R.id.previousActivityImageView) ImageView previousActivityImageView;
+    @Bind(R.id.preferredCountyTextView) TextView preferredCountyTextView;
 
     private boolean isAtSelectUploadType = false;
     @Bind(R.id.uploadSelectorLinearLayout) LinearLayout uploadSelectorLinearLayout;
@@ -290,6 +293,9 @@ public class UploadPostActivity extends AppCompatActivity implements View.OnClic
                 openPetitionLinearLayout.performClick();
             }
         });
+
+        County county = new SharedPreferenceManager(mContext).loadCountyInSharedPref();
+        preferredCountyTextView.setText(String.format(getResources().getString(R.string.post_will_be_loaded_to_your_preferred_county), county.getName()));
     }
 
     @Override

@@ -1,18 +1,26 @@
 package com.bry.raia.Activities;
 
 import android.animation.Animator;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Typeface;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.animation.LinearOutSlowInInterpolator;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.InputType;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
@@ -23,8 +31,13 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.bry.raia.Adapters.UserSettingsActivityCountyItemAdapter;
+import com.bry.raia.Adapters.UserSettingsActivityLanguageItemAdapter;
 import com.bry.raia.Constants;
+import com.bry.raia.Models.County;
+import com.bry.raia.Models.Language;
 import com.bry.raia.R;
 import com.bry.raia.Services.DatabaseManager;
 import com.bry.raia.Services.SharedPreferenceManager;
@@ -39,6 +52,7 @@ import com.google.firebase.auth.UserProfileChangeRequest;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -108,6 +122,19 @@ public class Authenticator extends AppCompatActivity {
     private List<String> easyPasswords = new ArrayList<>(Arrays.asList
             ("123456", "987654","qwerty","asdfgh","zxcvbn","123456abc","123456qwe","987654qwe", "987654asd",""));
 
+    private boolean isSigningUpForFirstTime = false;
+    @Bind(R.id.selectCountyRelativeLayout) RelativeLayout selectCountyRelativeLayout;
+    @Bind(R.id.countyListRecyclerView) RecyclerView countyListRecyclerView;
+    @Bind(R.id.newCountyTextView) TextView newCountyTextView;
+    @Bind(R.id.setCountyButton) Button setCountyButton;
+    private County pickedCountyOption;
+
+    @Bind(R.id.selectLanguageRelativeLayout) RelativeLayout selectLanguageRelativeLayout;
+    @Bind(R.id.languagesListRecyclerView) RecyclerView languagesListRecyclerView;
+    @Bind(R.id.newLanguageTextView) TextView newLanguageTextView;
+    @Bind(R.id.setLanguageButton) Button setLanguageButton;
+    private Language pickedLanguageOption;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -115,7 +142,11 @@ public class Authenticator extends AppCompatActivity {
         ButterKnife.bind(this);
         mContext = this.getApplicationContext();
 
-        loadSplashScreenLogic();
+        if(new SharedPreferenceManager(mContext).isFirstTimeLaunch()) {
+            loadSelectLanguagePart();
+        }else{
+            loadSplashScreenLogic();
+        }
         mAuth = FirebaseAuth.getInstance();
         mAuthListener = new FirebaseAuth.AuthStateListener(){
             @Override
@@ -194,6 +225,93 @@ public class Authenticator extends AppCompatActivity {
                 }
             }
             },SPLASH_DISPLAY_LENGTH);
+    }
+
+    private void loadSelectLanguagePart(){
+        selectLanguageRelativeLayout.setVisibility(View.VISIBLE);
+        selectLanguageRelativeLayout.animate().alpha(1f).setDuration(mAnimationDuration).setListener(new Animator.AnimatorListener() {
+            @Override
+            public void onAnimationStart(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animator) {
+                selectLanguageRelativeLayout.setAlpha(1f);
+            }
+
+            @Override
+            public void onAnimationCancel(Animator animator) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animator animator) {
+
+            }
+        }).start();
+
+        if(pickedLanguageOption!=null) newLanguageTextView.setText(pickedLanguageOption.getName());
+
+        setLanguageButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if(pickedLanguageOption!= null) {
+                    new SharedPreferenceManager(mContext).setLanguageInSharedPref(pickedLanguageOption);
+//                    new DatabaseManager(mContext,"").updatePreferredLanguage(pickedLanguageOption);
+
+                    selectLanguageRelativeLayout.animate().alpha(0f).setDuration(mAnimationDuration).setListener(new Animator.AnimatorListener() {
+                        @Override
+                        public void onAnimationStart(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationEnd(Animator animator) {
+                            selectLanguageRelativeLayout.setAlpha(0f);
+                            selectLanguageRelativeLayout.setVisibility(View.GONE);
+                        }
+
+                        @Override
+                        public void onAnimationCancel(Animator animator) {
+
+                        }
+
+                        @Override
+                        public void onAnimationRepeat(Animator animator) {
+
+                        }
+                    }).start();
+                    setLocale(getLanguageCode(pickedLanguageOption));
+//                    loadSplashScreenLogic();
+
+                }else{
+                    Toast.makeText(mContext,"Pick Something!",Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+
+        LocalBroadcastManager.getInstance(mContext).registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                String languageName = intent.getExtras().getString("language");
+                pickedLanguageOption = new Language(languageName);
+                newLanguageTextView.setText(languageName);
+            }
+        },new IntentFilter(Constants.SELECTED_LANGUAGE));
+
+        UserSettingsActivityLanguageItemAdapter UserSettingsActivityLanguageItemAdapter =
+                new UserSettingsActivityLanguageItemAdapter(Utils.loadLanguages(mContext),Authenticator.this);
+        languagesListRecyclerView.setAdapter(UserSettingsActivityLanguageItemAdapter);
+        languagesListRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+    }
+
+    private String getLanguageCode(Language language){
+        if(language.getName().equals("English")){
+            return "en";
+        }else if(language.getName().equals("Swahili")){
+            return "swa";
+        }else return "en";
     }
 
     private void loadLoginPart() {
@@ -440,6 +558,7 @@ public class Authenticator extends AppCompatActivity {
             Snackbar.make(findViewById(R.id.authenticatorCoordinatorLayout), R.string.no_internet_connection,
                     Snackbar.LENGTH_LONG).show();
         }else{
+            isSigningUpForFirstTime = false;
             showLoadingScreen();
             View view = this.getCurrentFocus();
             if (view != null) {
@@ -1265,6 +1384,7 @@ public class Authenticator extends AppCompatActivity {
                         public void onComplete(@NonNull Task<AuthResult> task) {
                             if(task.isSuccessful()){
                                 Log.d(TAG,"authentication successful");
+                                isSigningUpForFirstTime = true;
                                 createFirebaseUserProfile(task.getResult().getUser());
                             }else {
                                 Snackbar.make(findViewById(R.id.authenticatorCoordinatorLayout), getResources().getString(R.string.something_went_wrong), Snackbar.LENGTH_LONG).show();
@@ -1291,9 +1411,74 @@ public class Authenticator extends AppCompatActivity {
     }
 
     private void loadMainActivity(){
-        Intent intent = new Intent(Authenticator.this, MainActivity.class);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-        startActivity(intent);
+        if(isSigningUpForFirstTime){
+            selectCountyRelativeLayout.setVisibility(View.VISIBLE);
+            selectCountyRelativeLayout.animate().alpha(1f).setDuration(mAnimationDuration).setListener(new Animator.AnimatorListener() {
+                @Override
+                public void onAnimationStart(Animator animator) {
+
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animator) {
+                    selectCountyRelativeLayout.setAlpha(1f);
+                    selectCountyRelativeLayout.setVisibility(View.VISIBLE);
+                }
+
+                @Override
+                public void onAnimationCancel(Animator animator) {
+
+                }
+
+                @Override
+                public void onAnimationRepeat(Animator animator) {
+
+                }
+            }).start();
+
+            if(pickedCountyOption!=null) newCountyTextView.setText(pickedCountyOption.getName());
+
+            setCountyButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    if(pickedCountyOption!= null) {
+                        new SharedPreferenceManager(mContext).setCountyInSharedPref(pickedCountyOption);
+                        new DatabaseManager(mContext,"").updatePreferredCounty(pickedCountyOption);
+
+                        if(pickedLanguageOption!= null) {
+                            new SharedPreferenceManager(mContext).setLanguageInSharedPref(pickedLanguageOption);
+                            new DatabaseManager(mContext, "").updatePreferredLanguage(pickedLanguageOption);
+                        }
+
+                        Intent intent = new Intent(Authenticator.this, MainActivity.class);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                        startActivity(intent);
+                    }else{
+                        Toast.makeText(mContext,"Pick Something!",Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+
+            LocalBroadcastManager.getInstance(mContext).registerReceiver(new BroadcastReceiver() {
+                @Override
+                public void onReceive(Context context, Intent intent) {
+                    String CountyName = intent.getExtras().getString("county");
+                    pickedCountyOption = new County();
+                    pickedCountyOption.setName(CountyName);
+                    newCountyTextView.setText(CountyName);
+                }
+            },new IntentFilter(Constants.SELECTED_COUNTY));
+
+            UserSettingsActivityCountyItemAdapter UserSettingsActivityCountyItemAdapter =
+                    new UserSettingsActivityCountyItemAdapter(Utils.loadCounties(mContext),Authenticator.this);
+            countyListRecyclerView.setAdapter(UserSettingsActivityCountyItemAdapter);
+            countyListRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+
+        }else {
+            Intent intent = new Intent(Authenticator.this, MainActivity.class);
+            intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+            startActivity(intent);
+        }
     }
 
     @Override
@@ -1306,6 +1491,25 @@ public class Authenticator extends AppCompatActivity {
     public void onStop() {
         super.onStop();
         if (mAuthListener != null) mAuth.removeAuthStateListener(mAuthListener);
+    }
+
+    private Locale myLocale;
+    String currentLanguage = "en", currentLang;
+    public void setLocale(String localeName) {
+        if (!localeName.equals(currentLanguage)) {
+            myLocale = new Locale(localeName);
+            Resources res = getResources();
+            DisplayMetrics dm = res.getDisplayMetrics();
+            Configuration conf = res.getConfiguration();
+
+            conf.locale = myLocale;
+            res.updateConfiguration(conf, dm);
+            new SharedPreferenceManager(mContext).setIsFirstTimeLaunch(false);
+
+            Intent refresh = new Intent(this, Authenticator.class);
+            refresh.putExtra(currentLang, localeName);
+            startActivity(refresh);
+        }
     }
 
 }

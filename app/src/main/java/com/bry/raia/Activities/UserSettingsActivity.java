@@ -5,6 +5,8 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -19,6 +21,7 @@ import android.os.Bundle;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Base64;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.view.animation.LinearInterpolator;
@@ -71,6 +74,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Locale;
 
 import butterknife.Bind;
 import butterknife.ButterKnife;
@@ -674,6 +678,7 @@ public class UserSettingsActivity extends AppCompatActivity implements View.OnCl
                 if(pickedLanguageOption!= null) {
                     new SharedPreferenceManager(mContext).setLanguageInSharedPref(pickedLanguageOption);
                     new DatabaseManager(mContext,"").updatePreferredLanguage(pickedLanguageOption);
+                    setLocale(getLanguageCode(pickedLanguageOption));
                     closeSelectedLanguagePart();
                 }else{
                     Toast.makeText(mContext,"Pick Something!",Toast.LENGTH_SHORT).show();
@@ -700,6 +705,14 @@ public class UserSettingsActivity extends AppCompatActivity implements View.OnCl
         UserSettingsActivityLanguageItemAdapter UserSettingsActivityLanguageItemAdapter = new UserSettingsActivityLanguageItemAdapter(Utils.loadLanguages(mContext),UserSettingsActivity.this);
         languagesListRecyclerView.setAdapter(UserSettingsActivityLanguageItemAdapter);
         languagesListRecyclerView.setLayoutManager(new LinearLayoutManager(mContext));
+    }
+
+    private String getLanguageCode(Language language){
+        if(language.getName().equals("English")){
+            return "en";
+        }else if(language.getName().equals("Swahili")){
+            return "swa";
+        }else return "en";
     }
 
     private void closeSelectedLanguagePart(){
@@ -1814,7 +1827,7 @@ public class UserSettingsActivity extends AppCompatActivity implements View.OnCl
                     public void onAnimationEnd(Animator animator) {
                         viewCommentLinearLayout.setAlpha(0f);
                         viewCommentLinearLayout.setTranslationY(Utils.dpToPx(170));
-                        viewCommentLinearLayout.setVisibility(View.VISIBLE);
+                        viewCommentLinearLayout.setVisibility(View.GONE);
                     }
 
                     @Override
@@ -2020,6 +2033,26 @@ public class UserSettingsActivity extends AppCompatActivity implements View.OnCl
         loadingContainerLinearLayout.setVisibility(View.VISIBLE);
         loadedPostsRecyclerView.setVisibility(View.GONE);
         startLoadingAnimations();
+    }
+
+
+    private Locale myLocale;
+    String currentLanguage = "en", currentLang;
+    public void setLocale(String localeName) {
+        if (!localeName.equals(currentLanguage)) {
+            myLocale = new Locale(localeName);
+            Resources res = getResources();
+            DisplayMetrics dm = res.getDisplayMetrics();
+            Configuration conf = res.getConfiguration();
+
+            conf.locale = myLocale;
+            res.updateConfiguration(conf, dm);
+            new SharedPreferenceManager(mContext).setIsFirstTimeLaunch(false);
+
+            Intent refresh = new Intent(this, UserSettingsActivity.class);
+            refresh.putExtra(currentLang, localeName);
+            startActivity(refresh);
+        }
     }
 
 }
